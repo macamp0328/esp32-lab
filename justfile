@@ -45,7 +45,7 @@ build project board="":
 test project:
     just _c just _test {{ project }}
 
-# every test in the repo: tools, then each project's native tests
+# every test in the repo: tools, shared libs, then each project's native tests
 test-all:
     just _c just _test-all
 
@@ -128,6 +128,8 @@ _test-all:
     #!/usr/bin/env bash
     set -euo pipefail
     pytest -q
+    echo "== native tests: shared/tests"
+    (cd shared/tests && pio test -e native)
     for d in projects/*/; do
       echo "== native tests: $d"
       (cd "$d" && pio test -e native)
@@ -151,7 +153,7 @@ _check:
     }
     log=$(mktemp)
     {
-      cpp boards shared
+      cpp -ishared/tests/.pio boards shared
       for d in templates/project projects/*; do
         src=(); for s in src include lib test; do [ -d "$d/$s" ] && src+=("$d/$s"); done
         cpp -I"$d/include" "${src[@]}"

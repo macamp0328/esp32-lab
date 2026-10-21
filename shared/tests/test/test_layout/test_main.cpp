@@ -1,0 +1,76 @@
+// Layout mappers: wiring order <-> column/row, ring/angle, normalized positions.
+#include <unity.h>
+
+#include "lab_layout.h"
+
+using lab::Layout;
+
+void setUp() {}
+void tearDown() {}
+
+static void test_strip_is_a_single_row() {
+  const Layout l = Layout::strip(8);
+  TEST_ASSERT_EQUAL_UINT16(8, l.size());
+  TEST_ASSERT_EQUAL_UINT16(3, l.index(3, 0));
+  TEST_ASSERT_EQUAL_UINT16(8, l.index(8, 0));  // out of range -> size()
+  TEST_ASSERT_FLOAT_WITHIN(1e-6, 0.0625f, l.position(0).x);
+  TEST_ASSERT_FLOAT_WITHIN(1e-6, 0.5f, l.position(5).y);
+}
+
+static void test_serpentine_matrix_reverses_odd_rows() {
+  const Layout l = Layout::matrix(4, 2, true);
+  TEST_ASSERT_EQUAL_UINT16(0, l.index(0, 0));
+  TEST_ASSERT_EQUAL_UINT16(3, l.index(3, 0));
+  TEST_ASSERT_EQUAL_UINT16(7, l.index(0, 1));  // second row runs right to left
+  TEST_ASSERT_EQUAL_UINT16(4, l.index(3, 1));
+  TEST_ASSERT_EQUAL_UINT16(8, l.index(0, 2));
+}
+
+static void test_progressive_matrix_keeps_direction() {
+  const Layout l = Layout::matrix(4, 2, false);
+  TEST_ASSERT_EQUAL_UINT16(4, l.index(0, 1));
+  TEST_ASSERT_EQUAL_UINT16(7, l.index(3, 1));
+}
+
+static void test_matrix_index_and_column_row_round_trip() {
+  for (int serp = 0; serp < 2; ++serp) {
+    const Layout l = Layout::matrix(8, 8, serp);
+    for (uint16_t i = 0; i < l.size(); ++i) {
+      TEST_ASSERT_EQUAL_UINT16(i, l.index(l.column(i), l.row(i)));
+    }
+  }
+  const Layout l = Layout::matrix(8, 8, true);
+  TEST_ASSERT_FLOAT_WITHIN(1e-6, 0.0625f, l.position(15).x);  // LED 15 is column 0 of row 1
+  TEST_ASSERT_FLOAT_WITHIN(1e-6, 0.1875f, l.position(15).y);
+}
+
+static void test_rings_split_by_wiring_order() {
+  const uint16_t sizes[] = {16, 8};
+  const Layout l = Layout::rings(sizes, 2);
+  TEST_ASSERT_EQUAL_UINT16(24, l.size());
+  TEST_ASSERT_EQUAL_UINT8(0, l.ring(15));
+  TEST_ASSERT_EQUAL_UINT8(1, l.ring(16));
+  TEST_ASSERT_FLOAT_WITHIN(1e-6, 0.25f, l.angle(4));
+  TEST_ASSERT_FLOAT_WITHIN(1e-6, 0.0f, l.angle(16));
+  TEST_ASSERT_FLOAT_WITHIN(1e-6, 0.5f, l.angle(20));
+  TEST_ASSERT_EQUAL_UINT16(24, l.index(0, 0));  // no column/row on rings
+}
+
+static void test_ring_radius_follows_led_count() {
+  const uint16_t sizes[] = {16, 8};
+  const Layout l = Layout::rings(sizes, 2);
+  TEST_ASSERT_FLOAT_WITHIN(1e-5, 1.0f, l.position(0).x);    // outer ring, angle 0
+  TEST_ASSERT_FLOAT_WITHIN(1e-5, 0.75f, l.position(16).x);  // inner ring, half the radius
+  TEST_ASSERT_FLOAT_WITHIN(1e-5, 0.5f, l.position(16).y);
+}
+
+int main() {
+  UNITY_BEGIN();
+  RUN_TEST(test_strip_is_a_single_row);
+  RUN_TEST(test_serpentine_matrix_reverses_odd_rows);
+  RUN_TEST(test_progressive_matrix_keeps_direction);
+  RUN_TEST(test_matrix_index_and_column_row_round_trip);
+  RUN_TEST(test_rings_split_by_wiring_order);
+  RUN_TEST(test_ring_radius_follows_led_count);
+  return UNITY_END();
+}
