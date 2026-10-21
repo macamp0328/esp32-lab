@@ -10,20 +10,20 @@
 namespace lab_net {
 
 namespace {
-enum class State { kOff, kConnecting, kUp, kFailed };
+enum class State { kOff, kConnecting, kUp, kWaiting };
 
 constexpr uint32_t kConnectTimeoutMs = 20000;
 constexpr uint16_t kOtaPort = 3232;
 
 State state = State::kOff;
 uint32_t started_ms = 0;
-const char* host = "";
-const char* ota_password = nullptr;
+bool ota_started = false;
+Config cfg = {"", "", "", false, nullptr};
 
 void start_ota() {
-  ArduinoOTA.setHostname(host);
+  ArduinoOTA.setHostname(cfg.hostname);
   ArduinoOTA.setPort(kOtaPort);
-  if (ota_password && *ota_password) ArduinoOTA.setPassword(ota_password);
+  if (cfg.ota_password && *cfg.ota_password) ArduinoOTA.setPassword(cfg.ota_password);
   ArduinoOTA.onStart([] { lab_core::Event("ota").str("state", "start").emit(); });
   ArduinoOTA.onEnd([] { lab_core::Event("ota").str("state", "end").emit(); });
   ArduinoOTA.onError([](ota_error_t e) {
@@ -32,38 +32,57 @@ void start_ota() {
     lab_core::error(code);
   });
   ArduinoOTA.begin();
-  lab_core::Event("ota").str("state", "ready").str("host", host).num("port", kOtaPort).emit();
+  ota_started = true;
+  lab_core::Event("ota")
+      .str("state", "ready")
+      .str("host", cfg.hostname)
+      .num("port", kOtaPort)
+      .emit();
+}
+
+void came_up() {
+  state = State::kUp;
+  lab_core::Event("wifi")
+      .str("state", "up")
+      .str("ip", WiFi.localIP().toString().c_str())
+      .num("rssi", WiFi.RSSI())
+      .num("ms", millis() - started_ms)
+      .emit();
+  if (cfg.ota && !ota_started) start_ota();
 }
 }  // namespace
 
-void begin(const char* hostname, const char* ssid, const char* password, const char* ota_pw) {
-  host = hostname;
-  ota_password = ota_pw;
+void begin(const Config& config) {
+  cfg = config;
   WiFi.mode(WIFI_STA);
-  WiFi.setHostname(hostname);
-  WiFi.begin(ssid, password);
+  WiFi.setHostname(cfg.hostname);
+  WiFi.setAutoReconnect(true);
+  WiFi.begin(cfg.ssid, cfg.password);
   state = State::kConnecting;
   started_ms = millis();
 }
 
 void handle() {
+  const bool linked = WiFi.status() == WL_CONNECTED;
   switch (state) {
     case State::kConnecting:
-      if (WiFi.status() == WL_CONNECTED) {
-        state = State::kUp;
-        lab_core::Event("wifi")
-            .str("ip", WiFi.localIP().toString().c_str())
-            .num("rssi", WiFi.RSSI())
-            .num("ms", millis() - started_ms)
-            .emit();
-        start_ota();
+      if (linked) {
+        came_up();
       } else if (millis() - started_ms > kConnectTimeoutMs) {
-        state = State::kFailed;
+        state = State::kWaiting;  // keep trying in the background (auto-reconnect)
         lab_core::error("wifi_timeout");
       }
       break;
+    case State::kWaiting:
+      if (linked) came_up();
+      break;
     case State::kUp:
-      ArduinoOTA.handle();
+      if (!linked) {
+        state = State::kWaiting;
+        lab_core::Event("wifi").str("state", "lost").emit();
+      } else if (ota_started) {
+        ArduinoOTA.handle();
+      }
       break;
     default:
       break;
