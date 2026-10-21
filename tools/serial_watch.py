@@ -88,7 +88,10 @@ def main(argv: list[str] | None = None) -> int:
     (out / "last-run.jsonl").write_text(
         "".join(f"{p}\n" for p in payloads if p.lstrip().startswith("{"))
     )
-    return hil_assert.main([str(out / "last-run.jsonl"), "--project", args.project])
+    capture_file = str(out / "last-run.jsonl")
+    return hil_assert.main(
+        [capture_file, "--project", args.project, "--seconds", str(args.seconds)]
+    )
 
 
 if __name__ == "__main__":

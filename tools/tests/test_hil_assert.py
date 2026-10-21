@@ -1,4 +1,5 @@
 import hil_assert
+import pytest
 
 
 def run(lines, raw="", project="p000-blink"):
@@ -7,7 +8,10 @@ def run(lines, raw="", project="p000-blink"):
     return fails + ([f"{malformed} malformed"] if malformed else []), summary
 
 
-BOOT = '{"t":1250,"ev":"boot","proj":"p000-blink","fw":"a1b2c3d","board":"s3mini"}'
+BOOT = (
+    '{"t":1250,"ev":"boot","proj":"p000-blink","fw":"a1b2c3d","board":"s3mini",'
+    '"fastled":"3.10.7","core":"3.3.12"}'
+)
 LEDS = '{"t":1300,"ev":"leds","n":1,"driver":"RMT","cap_ma":500}'
 FPS = '{"t":6300,"ev":"fps","fps":98,"heap":214000}'
 
@@ -23,13 +27,13 @@ def test_missing_boot():
 
 
 def test_late_or_missing_leds():
-    late = '{"t":3300,"ev":"leds","n":1}'
+    late = '{"t":3300,"ev":"leds","n":1,"driver":"RMT","cap_ma":500}'
     assert "2050 ms after boot" in run([BOOT, late, FPS])[0][0]
     assert run([BOOT, FPS])[0] == ["no leds event after boot"]
 
 
 def test_low_fps_err_and_reboot_fail():
-    slow = '{"t":6300,"ev":"fps","fps":12}'
+    slow = '{"t":6300,"ev":"fps","fps":12,"heap":1}'
     err = '{"t":7000,"ev":"err","code":"wifi_timeout"}'
     fails = "\n".join(run([BOOT, LEDS, slow, err, BOOT])[0])
     assert "fps dropped to 12" in fails
@@ -51,3 +55,28 @@ def test_idf_error_lines_are_noted_not_failed(tmp_path, capsys):
     cap.with_suffix(".log").write_text("   0.296 E (8) cache: esp_cache_msync(113): invalid addr\n")
     assert hil_assert.main([str(cap), "--project", "p000-blink"]) == 0
     assert "1 ESP-IDF error log line" in capsys.readouterr().out
+
+
+def test_fps_must_keep_coming_every_5_s():
+    stall = '{"t":20300,"ev":"fps","fps":98,"heap":1}'
+    fails = run([BOOT, LEDS, FPS, stall])[0]
+    assert any("ms without an fps event" in f for f in fails)
+    events, _ = hil_assert.parse([BOOT, LEDS, FPS])
+    fails, _ = hil_assert.check(events, project="p000-blink", seconds=30)
+    assert any("only 1 fps events in 30 s" in f for f in fails)
+
+
+def test_missing_or_bad_fields_fail_instead_of_crashing():
+    bare_boot = '{"t":1,"ev":"boot","proj":"p000-blink"}'
+    no_t = '{"ev":"leds","n":1,"driver":"RMT","cap_ma":500}'
+    null_fps = '{"t":6300,"ev":"fps","fps":null,"heap":1}'
+    fails = "\n".join(run([bare_boot, no_t, null_fps])[0])
+    assert "boot event missing" in fails and "fw" in fails
+    assert "leds event missing" in fails and "fps event missing" in fails
+
+
+def test_empty_project_is_rejected(tmp_path):
+    cap = tmp_path / "last-run.jsonl"
+    cap.write_text("\n".join([BOOT, LEDS, FPS]) + "\n")
+    with pytest.raises(SystemExit):
+        hil_assert.main([str(cap), "--project", ""])

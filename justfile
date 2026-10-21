@@ -74,15 +74,21 @@ ci-matrix:
 
 # flash a built project over USB, or `--ota [host]` with USB fallback (host side)
 flash project *args: _host_tools
-    {{ host_python }} tools/flash.py "$(just _project {{ project }})" {{ args }}
+    #!/usr/bin/env bash
+    set -euo pipefail
+    p=$(just _project {{ project }})
+    exec {{ host_python }} tools/flash.py "$p" {{ args }}
 
 # reset the board, capture 30 s of serial to projects/<p>/.hil/, then run hil_assert (host side)
 watch project *args: _host_tools
-    {{ host_python }} tools/serial_watch.py "$(just _project {{ project }})" {{ args }}
+    #!/usr/bin/env bash
+    set -euo pipefail
+    p=$(just _project {{ project }})
+    exec {{ host_python }} tools/serial_watch.py "$p" {{ args }}
 
-# run a project's Wokwi scenario (lands with the Wokwi trial in M1)
+# run a project's Wokwi scenario (not set up: needs a WOKWI_CLI_TOKEN, see docs/decisions.md)
 sim project:
-    @echo "just sim: not implemented until M1" >&2; exit 2
+    @echo "just sim: not set up yet; needs a Wokwi token (docs/decisions.md)" >&2; exit 2
 
 # scaffold a board: just add-board xiao-s3 --chip esp32s3 --pio-board seeed_xiao_esp32s3
 add-board name *args:
@@ -122,7 +128,10 @@ _build project board="":
     if [ -n "{{ board }}" ]; then pio run -e "{{ board }}"; else pio run; fi
 
 _test project:
-    cd "projects/$(just _project {{ project }})" && pio test -e native
+    #!/usr/bin/env bash
+    set -euo pipefail
+    p=$(just _project {{ project }})
+    cd "projects/$p" && pio test -e native
 
 _test-all:
     #!/usr/bin/env bash
@@ -130,7 +139,9 @@ _test-all:
     pytest -q
     echo "== native tests: shared/tests"
     (cd shared/tests && pio test -e native)
+    shopt -s nullglob
     for d in projects/*/; do
+      [ -f "$d/platformio.ini" ] || continue  # leftovers like a lone .pio/ are not projects
       echo "== native tests: $d"
       (cd "$d" && pio test -e native)
     done
