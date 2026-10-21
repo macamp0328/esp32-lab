@@ -1,0 +1,64 @@
+# Toolchain image: ghcr.io/<owner>/esp32-lab-dev, tagged tc-<hash of Dockerfile + Python lockfile>.
+# ci.yml calls this first on every push; it only builds when that hash has no image yet, so a
+# toolchain change and the code that needs it land in one green run.
+name: image
+
+on:
+  workflow_call:
+    outputs:
+      ref:
+        description: Image reference the CI jobs run in
+        value: ${{ jobs.image.outputs.ref }}
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  image:
+    runs-on: ubuntu-latest
+    outputs:
+      ref: ${{ steps.tag.outputs.ref }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - id: tag
+        run: |
+          hash=$(cat Dockerfile pyproject.toml uv.lock .python-version | sha256sum | cut -c1-12)
+          repo="ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/esp32-lab-dev"
+          echo "repo=$repo" >> "$GITHUB_OUTPUT"
+          echo "ref=$repo:tc-$hash" >> "$GITHUB_OUTPUT"
+
+      - uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - id: exists
+        env:
+          REF: ${{ steps.tag.outputs.ref }}
+        run: |
+          if docker manifest inspect "$REF" > /dev/null 2>&1; then
+            echo "hit=true" >> "$GITHUB_OUTPUT"
+            echo "image exists: $REF"
+          else
+            echo "hit=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - if: steps.exists.outputs.hit != 'true'
+        uses: docker/setup-buildx-action@v4
+
+      - if: steps.exists.outputs.hit != 'true'
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          push: true
+          tags: |
+            ${{ steps.tag.outputs.ref }}
+            ${{ steps.tag.outputs.repo }}:sha-${{ github.sha }}
+            ${{ github.ref == 'refs/heads/main' && format('{0}:latest', steps.tag.outputs.repo) || '' }}
+          labels: org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max

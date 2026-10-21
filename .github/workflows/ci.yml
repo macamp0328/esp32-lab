@@ -1,0 +1,68 @@
+# Same verbs as the agent runs locally, in the same image: check, test-all, then every
+# project x supported board (matrix generated from projects/). Red main gets a revert commit.
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  image:
+    uses: ./.github/workflows/image.yml
+
+  check:
+    needs: image
+    runs-on: ubuntu-latest
+    container:
+      image: ${{ needs.image.outputs.ref }}
+      credentials:
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+    outputs:
+      targets: ${{ steps.matrix.outputs.targets }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/cache@v6
+        with:
+          path: /pio
+          key: pio-native-${{ hashFiles('platformio.common.ini') }}
+      - run: just check
+      - run: just test-all
+      - id: matrix
+        run: echo "targets=$(just ci-matrix)" >> "$GITHUB_OUTPUT"
+
+  build:
+    needs: [image, check]
+    name: build ${{ matrix.target.project }} / ${{ matrix.target.board }}
+    runs-on: ubuntu-latest
+    container:
+      image: ${{ needs.image.outputs.ref }}
+      credentials:
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+    strategy:
+      fail-fast: false
+      matrix:
+        target: ${{ fromJson(needs.check.outputs.targets) }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/cache@v6
+        with:
+          path: /pio
+          key: pio-${{ matrix.target.board }}-${{ hashFiles('platformio.common.ini', 'boards/*/board.ini') }}
+      - run: just build ${{ matrix.target.project }} ${{ matrix.target.board }}
+      - uses: actions/upload-artifact@v7
+        with:
+          name: ${{ matrix.target.project }}-${{ matrix.target.board }}
+          path: projects/${{ matrix.target.project }}/.pio/build/${{ matrix.target.board }}/firmware.bin
+          if-no-files-found: error
