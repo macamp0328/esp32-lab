@@ -30,7 +30,23 @@
 #define MDNS_NAME    "p002-matrix-demo"
 
 // Demo
-#define DEMO_PROBE   0      // 1: show only the wiring probe (lab_fx::wiring) for bring-up
-#define DEMO_AUTO_MS 15000  // auto-advance period
-#define DEMO_FADE_MS 600    // crossfade between effects
-#define MARQUEE_TEXT "ESP32 LAB"
+#define DEMO_PROBE    0      // 1: show only the wiring probe (lab_fx::wiring) for bring-up
+#define DEMO_AUTO_MS  15000  // auto-advance period
+#define DEMO_BOOT_SET 1      // set at power-on: 1, 2, or 0 = all
+#define DEMO_FADE_MS  600    // crossfade between effects
+#define MARQUEE_TEXT  "ESP32 LAB"
+
+// Simulation tick rates (set 2), in ms of each effect's own clock
+#define DEMO_TICK_LIFE_MS   160
+#define DEMO_TICK_ANT_MS    50
+#define DEMO_TICK_SNAKE_MS  125
+#define DEMO_TICK_TETRIS_MS 125
+#define DEMO_TICK_SAND_MS   33
+#define DEMO_TICK_MARBLE_MS 17
+
+// Tilt: maps the IMU's raw axes to matrix gravity (+x = higher columns, +y = toward row 7, the edge
+// nearest you with the cable away). Set from the calibration capture in the README.
+#define TILT_SWAP_XY 0
+#define TILT_X_SIGN  1
+#define TILT_Y_SIGN  1
+#define TILT_LOG_MS  1000  // `tilt` events this often; 0 = off

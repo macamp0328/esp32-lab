@@ -63,6 +63,36 @@ static void test_survives_millis_wraparound() {
   TEST_ASSERT_TRUE(demo::step(s, kCfg, {}, 0xFFFFFF00U + 15000));
 }
 
+static void test_b_hold_cycles_sets_and_play_stays_inside_one() {
+  const uint8_t set_of[] = {1, 1, 2, 2, 2};
+  const demo::Config cfg{5, 1000, 0, kLevels, 4, set_of, 2};
+  demo::State s;
+  demo::step(s, cfg, {}, 1000);
+  demo::step(s, cfg, {}, 2000);
+  TEST_ASSERT_EQUAL_UINT8(0, s.fx);  // 0 -> 1 -> 0: set 1 only
+  TEST_ASSERT_TRUE(demo::step(s, cfg, {false, false, false, true}, 2500));
+  TEST_ASSERT_EQUAL_UINT8(2, s.set);
+  TEST_ASSERT_EQUAL_UINT8(2, s.fx);  // set 2 starts at its first effect
+  const uint8_t in_set2[] = {3, 4, 2};
+  for (uint8_t want : in_set2) {
+    demo::step(s, cfg, {true, false, false, false}, 3000);
+    TEST_ASSERT_EQUAL_UINT8(want, s.fx);
+  }
+  demo::step(s, cfg, {false, false, false, true}, 4000);
+  TEST_ASSERT_EQUAL_UINT8(demo::kAllSets, s.set);
+  TEST_ASSERT_EQUAL_UINT8(0, s.fx);
+  const uint8_t in_all[] = {1, 2, 3, 4, 0};
+  for (uint8_t want : in_all) {
+    demo::step(s, cfg, {true, false, false, false}, 5000);
+    TEST_ASSERT_EQUAL_UINT8(want, s.fx);
+  }
+  demo::step(s, cfg, {false, false, false, true}, 6000);
+  TEST_ASSERT_EQUAL_UINT8(1, s.set);
+  demo::State one;  // a single-set playlist ignores B hold
+  TEST_ASSERT_FALSE(demo::step(one, kCfg, {false, false, false, true}, 100));
+  TEST_ASSERT_EQUAL_UINT8(1, one.set);
+}
+
 int main() {
   UNITY_BEGIN();
   RUN_TEST(test_auto_advances_every_period_and_wraps);
@@ -70,5 +100,6 @@ int main() {
   RUN_TEST(test_b_cycles_brightness_levels);
   RUN_TEST(test_crossfade_runs_zero_to_one);
   RUN_TEST(test_survives_millis_wraparound);
+  RUN_TEST(test_b_hold_cycles_sets_and_play_stays_inside_one);
   return UNITY_END();
 }
