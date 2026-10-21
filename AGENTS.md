@@ -16,7 +16,7 @@ engineer and a hobbyist at hardware: he solders well, he is not an EE. Full desi
 | FastLED | `fastled/FastLED @ 3.10.7` | platformio.common.ini |
 | M5 libs | `M5Unified @ 0.2.27`, `M5GFX @ 0.2.34` | boards/m5stickc-plus11/board.ini |
 | PlatformIO Core | 6.2.0 | pyproject.toml + uv.lock |
-| Image | `esp32-lab-dev:tc-<hash of Dockerfile+pyproject+uv.lock>`; CI: `ghcr.io/<owner>/esp32-lab-dev` | Dockerfile |
+| Image | `esp32-lab-dev:tc-<hash of Dockerfile, pyproject, uv.lock, .python-version>`; CI: `ghcr.io/<owner>/esp32-lab-dev` | Dockerfile |
 | Native tests | `platformio/native @ 1.2.1`, Unity | platformio.common.ini |
 
 ## 3. The verbs (the only way to build, flash and test; CI runs the same ones)
@@ -26,7 +26,8 @@ engineer and a hobbyist at hardware: he solders well, he is not an EE. Full desi
 | `just new <pNNN-name> --board <b>[,<b>]` | scaffold from `templates/project/`; no board = list on-hand boards | works |
 | `just build <p> [board]` | compile; no board = every board in `default_envs` | works |
 | `just test <p>` / `just test-all` | native Unity tests; test-all adds tools pytest + `shared/tests` | works |
-| `just check` (= `just lint`) / `just fmt` | clang-format, cppcheck, ruff, repo rules | works |
+| `just check` (= `just lint`) / `just fmt` | clang-format, cppcheck, ruff, actionlint, repo rules | works |
+| `just template-check` | `just new` for every board into a scratch project, test + build, delete | works |
 | `just inventory` / `just status` | print+validate stock / refresh README table | works |
 | `just flash <p> [b] [--ota]` | USB (board auto-detected) or OTA with USB fallback | works |
 | `just watch <p>` | reset, 30 s serial to `.hil/last-run.jsonl`, then `hil_assert` | works |
@@ -96,6 +97,9 @@ Grep `docs/lessons.md` before debugging. Read `docs/decisions.md` before changin
   (applies the power cap) and includes `lab_checks.h` after `config.h`.
 - Log only through `lab_core::Event` (one JSON object per line); no stray `Serial.print`.
 - No comments restating FastLED docs. Secrets in `include/secrets.h` (gitignored) only.
+- WiFi/OTA: set `WIFI_ENABLED`/`OTA_ENABLED` 1 in config.h, delete `lib_ignore = lab_net` from the
+  project's platformio.ini, copy `secrets.example.h` to `secrets.h`. Events: `wifi`, `ota`.
+- `AUDIO_MODE` and `LED_RGBW` must stay 0 until M3; `lab_checks.h` enforces it.
 
 ## Serial contract
 One JSON object per line on USB CDC at 115200. Required: `boot` (proj, fw, board, fastled,
@@ -105,13 +109,14 @@ core), `leds` (n, driver, cap_ma) within 2 s of boot, `fps` every 5 s (fps, heap
 ## Layout
 `boards/<b>/` board.ini + board.h + pinout.md · `shared/lab_*` libs · `projects/pNNN-name/`
 (never renumbered) · `templates/project/` (copied by `just new`) · `tools/` Python (uv) ·
-`inventory/` · `docs/`. Projects build alone too: `cd projects/p000-blink && pio run`.
+`inventory/` · `docs/`. Inside `just shell` a project also builds alone: `cd projects/p000-blink && pio run`.
 
 ## Git and CI
 - Trunk only: commit straight to `main`, small Conventional Commits, project as scope
   (`feat(p001): beat comet`, `chore(ci): …`). No PRs, no review theater.
-- Run `just check && just test-all` before every commit. CI (`.github/workflows/ci.yml`) runs
-  check, test-all, then builds every project × board in the same image.
+- Run `just check && just test-all` before every commit, plus `just template-check` after
+  touching `templates/` or `shared/`. CI (`.github/workflows/ci.yml`) runs all three, then builds
+  every project × board in the same image.
 - Red `main` gets a revert commit, not a debate. Tags `pNNN/vX.Y` mark installed firmware.
 - Template bugs are fixed in `templates/project/`, never only in the project that found them.
 
