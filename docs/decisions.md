@@ -3,6 +3,48 @@
 Newest first. Five lines each: date and title, what, instead of, why, revisit when.
 Read before changing anything an entry covers. A version bump is a new entry plus a green CI.
 
+## 2026-10-21 · M1 open questions closed: stock S3 board JSON, M5Unified on the M5
+- What: s3mini stays `esp32-s3-devkitc-1` + overrides; the M5 uses M5Unified 0.2.27 for AXP192 and TFT
+- Instead of: a committed custom board JSON; a bare M5 with only LED and mic
+- Why: measured 4 MB flash / 2 MB PSRAM match the overrides; M5Unified lit the TFT on the first try
+- Revisit when: a board needs flash/PSRAM modes the overrides cannot express, or M5Unified costs too much flash
+
+## 2026-10-21 · On the M5, p000 proves life with the red LED and the TFT
+- What: boards without `BOARD_ONBOARD_RGB` drive 8 px on `BOARD_LED_PIN` (Grove) and blink `BOARD_STATUS_LED`
+- Instead of: SPEC's "onboard LED via FastLED on RMT" on both boards
+- Why: spec bug: the M5StickC Plus has no addressable onboard LED, only a plain red LED on GPIO10
+- Revisit when: the 8x8 matrix is wired to the M5 Grove port
+
+## 2026-10-21 · `lab_net`: WiFi + ArduinoOTA as its own shared library
+- What: `shared/lab_net` (non-blocking connect, `wifi`/`ota` events); projects opt in via `secrets.h`
+- Instead of: folding WiFi into `lab_core` (SPEC lists only core, audio, fx, board)
+- Why: PlatformIO's LDF would compile WiFi/OTA into every project that includes `lab_core`
+- Revisit when: M3's web UI needs a home (likely `lab_net` too)
+
+## 2026-10-21 · esptool baud is each board's `upload_speed` in board.ini
+- What: s3mini 921600, m5stickc-plus11 1500000; `just flash` reads the same key PlatformIO uses
+- Instead of: one hard-coded 921600
+- Why: measured: the M5's FTDI link fails right after switching to 921600; 1500000 is its stock speed
+- Revisit when: a board flashes unreliably at its speed
+
+## 2026-10-21 · hil_assert: exactly one boot; ESP-IDF `E (` lines are notes
+- What: a second `boot` fails the run (crash or brown-out); IDF error log lines are printed, not failed
+- Instead of: SPEC's boot/leds/fps/err checks alone
+- Why: a reboot loop can still produce fps lines; FastLED logs one benign IDF error on the S3 every boot
+- Revisit when: an IDF error line hides a real fault (then allowlist known ones instead)
+
+## 2026-10-21 · `hw` event names the running app partition
+- What: `"app":"app0"` after a USB flash (factory image), `"app1"` after an OTA update
+- Instead of: trusting espota's exit code
+- Why: `just flash --ota` falls back to USB, so a fresh fw hash alone cannot prove OTA delivered it
+- Revisit when: a partition table without two OTA slots is used
+
+## 2026-10-21 · flash and watch done in M1; sim and add-board still exit 2
+- What: `just flash` (USB, `--ota`) and `just watch` (30 s capture + hil_assert) work on both boards
+- Instead of: the M0 stubs
+- Why: verified on hardware; Wokwi needs a `WOKWI_CLI_TOKEN` from Miles, and add-board belongs to M2
+- Revisit when: a Wokwi token exists (sim), M2 (add-board)
+
 ## 2026-10-21 · flash, watch, sim, add-board exit 2 until their milestone
 - What: the verbs exist (AGENTS.md lists them) but print "not implemented until M1/M2" and exit 2
 - Instead of: best-effort implementations in M0
