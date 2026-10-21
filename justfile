@@ -159,7 +159,8 @@ _check:
     cpp() {
       cppcheck --language=c++ --std=c++17 --enable=warning,performance --inline-suppr --quiet \
         --suppress=missingIncludeSystem --suppress=missingInclude --suppress=unknownMacro \
-        -DLAB_BOARD_S3MINI -DARDUINO=10812 -DFASTLED_RMT5=1 -Iboards -Ishared/lab_board/src -Ishared/lab_core/src \
+        -DLAB_BOARD_S3MINI -DARDUINO=10812 -DFASTLED_RMT5=1 -Iboards -Ishared/lab_board/src \
+        -Ishared/lab_core/src -Ishared/lab_net/src -Ishared/lab_fx/src \
         --template='{severity}: {file}:{line}: {message} [{id}]' "$@" 2>&1 || true
     }
     log=$(mktemp)
