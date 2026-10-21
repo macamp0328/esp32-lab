@@ -2,8 +2,9 @@
 #include <FastLED.h>
 
 #include "config.h"
-#include "lab_board.h"
+#include "lab_checks.h"
 #include "lab_core.h"
+#include "lab_fx.h"
 
 #if OTA_ENABLED && __has_include("secrets.h")
 #include "lab_net.h"
@@ -13,28 +14,22 @@
 #define LAB_NET_ON 0
 #endif
 
-#if !defined(POWER_VOLTS) || !defined(POWER_MAX_MA)
-#error "config.h must define POWER_VOLTS and POWER_MAX_MA"
-#endif
-#if POWER_MAX_MA > 2000 && !defined(POWER_README_TABLE)
-#error "POWER_MAX_MA > 2000 needs a README power table naming supply and fuse; then define it"
-#endif
-static_assert(lab_board::led_pin_ok(LED_DATA_PIN), "LED_DATA_PIN is not in BOARD_SAFE_PINS");
-
 namespace {
 CRGB leds[NUM_LEDS];
+#if MATRIX_W > 0
+const lab::Layout layout = lab::Layout::matrix(MATRIX_W, MATRIX_H, MATRIX_SERPENTINE);
+#else
+const lab::Layout layout = lab::Layout::strip(NUM_LEDS);
+#endif
 constexpr uint32_t kFpsPeriodMs = 5000;
-// Red, green, blue for 1 s each: what a human sees also confirms the LED's color order.
-const CRGB kSweep[] = {CRGB::Red, CRGB::Green, CRGB::Blue};
 }  // namespace
 
 void setup() {
-  lab_core::begin(LAB_PROJECT, LAB_FW);
+  lab_core::begin({LAB_PROJECT, LAB_FW, POWER_VOLTS, POWER_MAX_MA});  // applies the power cap
   lab_board::begin();
   lab_board::status_text(LAB_PROJECT);
   lab_board::status_text(LAB_FW);
   FastLED.addLeds<LED_TYPE, LED_DATA_PIN, LED_ORDER>(leds, NUM_LEDS);
-  FastLED.setMaxPowerInVoltsAndMilliamps(POWER_VOLTS, POWER_MAX_MA);
   FastLED.setBrightness(64);
   lab_core::Event("leds")
       .num("n", NUM_LEDS)
@@ -54,7 +49,7 @@ void loop() {
   static uint32_t window_start = millis();
   const uint32_t now = millis();
 
-  fill_solid(leds, NUM_LEDS, kSweep[(now / 1000) % 3]);
+  lab_fx::sweep(leds, layout, lab::AudioFrame{}, now);  // red, green, blue: 1 s each
   FastLED.show();
   lab_board::status_led((now / 500) % 2);  // 1 Hz heartbeat on boards with a status LED
   ++frames;
@@ -63,6 +58,7 @@ void loop() {
     lab_core::Event("fps")
         .num("fps", frames * 1000 / (now - window_start))
         .num("heap", ESP.getFreeHeap())
+        .num("ma_est", lab::estimate_ma(leds, NUM_LEDS, FastLED.getBrightness()))
         .emit();
     frames = 0;
     window_start = now;
