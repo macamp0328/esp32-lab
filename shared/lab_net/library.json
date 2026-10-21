@@ -1,0 +1,7 @@
+{
+  "name": "lab_net",
+  "version": "0.1.0",
+  "description": "Non-blocking WiFi plus ArduinoOTA, reporting through the serial contract",
+  "frameworks": "arduino",
+  "platforms": "espressif32"
+}
