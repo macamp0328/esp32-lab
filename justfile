@@ -8,6 +8,8 @@ set shell := ["bash", "-euo", "pipefail", "-c"]
 toolchain_hash := `cat Dockerfile pyproject.toml uv.lock .python-version | { sha256sum 2>/dev/null || shasum -a 256; } | cut -c1-12`
 image := env("LAB_IMAGE", "esp32-lab-dev:tc-" + toolchain_hash)
 cpp_dirs := "boards shared templates projects"
+# flash/watch talk to USB, so they run on the host with the .venv from `just bootstrap`
+host_python := if env("LAB_IN_CONTAINER", "0") == "1" { "python" } else { ".venv/bin/python" }
 
 # list the verbs
 default:
@@ -70,13 +72,13 @@ status:
 ci-matrix:
     @just _c python tools/ci_matrix.py
 
-# flash a project over USB from the host (lands in M1, needs a board)
-flash project board="":
-    @echo "just flash: not implemented until M1 (needs a board on USB)" >&2; exit 2
+# flash a built project over USB, or `--ota [host]` with USB fallback (host side)
+flash project *args: _host_tools
+    {{ host_python }} tools/flash.py "$(just _project {{ project }})" {{ args }}
 
-# capture 30 s of serial JSON to projects/<p>/.hil/last-run.jsonl (lands in M1)
-watch project:
-    @echo "just watch: not implemented until M1 (needs a board on USB)" >&2; exit 2
+# reset the board, capture 30 s of serial to projects/<p>/.hil/, then run hil_assert (host side)
+watch project *args: _host_tools
+    {{ host_python }} tools/serial_watch.py "$(just _project {{ project }})" {{ args }}
 
 # run a project's Wokwi scenario (lands with the Wokwi trial in M1)
 sim project:
@@ -98,6 +100,10 @@ _c +cmd:
     tty=""; if [ -t 0 ] && [ -t 1 ]; then tty="-it"; fi
     exec docker run --rm $tty -v "{{ justfile_directory() }}:/work" -v esp32-lab-pio:/pio \
       -w /work "{{ image }}" "$@"
+
+[private]
+_host_tools:
+    @[ "{{ host_python }}" = python ] || [ -x {{ host_python }} ] || { echo "run just bootstrap first" >&2; exit 1; }
 
 # resolve a project name or its pNNN prefix to the folder under projects/
 _project name:
@@ -140,7 +146,7 @@ _check:
     cpp() {
       cppcheck --language=c++ --std=c++17 --enable=warning,performance --inline-suppr --quiet \
         --suppress=missingIncludeSystem --suppress=missingInclude --suppress=unknownMacro \
-        -DLAB_BOARD_S3MINI -DARDUINO=10812 -Iboards -Ishared/lab_board/src -Ishared/lab_core/src \
+        -DLAB_BOARD_S3MINI -DARDUINO=10812 -DFASTLED_RMT5=1 -Iboards -Ishared/lab_board/src -Ishared/lab_core/src \
         --template='{severity}: {file}:{line}: {message} [{id}]' "$@" 2>&1 || true
     }
     log=$(mktemp)

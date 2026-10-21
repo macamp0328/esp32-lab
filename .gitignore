@@ -17,3 +17,4 @@ secrets.h
 .vscode/
 .claude/worktrees/
 .claude/settings.local.json
+.cache/
