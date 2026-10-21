@@ -42,6 +42,24 @@ void status_text(const char* line) {
 #endif
 }
 
+void status_clear() {
+#if BOARD_HAS_TFT && defined(LAB_BOARD_M5STICKC_PLUS11)
+  M5.Display.fillScreen(TFT_BLACK);
+  M5.Display.setCursor(0, 0);
+#endif
+}
+
+Buttons buttons() {
+  Buttons b;
+#if defined(LAB_BOARD_M5STICKC_PLUS11)
+  M5.update();
+  b.a_click = M5.BtnA.wasClicked();
+  b.a_hold = M5.BtnA.wasHold();
+  b.b_click = M5.BtnB.wasClicked();
+#endif
+  return b;
+}
+
 }  // namespace lab_board
 
 #endif  // ARDUINO

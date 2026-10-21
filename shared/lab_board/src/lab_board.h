@@ -40,6 +40,18 @@ void status_led(bool on);
 
 // Prints a line on the board's display if BOARD_HAS_TFT; no-op otherwise.
 void status_text(const char* line);
+
+// Clears the board's display and homes the cursor if BOARD_HAS_TFT; no-op otherwise.
+void status_clear();
+
+// Debounced button events since the last call; call once per loop(). All false on boards
+// without buttons. Hold fires once, after 500 ms.
+struct Buttons {
+  bool a_click = false;
+  bool a_hold = false;
+  bool b_click = false;
+};
+Buttons buttons();
 #endif
 
 }  // namespace lab_board
