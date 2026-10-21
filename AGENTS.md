@@ -23,20 +23,21 @@ engineer and a hobbyist at hardware: he solders well, he is not an EE. Full desi
 | Verb | Does | Status |
 | --- | --- | --- |
 | `just bootstrap` | build image (if missing) + host tools in `.venv` | works |
-| `just new <pNNN-name> --board <b>[,<b>]` | scaffold from `templates/project/` | works (hardened in M2) |
+| `just new <pNNN-name> --board <b>[,<b>]` | scaffold from `templates/project/`; no board = list on-hand boards | works |
 | `just build <p> [board]` | compile; no board = every board in `default_envs` | works |
-| `just test <p>` / `just test-all` | native Unity tests (+ tools pytest for test-all) | works |
+| `just test <p>` / `just test-all` | native Unity tests; test-all adds tools pytest + `shared/tests` | works |
 | `just check` (= `just lint`) / `just fmt` | clang-format, cppcheck, ruff, repo rules | works |
 | `just inventory` / `just status` | print+validate stock / refresh README table | works |
 | `just flash <p> [b] [--ota]` | USB (board auto-detected) or OTA with USB fallback | works |
 | `just watch <p>` | reset, 30 s serial to `.hil/last-run.jsonl`, then `hil_assert` | works |
-| `just sim <p>` / `just add-board <name>` | Wokwi scenario / scaffold a board | no token yet / M2 (exit 2) |
+| `just add-board <n> --chip <c> --pio-board <id>` | board folder + lab_board.h branch + env | works |
+| `just sim <p>` | Wokwi scenario | exits 2: no Wokwi token yet |
 
 `<p>` may be the full name or its `pNNN` prefix. Toolchain verbs run in the Docker image
 automatically; inside the container (CI, devcontainer, `just shell`) they run directly.
 Flash and serial run on the host (`.venv`): USB does not cross Docker on macOS. Two boards
 plugged in: `--port` or `LAB_PORT`. esptool baud is each board.ini's `upload_speed`.
-Skills: `.claude/skills/flash-and-watch`, `.claude/skills/hil-check`.
+Skills in `.claude/skills/`: new-project, add-board, flash-and-watch, hil-check.
 
 ## 4. Board rule
 - Read `boards/<b>/board.h` and `boards/<b>/pinout.md` before touching any pin.
@@ -88,7 +89,11 @@ Grep `docs/lessons.md` before debugging. Read `docs/decisions.md` before changin
 ## 10. Style and layout
 - clang-format decides (Google, 100 columns); ruff for `tools/`. Run `just fmt`, do not argue.
 - Config in `include/config.h`, behavior in `src/`, reusable code in `shared/lab_*`.
-- Pure logic is a pure function with a native test (in `shared/lab_*` or the project's `lib/`).
+- Pure logic is a pure function with a native test (in `shared/lab_*` + `shared/tests`, or the
+  project's `lib/` + `test/`). Effects: `lab_fx::name(lab::Pixel*, const lab::Layout&,
+  const lab::AudioFrame&, uint32_t t_ms)`; `lab::Pixel` is CRGB on the board, plain RGB on host.
+- `main.cpp` starts with `lab_core::begin({LAB_PROJECT, LAB_FW, POWER_VOLTS, POWER_MAX_MA})`
+  (applies the power cap) and includes `lab_checks.h` after `config.h`.
 - Log only through `lab_core::Event` (one JSON object per line); no stray `Serial.print`.
 - No comments restating FastLED docs. Secrets in `include/secrets.h` (gitignored) only.
 
