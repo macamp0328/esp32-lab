@@ -6,13 +6,16 @@ import argparse
 import shutil
 import sys
 
+import status
 from labrepo import PROJECT_RE, PROJECTS, TEMPLATE, boards, projects, split_list
+
+import inventory
 
 
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(prog="just new")
     ap.add_argument("name", help="pNNN-short-name, e.g. p003-desk-lamp")
-    ap.add_argument("--board", required=True, help=f"comma-separated, from: {', '.join(boards())}")
+    ap.add_argument("--board", help=f"comma-separated, from: {', '.join(boards())}")
     args = ap.parse_args(argv)
 
     if not PROJECT_RE.match(args.name):
@@ -21,6 +24,10 @@ def main(argv: list[str] | None = None) -> int:
     taken = [p for p in projects() if p[:4] == number]
     if taken:
         return fail(f"{number} is already used by {taken[0]}; numbers are never reused")
+    if not args.board:
+        on_hand = inventory.boards_on_hand(inventory.load())
+        listing = ", ".join(f"{b} ({n} on hand)" for b, n in on_hand.items()) or "none in stock"
+        return fail(f"pass --board <name>; inventory/stock.yaml has: {listing}")
     chosen = split_list(args.board)
     unknown = [b for b in chosen if b not in boards()]
     if unknown or not chosen:
@@ -33,7 +40,13 @@ def main(argv: list[str] | None = None) -> int:
             text = path.read_text()
             text = text.replace("{{PROJECT}}", args.name).replace("{{BOARDS}}", ", ".join(chosen))
             path.write_text(text)
-    print(f"created projects/{args.name} for {', '.join(chosen)}")
+    if status.README.is_file():
+        status.README.write_text(status.render(status.README.read_text()))
+    print(f"created projects/{args.name} for {', '.join(chosen)}; README status table updated")
+    print(
+        f"next: just build {args.name} {chosen[0]} && just flash {args.name} {chosen[0]} "
+        f"&& just watch {args.name}"
+    )
     return 0
 
 

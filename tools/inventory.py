@@ -9,12 +9,12 @@ import sys
 from pathlib import Path
 
 import yaml
-from labrepo import PROJECT_RE, ROOT
+from labrepo import PROJECT_RE, ROOT, boards
 
 STOCK = ROOT / "inventory" / "stock.yaml"
 CATEGORIES = {"boards", "leds", "mics", "power", "parts", "tools"}
 REQUIRED = {"id", "model", "qty", "source"}
-OPTIONAL = {"revision", "specs", "date", "projects", "notes"}
+OPTIONAL = {"revision", "specs", "date", "projects", "notes", "board"}
 ID_RE = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*(?:\.\.\d+)?$")
 
 
@@ -55,12 +55,23 @@ def validate(data: object) -> list[str]:
                 errors.append(f"{where}: qty must be an integer >= 0")
             if "date" in item and not isinstance(item["date"], dt.date):
                 errors.append(f"{where}: date must be YYYY-MM-DD")
+            if "board" in item and item["board"] not in boards():
+                errors.append(f"{where}: board '{item['board']}' has no boards/ folder")
             projects = item.get("projects", [])
             if not isinstance(projects, list) or not all(
                 isinstance(p, str) and PROJECT_RE.match(p) for p in projects
             ):
                 errors.append(f"{where}: projects must be a list of pNNN-name")
     return errors
+
+
+def boards_on_hand(data: dict) -> dict[str, int]:
+    """Board name -> quantity on hand, for entries that name a `board:`."""
+    found: dict[str, int] = {}
+    for item in data.get("boards", []):
+        if item.get("board") and item.get("qty", 0) > 0:
+            found[item["board"]] = found.get(item["board"], 0) + item["qty"]
+    return found
 
 
 def load(path: Path = STOCK) -> object:

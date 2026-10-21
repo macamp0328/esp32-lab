@@ -11,6 +11,7 @@ The agent also reads it before proposing hardware. Miles rarely edits it by hand
 <category>:            # boards | leds | mics | power | parts | tools
   - id: s3mini-01..03  # kebab-case, unique; '..N' marks a numbered set
     model: Waveshare ESP32-S3 Mini     # required
+    board: s3mini                      # boards only: the boards/<name> it uses (`just new` lists these)
     qty: 3                             # required, integer >= 0 (0 = planned or used up)
     source: Amazon B0CR2RH7PS          # required: where it came from, or "on hand"
     revision: ESP32-S3FH4R2, 4MB flash # optional: the revision that matters for pins/power

@@ -3,6 +3,7 @@
 boards:
   - id: s3mini-01..03
     model: Waveshare ESP32-S3 Mini
+    board: s3mini
     revision: ESP32-S3FH4R2, 4MB flash, 2MB PSRAM
     qty: 3
     source: Amazon B0CR2RH7PS
@@ -11,6 +12,7 @@ boards:
     notes: headers shipped loose, not soldered yet; s3mini-01 bench-verified 2026-10-21 (p000)
   - id: m5stickc-01
     model: M5StickC Plus 1.1
+    board: m5stickc-plus11
     revision: ESP32-PICO-D4, 4MB flash, SPM1423 PDM mic, 1.14in ST7789, AXP192
     qty: 1
     source: on hand
