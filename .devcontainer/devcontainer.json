@@ -1,0 +1,12 @@
+{
+  "name": "esp32-lab",
+  "build": { "dockerfile": "../Dockerfile", "context": ".." },
+  "workspaceFolder": "/work",
+  "workspaceMount": "source=${localWorkspaceFolder},target=/work,type=bind",
+  "mounts": ["source=esp32-lab-pio,target=/pio,type=volume"],
+  "customizations": {
+    "vscode": {
+      "extensions": ["ms-vscode.cpptools", "charliermarsh.ruff", "nefrob.vscode-just-syntax"]
+    }
+  }
+}
