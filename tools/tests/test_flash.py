@@ -32,7 +32,7 @@ def test_header_define(tmp_path):
 
 
 def test_commands():
-    usb = flash.usb_command("esp32s3", "/dev/cu.x", Path("f.bin"))
+    usb = flash.usb_command("esp32s3", "/dev/cu.x", Path("f.bin"), "921600")
     assert usb[:3] == [sys.executable, "-m", "esptool"]
     assert usb[3:] == ["--chip", "esp32s3", "--port", "/dev/cu.x", "--baud", "921600",
                        "write-flash", "0x0", "f.bin"]  # fmt: skip
@@ -44,3 +44,8 @@ def test_commands():
 def test_resolve_numeric_and_unknown():
     assert flash.resolve("127.0.0.1") == "127.0.0.1"
     assert flash.resolve("no-such-board.invalid", timeout_s=0) is None
+
+
+def test_board_baud_comes_from_board_ini():
+    assert flash.board_baud("m5stickc-plus11") == "1500000"
+    assert flash.board_baud("s3mini") == "921600"

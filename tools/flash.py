@@ -16,7 +16,7 @@ import sys
 import time
 from pathlib import Path
 
-from labrepo import BOARDS, PROJECTS, ROOT, project_boards
+from labrepo import BOARDS, PROJECTS, ROOT, board_section, project_boards, read_ini
 from ports import candidates, pick_port
 
 ESPOTA = ROOT / ".cache" / "espota.py"
@@ -36,6 +36,12 @@ def board_chip(board: str) -> str:
     if not chip:
         sys.exit(f"boards/{board}/board.h has no BOARD_CHIP")
     return chip
+
+
+def board_baud(board: str) -> str:
+    """esptool baud: the board.ini `upload_speed` (PlatformIO's key), else a safe 460800."""
+    ini = read_ini(BOARDS / board / "board.ini")
+    return ini.get(board_section(board), "upload_speed", fallback="460800")
 
 
 def choose_board(supported: list[str], given: str | None, detected_chip: str | None) -> str:
@@ -58,8 +64,8 @@ def detect_chip(port: str) -> str:
         return esp.CHIP_NAME.lower().replace("-", "")
 
 
-def usb_command(chip: str, port: str, image: Path) -> list[str]:
-    return [sys.executable, "-m", "esptool", "--chip", chip, "--port", port, "--baud", "921600",
+def usb_command(chip: str, port: str, image: Path, baud: str = "460800") -> list[str]:
+    return [sys.executable, "-m", "esptool", "--chip", chip, "--port", port, "--baud", baud,
             "write-flash", "0x0", str(image)]  # fmt: skip
 
 
@@ -75,7 +81,7 @@ def flash_usb(project: str, board: str, port: str) -> int:
     print(
         f"flash: {project} → {board} on {port} via USB ({image.stat().st_size} bytes)", flush=True
     )
-    return subprocess.call(usb_command(board_chip(board), port, image))
+    return subprocess.call(usb_command(board_chip(board), port, image, board_baud(board)))
 
 
 def flash_ota(project: str, board: str, host: str | None) -> int:
