@@ -7,6 +7,15 @@
 #include "lab_core.h"
 #include "lab_fx.h"
 
+// WiFi (and OTA when OTA_ENABLED) come up only with include/secrets.h present.
+#if WIFI_ENABLED && __has_include("secrets.h")
+#include "lab_net.h"
+#include "secrets.h"
+#define LAB_NET_ON 1
+#else
+#define LAB_NET_ON 0
+#endif
+
 namespace {
 CRGB leds[NUM_LEDS];
 CRGB fading_out[NUM_LEDS];
@@ -90,6 +99,11 @@ void setup() {
   state.started_ms = state.prev_started_ms = millis();
   announce();
 #endif
+#if LAB_NET_ON
+  lab_net::begin({MDNS_NAME, WIFI_SSID, WIFI_PASSWORD, OTA_ENABLED, OTA_PASSWORD});
+#elif WIFI_ENABLED
+  lab_core::Event("wifi").str("state", "off").str("why", "no include/secrets.h").emit();
+#endif
 }
 
 void loop() {
@@ -105,10 +119,10 @@ void loop() {
   if (demo::step(state, kDemo, {b.a_click, b.a_hold, b.b_click}, now)) announce();
   render(now);
 #endif
-  // the same model FastLED's power cap applies inside show()
-  const uint8_t capped =
-      lab::brightness_for_cap(leds, NUM_LEDS, FastLED.getBrightness(), POWER_MAX_MA);
-  const uint32_t ma = lab::estimate_ma(leds, NUM_LEDS, capped);
+  // Brightness after FastLED's power limiter, and the current that implies.
+  const uint8_t shown = calculate_max_brightness_for_power_vmA(
+      leds, NUM_LEDS, FastLED.getBrightness(), POWER_VOLTS, POWER_MAX_MA);
+  const uint32_t ma = lab::estimate_ma(leds, NUM_LEDS, shown);
   if (ma > ma_max) ma_max = ma;
   FastLED.show();
   lab_board::status_led((now / 500) % 2);
@@ -118,6 +132,7 @@ void loop() {
     lab_core::Event("fps")
         .num("fps", frames * 1000 / (now - window_start))
         .num("heap", ESP.getFreeHeap())
+        .num("bright", shown)
         .num("ma_est", ma)
         .num("ma_max", ma_max)
         .emit();
@@ -125,6 +140,9 @@ void loop() {
     ma_max = 0;
     window_start = now;
   }
+#if LAB_NET_ON
+  lab_net::handle();
+#endif
   const uint32_t spent = millis() - now;
   if (spent < kFrameMs) delay(kFrameMs - spent);
 }
