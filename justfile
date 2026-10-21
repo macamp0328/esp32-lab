@@ -34,8 +34,8 @@ shell:
     just _c bash
 
 # scaffold a project: just new p003-desk-lamp --board s3mini[,m5stickc-plus11]
-new +args:
-    just _c python tools/new_project.py {{ args }}
+new name *args:
+    just _c python tools/new_project.py {{ name }} {{ args }}
 
 # compile a project for one board, or for every board it supports
 build project board="":
@@ -84,9 +84,9 @@ watch project *args: _host_tools
 sim project:
     @echo "just sim: not implemented until M1" >&2; exit 2
 
-# scaffold boards/<name> from boards/_template (lands in M2)
-add-board name:
-    @echo "just add-board: not implemented until M2" >&2; exit 2
+# scaffold a board: just add-board xiao-s3 --chip esp32s3 --pio-board seeed_xiao_esp32s3
+add-board name *args:
+    just _c python tools/add_board.py {{ name }} {{ args }}
 
 # ---- internals ---------------------------------------------------------------------------
 
