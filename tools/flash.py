@@ -10,8 +10,10 @@ from __future__ import annotations
 
 import argparse
 import re
+import socket
 import subprocess
 import sys
+import time
 from pathlib import Path
 
 from labrepo import BOARDS, PROJECTS, ROOT, project_boards
@@ -85,10 +87,29 @@ def flash_ota(project: str, board: str, host: str | None) -> int:
         subprocess.check_call(["just", "_c", "cp", ESPOTA_IN_IMAGE, ".cache/espota.py"], cwd=ROOT)
     include = PROJECTS / project / "include"
     host = host or f"{header_define(include / 'config.h', 'MDNS_NAME') or project}.local"
-    print(f"flash: {project} → {board} at {host} via OTA", flush=True)
-    return subprocess.call(
-        ota_command(host, header_define(include / "secrets.h", "OTA_PASSWORD"), app)
-    )
+    ip = resolve(host)
+    if ip is None:
+        print(f"flash: cannot resolve {host} (board off WiFi, or not on this network?)")
+        return 1
+    password = header_define(include / "secrets.h", "OTA_PASSWORD")
+    for attempt in (1, 2):
+        print(f"flash: {project} → {board} at {host} ({ip}) via OTA, try {attempt}", flush=True)
+        if subprocess.call(ota_command(ip, password, app)) == 0:
+            return 0
+        time.sleep(2)
+    return 1
+
+
+def resolve(host: str, timeout_s: float = 10) -> str | None:
+    """IPv4 for host; mDNS (.local) lookups can miss on a cold cache, so retry for a while."""
+    deadline = time.monotonic() + timeout_s
+    while True:
+        try:
+            return socket.getaddrinfo(host, 3232, socket.AF_INET)[0][4][0]
+        except OSError:
+            if time.monotonic() > deadline:
+                return None
+            time.sleep(0.5)
 
 
 def main(argv: list[str] | None = None) -> int:

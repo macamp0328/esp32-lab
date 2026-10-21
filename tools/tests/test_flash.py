@@ -39,3 +39,8 @@ def test_commands():
     ota = flash.ota_command("p000-blink.local", "pw", Path("a.bin"))
     assert ota[2:] == ["-i", "p000-blink.local", "-p", "3232", "-f", "a.bin", "-r", "-a", "pw"]
     assert "-a" not in flash.ota_command("h", None, Path("a.bin"))
+
+
+def test_resolve_numeric_and_unknown():
+    assert flash.resolve("127.0.0.1") == "127.0.0.1"
+    assert flash.resolve("no-such-board.invalid", timeout_s=0) is None
