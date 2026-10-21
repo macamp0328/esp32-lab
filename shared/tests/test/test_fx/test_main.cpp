@@ -1,4 +1,5 @@
 // Effects and color math, on the host Pixel type (CRGB on the board).
+#include <math.h>
 #include <unity.h>
 
 #include "lab_font.h"
@@ -112,9 +113,19 @@ static void test_rainbow_louder_is_brighter() {
   TEST_ASSERT_TRUE(lab::estimate_ma(loud, 8) > lab::estimate_ma(quiet, 8));
 }
 
+static void test_rainbow_treats_nan_level_as_silence() {
+  Pixel quiet[8], nan_px[8];
+  const Layout l = Layout::strip(8);
+  lab::AudioFrame audio;
+  lab_fx::rainbow(quiet, l, audio, 100);
+  audio.level = NAN;
+  lab_fx::rainbow(nan_px, l, audio, 100);
+  for (int i = 0; i < 8; ++i) assert_pixel(quiet[i], nan_px[i]);
+}
+
 static void test_rainbow_on_rings_uses_angle() {
   const uint16_t sizes[] = {16, 8};
-  const Layout l = Layout::rings(sizes, 2);
+  const Layout l = Layout::rings(sizes);
   Pixel px[24];
   lab_fx::rainbow(px, l, {}, 0);
   assert_pixel(px[0], px[16]);  // angle 0 on both rings
@@ -127,7 +138,7 @@ static void test_every_effect_is_deterministic_in_bounds_and_lit() {
   const uint16_t sizes[] = {12, 8};
   const Layout layouts[] = {Layout::strip(10), Layout::matrix(8, 8, true),
                             Layout::matrix(8, 8, false), Layout::matrix(8, 8, true, true),
-                            Layout::rings(sizes, 2)};
+                            Layout::rings(sizes)};
   constexpr uint16_t kGuard = 4;
   const Pixel sentinel(1, 2, 3);
   for (const Named& fx : kEffects) {
@@ -349,6 +360,7 @@ int main() {
   RUN_TEST(test_rainbow_hue_follows_position_and_time);
   RUN_TEST(test_rainbow_louder_is_brighter);
   RUN_TEST(test_rainbow_on_rings_uses_angle);
+  RUN_TEST(test_rainbow_treats_nan_level_as_silence);
   RUN_TEST(test_every_effect_is_deterministic_in_bounds_and_lit);
   RUN_TEST(test_wiring_marks_first_rows_and_last_led);
   RUN_TEST(test_plasma_varies_in_space_and_time);

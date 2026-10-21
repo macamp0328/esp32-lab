@@ -49,6 +49,10 @@ test project:
 test-all:
     just _c just _test-all
 
+# build and test templates/project for every board, as `just new` would produce it (CI runs this)
+template-check:
+    just _c just _template-check
+
 # lint and repo rules: clang-format, cppcheck, ruff, actionlint, boards/projects/pins/secrets/inventory
 check:
     just _c just _check
@@ -74,15 +78,21 @@ ci-matrix:
 
 # flash a built project over USB, or `--ota [host]` with USB fallback (host side)
 flash project *args: _host_tools
-    {{ host_python }} tools/flash.py "$(just _project {{ project }})" {{ args }}
+    #!/usr/bin/env bash
+    set -euo pipefail
+    p=$(just _project {{ project }})
+    exec {{ host_python }} tools/flash.py "$p" {{ args }}
 
 # reset the board, capture 30 s of serial to projects/<p>/.hil/, then run hil_assert (host side)
 watch project *args: _host_tools
-    {{ host_python }} tools/serial_watch.py "$(just _project {{ project }})" {{ args }}
+    #!/usr/bin/env bash
+    set -euo pipefail
+    p=$(just _project {{ project }})
+    exec {{ host_python }} tools/serial_watch.py "$p" {{ args }}
 
-# run a project's Wokwi scenario (lands with the Wokwi trial in M1)
+# run a project's Wokwi scenario (not set up: needs a WOKWI_CLI_TOKEN, see docs/decisions.md)
 sim project:
-    @echo "just sim: not implemented until M1" >&2; exit 2
+    @echo "just sim: not set up yet; needs a Wokwi token (docs/decisions.md)" >&2; exit 2
 
 # scaffold a board: just add-board xiao-s3 --chip esp32s3 --pio-board seeed_xiao_esp32s3
 add-board name *args:
@@ -98,7 +108,12 @@ _c +cmd:
     if [ "${LAB_IN_CONTAINER:-0}" = 1 ]; then exec "$@"; fi
     just image
     tty=""; if [ -t 0 ] && [ -t 1 ]; then tty="-it"; fi
-    exec docker run --rm $tty -v "{{ justfile_directory() }}:/work" -v esp32-lab-pio:/pio \
+    root="{{ justfile_directory() }}"
+    # A git worktree's .git file points at the main repo's .git by host path: mount it there too.
+    git_mount=""
+    common=$(git -C "$root" rev-parse --path-format=absolute --git-common-dir 2>/dev/null || true)
+    case "$common" in "" | "$root"/*) ;; *) git_mount="-v $common:$common" ;; esac
+    exec docker run --rm $tty -v "$root:/work" $git_mount -v esp32-lab-pio:/pio \
       -w /work "{{ image }}" "$@"
 
 [private]
@@ -122,7 +137,10 @@ _build project board="":
     if [ -n "{{ board }}" ]; then pio run -e "{{ board }}"; else pio run; fi
 
 _test project:
-    cd "projects/$(just _project {{ project }})" && pio test -e native
+    #!/usr/bin/env bash
+    set -euo pipefail
+    p=$(just _project {{ project }})
+    cd "projects/$p" && pio test -e native
 
 _test-all:
     #!/usr/bin/env bash
@@ -130,10 +148,30 @@ _test-all:
     pytest -q
     echo "== native tests: shared/tests"
     (cd shared/tests && pio test -e native)
+    shopt -s nullglob
     for d in projects/*/; do
+      [ -f "$d/platformio.ini" ] || continue  # leftovers like a lone .pio/ are not projects
       echo "== native tests: $d"
       (cd "$d" && pio test -e native)
     done
+
+_template-check:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    p=p999-template-check
+    root=$(pwd)
+    cleanup() {
+      cd "$root"
+      for _ in 1 2 3 4 5; do rm -rf "projects/$p" 2>/dev/null && break; sleep 1; done
+      python tools/status.py --write > /dev/null
+    }
+    trap cleanup EXIT
+    cleanup
+    all=$(python -c 'import sys; sys.path.insert(0, "tools"); import labrepo; print(",".join(labrepo.boards()))')
+    python tools/new_project.py "$p" --board "$all"
+    cd "projects/$p"
+    pio test -e native
+    pio run
 
 _check:
     #!/usr/bin/env bash
@@ -148,7 +186,8 @@ _check:
     cpp() {
       cppcheck --language=c++ --std=c++17 --enable=warning,performance --inline-suppr --quiet \
         --suppress=missingIncludeSystem --suppress=missingInclude --suppress=unknownMacro \
-        -DLAB_BOARD_S3MINI -DARDUINO=10812 -DFASTLED_RMT5=1 -Iboards -Ishared/lab_board/src -Ishared/lab_core/src \
+        -DLAB_BOARD_S3MINI -DARDUINO=10812 -DFASTLED_RMT5=1 -Iboards -Ishared/lab_board/src \
+        -Ishared/lab_core/src -Ishared/lab_net/src -Ishared/lab_fx/src \
         --template='{severity}: {file}:{line}: {message} [{id}]' "$@" 2>&1 || true
     }
     log=$(mktemp)

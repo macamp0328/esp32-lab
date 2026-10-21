@@ -1,6 +1,7 @@
 #pragma once
-// LED power estimate, same model as FastLED's power manager (WS2812 at 5 V): a full channel draws
-// red 16 mA, green 11 mA, blue 15 mA, plus 1 mA per LED idle. Pure; works on CRGB or any {r,g,b}.
+// LED power estimate with FastLED's per-channel weights (WS2812 at 5 V): a full channel draws red
+// 16 mA, green 11 mA, blue 15 mA, plus 1 mA per LED idle. FastLED's limiter also counts ~25 mA
+// for the MCU and rounds differently, so expect a few % difference. Pure; CRGB or any {r,g,b}.
 
 #include <stddef.h>
 #include <stdint.h>

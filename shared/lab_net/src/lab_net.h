@@ -1,12 +1,21 @@
 #pragma once
-// Non-blocking WiFi + ArduinoOTA. Credentials come from the project's include/secrets.h.
-// Usage: setup(): lab_net::begin(MDNS_NAME, WIFI_SSID, WIFI_PASSWORD, OTA_PASSWORD);
+// Non-blocking WiFi + optional ArduinoOTA. Credentials come from the project's include/secrets.h.
+// Usage: setup(): lab_net::begin({MDNS_NAME, WIFI_SSID, WIFI_PASSWORD, OTA_ENABLED, OTA_PASSWORD});
 //        loop():  lab_net::handle();
-// Events: `wifi` (ip, rssi, ms) once connected, `ota` (state ready/start/end), `err` on failure.
+// Events: `wifi` (state up with ip/rssi/ms, or lost), `ota` (ready/start/end), `err` on failure.
+// A failed or dropped connection keeps retrying; OTA starts the first time WiFi comes up.
 
 namespace lab_net {
 
-void begin(const char* hostname, const char* ssid, const char* password, const char* ota_password);
+struct Config {
+  const char* hostname;  // also the mDNS / OTA name (MDNS_NAME)
+  const char* ssid;
+  const char* password;
+  bool ota;                  // OTA_ENABLED
+  const char* ota_password;  // may be empty
+};
+
+void begin(const Config& config);
 void handle();
 bool connected();
 

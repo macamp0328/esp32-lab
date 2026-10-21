@@ -7,6 +7,7 @@
 #include <stdint.h>
 
 #include "lab_audio_frame.h"
+#include "lab_contract.h"
 #include "lab_json.h"
 #include "lab_power.h"
 
@@ -34,6 +35,8 @@ const char* led_driver();
 class Event {
  public:
   explicit Event(const char* ev);
+  Event(const Event&) = delete;  // line_ points into this object's own buf_
+  Event& operator=(const Event&) = delete;
   Event& str(const char* key, const char* value) {
     line_.str(key, value);
     return *this;

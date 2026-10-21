@@ -5,7 +5,9 @@ description: Start a new esp32-lab project from an idea in minutes with `just ne
 
 # New project
 
-1. Pick the next free number: `ls projects` (numbers are never reused). Name: `pNNN-short-name`.
+1. Pick the number one above the highest ever used, deleted projects included:
+   `git log --all --format= --name-only -- projects | grep -o '^projects/p[0-9]*' | sort -u | tail -1`.
+   `just new` refuses reused numbers. Name: `pNNN-short-name`.
 2. Board: if Miles named one, use it. Otherwise run `just new <name>` with no board: it lists the
    boards on hand from `inventory/stock.yaml`. One type on hand → use it; several → ask one
    yes/no ("Build p003 on the s3mini?").

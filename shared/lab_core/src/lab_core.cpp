@@ -9,7 +9,8 @@
 
 #include "lab_board.h"
 
-#if !(defined(FASTLED_RMT5) && FASTLED_RMT5) || defined(FASTLED_ESP32_USE_CLOCKLESS_SPI)
+#if !(defined(FASTLED_RMT5) && FASTLED_RMT5) || defined(FASTLED_ESP32_USE_CLOCKLESS_SPI) || \
+    defined(FASTLED_ESP32_I2S)
 #error "esp32-lab drives clockless LEDs with FastLED's RMT driver; check FastLED flags"
 #endif
 
@@ -35,9 +36,7 @@ void Event::emit() {
 
 void error(const char* code) {
   char buf[96];
-  lab::JsonLine line(buf, sizeof buf, millis(), "err");
-  line.str("code", code);
-  write_line(line.finish());
+  write_line(lab::error_line(buf, sizeof buf, millis(), code));
 }
 
 void begin(const Setup& setup) {
@@ -52,13 +51,9 @@ void begin(const Setup& setup) {
   snprintf(core, sizeof core, "%d.%d.%d", ESP_ARDUINO_VERSION_MAJOR, ESP_ARDUINO_VERSION_MINOR,
            ESP_ARDUINO_VERSION_PATCH);
 
-  Event("boot")
-      .str("proj", setup.project)
-      .str("fw", setup.fw)
-      .str("board", BOARD_NAME)
-      .str("fastled", fastled)
-      .str("core", core)
-      .emit();
+  char line[kLineMax];
+  write_line(lab::boot_line(line, sizeof line, millis(),
+                            {setup.project, setup.fw, BOARD_NAME, fastled, core}));
 
   const uint64_t mac = ESP.getEfuseMac();
   char mac_str[18];

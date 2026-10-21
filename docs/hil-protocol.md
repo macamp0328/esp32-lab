@@ -1,7 +1,7 @@
 # Hardware-in-the-loop protocol
 
-The human is a slow, expensive sensor. Each request must be cheap to answer. Exposed later as
-the `/hil-check` skill (M1).
+The human is a slow, expensive sensor. Each request must be cheap to answer. Exposed as the
+`hil-check` skill (`.claude/skills/hil-check`).
 
 1. **Exhaust the machine first.** Compile output, native tests, Wokwi if present, then
    `just flash` + `just watch` and `tools/hil_assert.py` on `.hil/last-run.jsonl`

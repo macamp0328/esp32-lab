@@ -5,8 +5,8 @@ Read before changing anything an entry covers. A version bump is a new entry plu
 
 ## 2026-10-21 · p002 is the matrix demo on the M5; effects are functions of time only
 - What: p002-matrix-demo (M5StickC Plus + matrix-8x8-01 on Grove G33, 400 mA cap); 12 new `lab_fx` effects, each `f(t)` with no state
-- Instead of: leaving p002 to the shelved chandelier; stateful effects (life, snake) with their own memory
-- Why: p002 was never created, so no number is reused; pure `f(t)` effects host-test deterministically, crossfade freely and restart from frame 0
+- Instead of: renumbering it p001 under the creation-order rule (below), which landed on main mid-build; stateful effects (life, snake)
+- Why: numbered while SPEC still reserved p001, and renumbering a HIL-verified project churns docs; p001 stays unused. Pure `f(t)` effects host-test deterministically, crossfade freely and restart from frame 0
 - Revisit when: an effect needs memory (then keep its state in the project, not in `lab_fx`)
 
 ## 2026-10-21 · `Layout::matrix` takes `by_columns`, not rotate/flip options
@@ -26,6 +26,42 @@ Read before changing anything an entry covers. A version bump is a new entry plu
 - Instead of: the template's 500 mA
 - Why: the M5 itself takes ~100 mA; 400 + 100 stays inside a 500 mA USB 2.0 port, well under the 800 mA rule
 - Revisit when: the matrix gets its own 5 V supply
+
+## 2026-10-21 · CI: every main push runs; least-privilege tokens; caches keyed on the platform pin
+- What: cancel only PR runs; `packages: write` only for the image job; `persist-credentials: false`; `/pio` cache keyed on platformio.common.ini with restore-keys; 30 min timeouts; a `template` job runs `just template-check`
+- Instead of: cancel-in-progress on main, write tokens everywhere, keys on every board.ini, templates only linted
+- Why: review found a main run cancelled (no result for that commit), 12.8 GB of caches against a 10 GB quota, and a template that never compiled in CI
+- Revisit when: PRs from forks are used (the image push needs a guard)
+
+## 2026-10-21 · The template ignores `lab_net` until WiFi is turned on
+- What: templates/project/platformio.ini has `lib_ignore = lab_net`; `lab_checks.h` stops a `WIFI_ENABLED 1` build until that line is deleted
+- Instead of: `lib_ldf_mode = chain+` (evaluates `#if`), or compiling lab_net into every project
+- Why: measured on a fresh template: chain links ~150 KB of dead WiFi code (508 vs 446 KB); chain+ took 244 s instead of 37 s per build
+- Revisit when: PlatformIO's chain+ gets fast, or most projects use WiFi
+
+## 2026-10-21 · Image pins: base and uv by digest, binaries by sha256; apt and Unity float
+- What: Debian packages float within trixie point releases; Unity resolves PlatformIO's `^2.6.1`; wokwi-cli/actionlint checked by sha256
+- Instead of: snapshot.debian.org sources and a pinned Unity
+- Why: point releases only carry fixes and two arches already differ in bytes; a cppcheck or gcc change shows up as a `just check` diff, not silently
+- Revisit when: a toolchain float breaks a build or makes local and CI checks disagree
+
+## 2026-10-21 · Project numbers come in creation order; none are reserved
+- What: next project = one above the highest pNNN ever committed (`just new` refuses numbers in git history)
+- Instead of: reserving SPEC's p001-matrix-audio / p002 numbers
+- Why: SPEC's numbers were examples; M3's project takes whatever number is next when it starts
+- Revisit when: never
+
+## 2026-10-21 · SPEC items not built yet
+- What: no `release.yml` (pNNN/vX.Y tags) and no `wokwi.yml`; inventory `type` is the category key (a `type:` field is also accepted); SPEC's `lab_core::log` is `lab_core::Event`
+- Instead of: building them before anything needs them
+- Why: no firmware is installed on a real piece yet (release.yml); Wokwi needs a token from Miles
+- Revisit when: the first piece is installed (release.yml), a Wokwi token exists (wokwi.yml, `just sim`)
+
+## 2026-10-21 · hil_assert also checks fields and the fps cadence
+- What: every contract event must carry its fields; consecutive `fps` events at most 7 s apart; enough `fps` for the capture length
+- Instead of: presence checks only
+- Why: review found a stalled loop and a boot missing fields both passed
+- Revisit when: a project legitimately pauses its loop (then it must still emit `fps`)
 
 ## 2026-10-21 · M4 (p002-wheel-chandelier) is shelved; p002 was an example idea
 - What: no p002 project or scaffold; SPEC's M4 is not on the roadmap. Next milestone is M3 once its parts arrive
@@ -105,13 +141,13 @@ Read before changing anything an entry covers. A version bump is a new entry plu
 - Why: `just flash --ota` falls back to USB, so a fresh fw hash alone cannot prove OTA delivered it
 - Revisit when: a partition table without two OTA slots is used
 
-## 2026-10-21 · flash and watch done in M1; sim and add-board still exit 2 (add-board done in M2)
-- What: `just flash` (USB, `--ota`) and `just watch` (30 s capture + hil_assert) work on both boards
+## 2026-10-21 · M1: flash and watch work; sim exits 2 until a Wokwi token exists
+- What: `just flash` (USB, `--ota`) and `just watch` (30 s capture + hil_assert) work on both boards; add-board landed in M2
 - Instead of: the M0 stubs
-- Why: verified on hardware; Wokwi needs a `WOKWI_CLI_TOKEN` from Miles, and add-board belongs to M2
-- Revisit when: a Wokwi token exists (sim), M2 (add-board)
+- Why: verified on hardware; Wokwi needs a `WOKWI_CLI_TOKEN` from Miles
+- Revisit when: a Wokwi token exists (sim)
 
-## 2026-10-21 · flash, watch, sim, add-board exit 2 until their milestone
+## 2026-10-21 · flash, watch, sim, add-board exit 2 until their milestone (superseded by M1 entry)
 - What: the verbs exist (AGENTS.md lists them) but print "not implemented until M1/M2" and exit 2
 - Instead of: best-effort implementations in M0
 - Why: none can be verified without a board (M1) or M2's scaffolding; an unverified verb breaks principle 5
@@ -127,7 +163,7 @@ Read before changing anything an entry covers. A version bump is a new entry plu
 - What: `lab::JsonLine` (pure, host-tested) + `lab_core::Event`; `lab_board.h` maps `LAB_BOARD_*` to `boards/<b>/board.h`
 - Instead of: creating every shared library in M2
 - Why: the M0 template must print the serial contract and pass a native test; the encoder is that test
-- Revisit when: M2 (adds `lab_board::begin()`, power cap inside `lab_core::begin()`, `lab_fx`)
+- Revisit when: done in M2 (begin(), power cap, lab_fx; see the M2 entries above)
 
 ## 2026-10-21 · `BOARD_PSRAM_MB` and `BOARD_FLASH_MB` replace `BOARD_HAS_PSRAM`
 - What: board.h states sizes (`BOARD_PSRAM_MB 2` / `0`) instead of a has-PSRAM flag
@@ -145,7 +181,7 @@ Read before changing anything an entry covers. A version bump is a new entry plu
 - What: `board_upload.flash_size = 4MB`, `maximum_size = 4194304`, `board_build.partitions = default.csv`
 - Instead of: SPEC's `board_build.flash_size` (not a PlatformIO option) or a custom board JSON
 - Why: documented keys; built bootloader header reads 4MB and the app partition is 1.25 MB
-- Revisit when: M1 measures flash and PSRAM (SPEC open question on a custom board JSON)
+- Revisit when: done in M1 (measured 4 MB / 2 MB; see "M1 open questions closed")
 
 ## 2026-10-21 · Pin pioarduino `55.03.312-1` (Arduino 3.3.12, IDF 5.5.5) by release URL
 - What: `platform = …/releases/download/55.03.312-1/platform-espressif32.zip`

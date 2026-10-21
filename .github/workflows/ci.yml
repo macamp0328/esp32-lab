@@ -1,5 +1,6 @@
-# Same verbs as the agent runs locally, in the same image: check, test-all, then every
-# project x supported board (matrix generated from projects/). Red main gets a revert commit.
+# Same verbs as the agent runs locally, in the same image: check, test-all, the template for
+# every board, then every project x supported board (matrix from projects/). Red main gets a
+# revert commit, so every push to main gets its own run (only PR runs are cancelled).
 name: ci
 
 on:
@@ -10,19 +11,27 @@ on:
 
 permissions:
   contents: read
-  packages: write
+  packages: read
 
 concurrency:
   group: ci-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+defaults:
+  run:
+    shell: bash
 
 jobs:
   image:
     uses: ./.github/workflows/image.yml
+    permissions:
+      contents: read
+      packages: write
 
   check:
     needs: image
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     container:
       image: ${{ needs.image.outputs.ref }}
       credentials:
@@ -32,19 +41,46 @@ jobs:
       targets: ${{ steps.matrix.outputs.targets }}
     steps:
       - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
       - uses: actions/cache@v6
         with:
           path: /pio
           key: pio-native-${{ hashFiles('platformio.common.ini') }}
+          restore-keys: pio-native-
       - run: just check
       - run: just test-all
       - id: matrix
-        run: echo "targets=$(just ci-matrix)" >> "$GITHUB_OUTPUT"
+        run: |
+          targets=$(just ci-matrix)
+          echo "targets=$targets" >> "$GITHUB_OUTPUT"
+
+  template:
+    needs: [image, check]
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    container:
+      image: ${{ needs.image.outputs.ref }}
+      credentials:
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/cache@v6
+        with:
+          path: /pio
+          key: pio-template-${{ hashFiles('platformio.common.ini') }}
+          restore-keys: pio-
+      - run: just template-check
 
   build:
     needs: [image, check]
+    if: needs.check.outputs.targets != '[]'
     name: build ${{ matrix.target.project }} / ${{ matrix.target.board }}
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     container:
       image: ${{ needs.image.outputs.ref }}
       credentials:
@@ -56,13 +92,18 @@ jobs:
         target: ${{ fromJson(needs.check.outputs.targets) }}
     steps:
       - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
       - uses: actions/cache@v6
         with:
           path: /pio
-          key: pio-${{ matrix.target.board }}-${{ hashFiles('platformio.common.ini', 'boards/*/board.ini') }}
+          key: pio-${{ matrix.target.board }}-${{ hashFiles('platformio.common.ini') }}
+          restore-keys: pio-${{ matrix.target.board }}-
       - run: just build ${{ matrix.target.project }} ${{ matrix.target.board }}
       - uses: actions/upload-artifact@v7
         with:
           name: ${{ matrix.target.project }}-${{ matrix.target.board }}
-          path: projects/${{ matrix.target.project }}/.pio/build/${{ matrix.target.board }}/firmware.bin
+          path: |
+            projects/${{ matrix.target.project }}/.pio/build/${{ matrix.target.board }}/firmware.bin
+            projects/${{ matrix.target.project }}/.pio/build/${{ matrix.target.board }}/firmware.factory.bin
           if-no-files-found: error

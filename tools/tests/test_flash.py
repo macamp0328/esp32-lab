@@ -49,3 +49,29 @@ def test_resolve_numeric_and_unknown():
 def test_board_baud_comes_from_board_ini():
     assert flash.board_baud("m5stickc-plus11") == "1500000"
     assert flash.board_baud("s3mini") == "921600"
+
+
+def test_ota_failure_falls_back_to_usb_even_with_only_lab_port(monkeypatch):
+    calls = []
+    monkeypatch.setattr(flash, "flash_ota", lambda *a: 1)
+    monkeypatch.setattr(flash, "flash_usb", lambda p, b, port: calls.append(port) or 0)
+    monkeypatch.setattr(flash, "candidates", lambda: [])
+    monkeypatch.setenv("LAB_PORT", "/dev/cu.weird")
+    assert flash.main(["p000-blink", "s3mini", "--ota"]) == 0
+    assert calls == ["/dev/cu.weird"]
+
+
+def test_ota_failure_without_any_port_fails(monkeypatch):
+    monkeypatch.setattr(flash, "flash_ota", lambda *a: 1)
+    monkeypatch.setattr(flash, "candidates", lambda: [])
+    monkeypatch.delenv("LAB_PORT", raising=False)
+    assert flash.main(["p000-blink", "s3mini", "--ota"]) == 1
+
+
+def test_espota_fetch_failure_returns_instead_of_raising(monkeypatch, tmp_path):
+    monkeypatch.setattr(flash, "ESPOTA", tmp_path / "missing" / "espota.py")
+    monkeypatch.setattr(flash.subprocess, "call", lambda *a, **k: 1)
+    app = flash.PROJECTS / "p000-blink" / ".pio" / "build" / "s3mini" / "firmware.bin"
+    if not app.is_file():
+        pytest.skip("needs a built p000 s3mini firmware.bin")
+    assert flash.flash_ota("p000-blink", "s3mini", "127.0.0.1") == 1

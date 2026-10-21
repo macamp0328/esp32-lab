@@ -1,23 +1,23 @@
-// Host tests for the serial contract this project emits (lab_core/lab_json.h).
+// Host tests for the serial contract this project emits (lab_core: lab_contract.h, lab_json.h).
 // Add this project's own pure-logic tests next to these.
 #include <math.h>
 #include <string.h>
 #include <unity.h>
 
+#include "lab_contract.h"
 #include "lab_json.h"
 
 void setUp() {}
 void tearDown() {}
 
 static void test_boot_line_matches_contract() {
-  char buf[160];
-  lab::JsonLine line(buf, sizeof buf, 1250, "boot");
-  line.str("proj", "{{PROJECT}}").str("fw", "a1b2c3d").str("fastled", "3.10.7");
+  char buf[256];
+  const char* line = lab::boot_line(buf, sizeof buf, 1250,
+                                    {"{{PROJECT}}", "a1b2c3d", "s3mini", "3.10.7", "3.3.12"});
   TEST_ASSERT_EQUAL_STRING(
       "{\"t\":1250,\"ev\":\"boot\",\"proj\":\"{{PROJECT}}\",\"fw\":\"a1b2c3d\","
-      "\"fastled\":\"3.10.7\"}",
-      line.finish());
-  TEST_ASSERT_TRUE(line.ok());
+      "\"board\":\"s3mini\",\"fastled\":\"3.10.7\",\"core\":\"3.3.12\"}",
+      line);
 }
 
 static void test_numbers_bools_and_nonfinite() {
