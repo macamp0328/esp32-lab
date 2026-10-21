@@ -3,6 +3,12 @@
 Newest first. Five lines each: date and title, what, instead of, why, revisit when.
 Read before changing anything an entry covers. A version bump is a new entry plus a green CI.
 
+## 2026-10-21 · Simulations live in `shared/lab_sim` with caller-owned state; `lab_fx` stays time-only
+- What: Life, Ant, Snake, Tetris, Sand, Marble as structs with `reset(seed, layout)`, `step(Input)`, `draw(px, layout)`; fixed 16x16 grids, seeded `lab_sim::Rng`, no heap, no globals
+- Instead of: stateful effects inside `lab_fx`, or each project keeping its own copies
+- Why: the time-only entry below said to revisit when an effect needs memory; explicit state keeps sims host-testable with fixed seeds and keeps `lab_fx` crossfade-safe
+- Revisit when: a sim needs more than 16x16 cells or heap-sized state
+
 ## 2026-10-21 · p002 is the matrix demo on the M5; effects are functions of time only
 - What: p002-matrix-demo (M5StickC Plus + matrix-8x8-01 on Grove G33, 400 mA cap); 12 new `lab_fx` effects, each `f(t)` with no state
 - Instead of: renumbering it p001 under the creation-order rule (below), which landed on main mid-build; stateful effects (life, snake)

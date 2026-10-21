@@ -1,0 +1,7 @@
+{
+  "name": "lab_sim",
+  "version": "0.1.0",
+  "description": "Stateful simulations for LED layouts (life, ant, snake, tetris, sand, marble): caller-owned state, no heap",
+  "frameworks": "*",
+  "platforms": "*"
+}
