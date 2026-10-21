@@ -21,10 +21,14 @@ boards:
 leds:
   - id: matrix-8x8-01
     model: BTF-LIGHTING WS2812B 8x8 flexible
-    revision: WS2812B 5050, 5V
+    revision: WS2812B ECO 5050, 5V, alloy wires, flexible FPCB
+    specs: 64 px
     qty: 1
-    source: on hand
+    source: Amazon B088BTSPYD
     projects: []
+    notes: >-
+      bought before 2020-12-23 (ASIN from Gmail "Buy it again"; the 2020 order emails do not
+      name items, so no exact date); listing title also says 256 px, a shared multi-size page
   - id: strips-box-01
     model: assorted LED strips (not inventoried)
     qty: 1

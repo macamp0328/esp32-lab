@@ -15,3 +15,4 @@ Grep here before debugging.
 - 2026-10-21 shared/tests: `unity.h: No such file` → `lib_extra_dirs = ../../shared` made LDF register shared/tests itself as a library → `lib_ignore = tests`.
 - 2026-10-21 repo: a project's `.pio/build/<other board>` vanished → PlatformIO wipes `.pio/build` when any included ini (here boards/_template/board.ini) changes → rebuild before flashing; `just flash` says so.
 - 2026-10-21 repo: `rm -rf .pio` failed with "Directory not empty" → Finder rewrites `.DS_Store` while it deletes → retry the rm; never chain a write after it with `&&`.
+- 2026-10-21 repo: `just check` died in `git ls-files` (exit 128) from a `.claude/worktrees/*` checkout → a worktree's `.git` file points at the main repo's host path, which the container does not mount → run it from the main checkout, or `docker run` with `-v <git-common-dir>:<same path>` and `safe.directory '*'`.
