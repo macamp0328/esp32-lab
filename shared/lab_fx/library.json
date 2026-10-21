@@ -1,0 +1,7 @@
+{
+  "name": "lab_fx",
+  "version": "0.1.0",
+  "description": "Pixel type, Layout (strip, serpentine matrix, rings) and effects written once for all layouts",
+  "frameworks": "*",
+  "platforms": "*"
+}
