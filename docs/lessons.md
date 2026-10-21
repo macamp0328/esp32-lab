@@ -11,3 +11,7 @@ Grep here before debugging.
 - 2026-10-21 p000/m5stickc-plus11: board plugged in, screen on, but no USB device at all → charge-only USB-C cable → use a known data cable (the S3's); check `ioreg -p IOUSB` before blaming drivers.
 - 2026-10-21 p000/m5stickc-plus11: esptool `Unable to verify flash chip connection` right after `Changing baud rate to 921600` → the M5's FTDI link does not hold 921600 → flash at 1500000 (stock board JSON's speed), read from `upload_speed` in board.ini.
 - 2026-10-21 p000/s3mini: first `just flash --ota` failed, the same espota call seconds later worked → cold mDNS lookup of `<name>.local` → `just flash --ota` resolves the host first (10 s retry) and retries the upload once.
+- 2026-10-21 shared/tests: native build of FastLED 3.10.7 fails (`sleep_for`, `std::chrono` in platforms/stub) → its host build targets FastLED's own tooling, not PlatformIO native → host tests use `lab::Pixel`, never FastLED.
+- 2026-10-21 shared/tests: `unity.h: No such file` → `lib_extra_dirs = ../../shared` made LDF register shared/tests itself as a library → `lib_ignore = tests`.
+- 2026-10-21 repo: a project's `.pio/build/<other board>` vanished → PlatformIO wipes `.pio/build` when any included ini (here boards/_template/board.ini) changes → rebuild before flashing; `just flash` says so.
+- 2026-10-21 repo: `rm -rf .pio` failed with "Directory not empty" → Finder rewrites `.DS_Store` while it deletes → retry the rm; never chain a write after it with `&&`.

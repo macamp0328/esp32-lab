@@ -3,6 +3,36 @@
 Newest first. Five lines each: date and title, what, instead of, why, revisit when.
 Read before changing anything an entry covers. A version bump is a new entry plus a green CI.
 
+## 2026-10-21 · Effects take `lab::Pixel` (CRGB on the board, plain RGB on the host)
+- What: `lab_pixel.h` aliases CRGB under Arduino and defines a 3-byte `{r,g,b}` natively; color math (`lab::hsv`) is ours
+- Instead of: SPEC's "CRGB and CRGBPalette16 are available in FastLED's stub build" for host tests
+- Why: spec bug: FastLED 3.10.7's stub platform does not compile under PlatformIO native (gcc 14 `std::chrono`, `sleep_for`)
+- Revisit when: FastLED's host build works under PlatformIO, or an effect needs FastLED palettes
+
+## 2026-10-21 · `Layout` does its own index math instead of wrapping FastLED's XYMap
+- What: strip, serpentine/progressive matrix and rings with index/column/row/ring/angle/position, all host-tested
+- Instead of: SPEC's "Layout wraps XYMap and a ring map"
+- Why: XYMap lives in FastLED, which cannot be built on the host (entry above); the math is a dozen lines
+- Revisit when: an effect needs FastLED's 2D helpers (add `to_xymap()` on the board only)
+
+## 2026-10-21 · Shared libraries are tested in `shared/tests`, a native-only PlatformIO project
+- What: `shared/tests/test/test_{layout,power,fx}`, run by `just test-all`; `lib_ignore = tests` stops LDF treating it as a lib
+- Instead of: testing shared code only through each project's tests
+- Why: one place for library tests, two folders deep so the `../../` paths match projects
+- Revisit when: never
+
+## 2026-10-21 · `lab_core::begin(Setup)` applies the power cap; `lab_checks.h` holds compile-time rules
+- What: `begin({LAB_PROJECT, LAB_FW, POWER_VOLTS, POWER_MAX_MA})`; `lab_checks.h` has the power, matrix and pin asserts
+- Instead of: each main.cpp calling `setMaxPowerInVoltsAndMilliamps` and repeating the `#error` lines
+- Why: SPEC: "project code cannot forget it"; begin() will not compile without the cap
+- Revisit when: a project needs per-strip caps
+
+## 2026-10-21 · Inventory board entries name their `board:`; `just new` without `--board` lists them
+- What: `board: s3mini` on inventory boards; `just new p` with no board prints what is on hand and exits 1
+- Instead of: an interactive prompt in the CLI
+- Why: the agent asks Miles (new-project skill) and the CLI stays scriptable; the list comes from stock truth
+- Revisit when: two board types share a boards/ folder
+
 ## 2026-10-21 · The agent maintains inventory/stock.yaml
 - What: the agent edits stock.yaml when Miles asks (from an order, breakage or assignment), then `just inventory`
 - Instead of: SPEC's "Miles edits it; the agent proposes diffs"
@@ -45,7 +75,7 @@ Read before changing anything an entry covers. A version bump is a new entry plu
 - Why: `just flash --ota` falls back to USB, so a fresh fw hash alone cannot prove OTA delivered it
 - Revisit when: a partition table without two OTA slots is used
 
-## 2026-10-21 · flash and watch done in M1; sim and add-board still exit 2
+## 2026-10-21 · flash and watch done in M1; sim and add-board still exit 2 (add-board done in M2)
 - What: `just flash` (USB, `--ota`) and `just watch` (30 s capture + hil_assert) work on both boards
 - Instead of: the M0 stubs
 - Why: verified on hardware; Wokwi needs a `WOKWI_CLI_TOKEN` from Miles, and add-board belongs to M2
