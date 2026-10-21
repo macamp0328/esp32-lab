@@ -1,4 +1,4 @@
-# Toolchain image: ghcr.io/<owner>/esp32-lab-dev, tagged tc-<hash of Dockerfile + Python lockfile>.
+# Toolchain image: ghcr.io/<owner>/esp32-lab-dev, tagged only tc-<hash of Dockerfile + lockfile>.
 # ci.yml calls this first on every push; it only builds when that hash has no image yet, so a
 # toolchain change and the code that needs it land in one green run.
 name: image
@@ -18,10 +18,13 @@ permissions:
 jobs:
   image:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     outputs:
       ref: ${{ steps.tag.outputs.ref }}
     steps:
       - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
 
       - id: tag
         run: |
@@ -55,10 +58,7 @@ jobs:
         with:
           context: .
           push: true
-          tags: |
-            ${{ steps.tag.outputs.ref }}
-            ${{ steps.tag.outputs.repo }}:sha-${{ github.sha }}
-            ${{ github.ref == 'refs/heads/main' && format('{0}:latest', steps.tag.outputs.repo) || '' }}
+          tags: ${{ steps.tag.outputs.ref }}
           labels: org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
