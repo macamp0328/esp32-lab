@@ -49,6 +49,10 @@ test project:
 test-all:
     just _c just _test-all
 
+# build and test templates/project for every board, as `just new` would produce it (CI runs this)
+template-check:
+    just _c just _template-check
+
 # lint and repo rules: clang-format, cppcheck, ruff, actionlint, boards/projects/pins/secrets/inventory
 check:
     just _c just _check
@@ -104,7 +108,12 @@ _c +cmd:
     if [ "${LAB_IN_CONTAINER:-0}" = 1 ]; then exec "$@"; fi
     just image
     tty=""; if [ -t 0 ] && [ -t 1 ]; then tty="-it"; fi
-    exec docker run --rm $tty -v "{{ justfile_directory() }}:/work" -v esp32-lab-pio:/pio \
+    root="{{ justfile_directory() }}"
+    # A git worktree's .git file points at the main repo's .git by host path: mount it there too.
+    git_mount=""
+    common=$(git -C "$root" rev-parse --path-format=absolute --git-common-dir 2>/dev/null || true)
+    case "$common" in "" | "$root"/*) ;; *) git_mount="-v $common:$common" ;; esac
+    exec docker run --rm $tty -v "$root:/work" $git_mount -v esp32-lab-pio:/pio \
       -w /work "{{ image }}" "$@"
 
 [private]
@@ -145,6 +154,24 @@ _test-all:
       echo "== native tests: $d"
       (cd "$d" && pio test -e native)
     done
+
+_template-check:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    p=p999-template-check
+    root=$(pwd)
+    cleanup() {
+      cd "$root"
+      for _ in 1 2 3 4 5; do rm -rf "projects/$p" 2>/dev/null && break; sleep 1; done
+      python tools/status.py --write > /dev/null
+    }
+    trap cleanup EXIT
+    cleanup
+    all=$(python -c 'import sys; sys.path.insert(0, "tools"); import labrepo; print(",".join(labrepo.boards()))')
+    python tools/new_project.py "$p" --board "$all"
+    cd "projects/$p"
+    pio test -e native
+    pio run
 
 _check:
     #!/usr/bin/env bash
