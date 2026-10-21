@@ -202,6 +202,11 @@ void setup() {
   state.level = kBootLevel;
   state.set = DEMO_BOOT_SET;
   state.fx = state.prev = demo::next_in_set(state, kDemo, kCount - 1);
+  for (uint8_t i = 0; i < kCount; ++i) {
+    if (strcmp(kPlaylist[i].name, DEMO_BOOT_FX) != 0) continue;
+    state.fx = state.prev = i;  // a named boot effect is held (for checks and demos)
+    state.autoplay = false;
+  }
   state.started_ms = state.prev_started_ms = millis();
   announce();
 #endif

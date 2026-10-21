@@ -33,6 +33,7 @@
 #define DEMO_PROBE    0      // 1: show only the wiring probe (lab_fx::wiring) for bring-up
 #define DEMO_AUTO_MS  15000  // auto-advance period
 #define DEMO_BOOT_SET 1      // set at power-on: 1, 2, or 0 = all
+#define DEMO_BOOT_FX  ""     // "": the set's first effect; a name: start there, held
 #define DEMO_FADE_MS  600    // crossfade between effects
 #define MARQUEE_TEXT  "ESP32 LAB"
 
@@ -49,4 +50,4 @@
 #define TILT_SWAP_XY 0
 #define TILT_X_SIGN  1
 #define TILT_Y_SIGN  1
-#define TILT_LOG_MS  1000  // `tilt` events this often; 0 = off
+#define TILT_LOG_MS  0  // `tilt` events this often; 0 = off
