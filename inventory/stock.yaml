@@ -22,13 +22,13 @@ leds:
   - id: matrix-8x8-01
     model: BTF-LIGHTING WS2812B 8x8 flexible
     revision: WS2812B ECO 5050, 5V, alloy wires, flexible FPCB
-    specs: 64 px
+    specs: 8x8 = 64 px, 80x80 mm, GRB order, 3-pin JST, 19 W max (~3.8 A full white)
     qty: 1
     source: Amazon B088BTSPYD
     projects: []
     notes: >-
       bought before 2020-12-23 (ASIN from Gmail "Buy it again"; the 2020 order emails do not
-      name items, so no exact date); listing title also says 256 px, a shared multi-size page
+      name items, so no exact date); ASIN is the 8X8 64 Pixels option of a multi-size listing
   - id: strips-box-01
     model: assorted LED strips (not inventoried)
     qty: 1
