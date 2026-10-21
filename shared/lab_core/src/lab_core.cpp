@@ -5,6 +5,7 @@
 #include <Arduino.h>
 #include <FastLED.h>
 #include <esp_arduino_version.h>
+#include <esp_ota_ops.h>
 
 #include "lab_board.h"
 
@@ -73,6 +74,7 @@ void begin(const char* project, const char* fw) {
       .num("psram_kb", ESP.getPsramSize() / 1024)
       .num("heap", ESP.getFreeHeap())
       .str("mac", mac_str)
+      .str("app", esp_ota_get_running_partition()->label)  // app0 after USB, app1 after OTA
       .emit();
 }
 
