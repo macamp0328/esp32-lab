@@ -74,7 +74,7 @@ A failure at any rung goes back to compile. Never edit without compiling afterwa
 | --- | --- | --- |
 | Gotcha, HIL `fail`, anything that took > 20 min | `docs/lessons.md` | `- 2026-10-22 p001/s3mini: symptom → cause → fix` |
 | Choice: version, pin, library, architecture | `docs/decisions.md` | newest first, 5 lines |
-| Hardware bought/broken/assigned | `inventory/stock.yaml` | Miles edits; you propose the diff |
+| Hardware bought/broken/assigned | `inventory/stock.yaml` | you edit it when Miles asks (e.g. "add this order"), then `just inventory` |
 | Board facts measured at bring-up | `boards/<b>/pinout.md` | table rows |
 | Project state | `projects/<p>/README.md` | status line, wiring, power, demo |
 

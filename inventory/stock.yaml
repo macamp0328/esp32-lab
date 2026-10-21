@@ -1,4 +1,4 @@
-# What Miles owns. Miles edits this on purchase, breakage or assignment; the agent proposes diffs.
+# What Miles owns. The agent keeps it current when Miles asks (an order, a breakage, an assignment).
 # Validated by `just inventory` (also part of `just check`). Shape: inventory/README.md.
 boards:
   - id: s3mini-01..03
@@ -8,13 +8,14 @@ boards:
     source: Amazon B0CR2RH7PS
     date: 2026-10-20
     projects: [p000-blink]
-    notes: headers shipped loose, not soldered yet
+    notes: headers shipped loose, not soldered yet; s3mini-01 bench-verified 2026-10-21 (p000)
   - id: m5stickc-01
     model: M5StickC Plus 1.1
     revision: ESP32-PICO-D4, 4MB flash, SPM1423 PDM mic, 1.14in ST7789, AXP192
     qty: 1
     source: on hand
     projects: [p000-blink]
+    notes: bench-verified 2026-10-21 (p000); its own USB-C cable looked charge-only
 leds:
   - id: matrix-8x8-01
     model: BTF-LIGHTING WS2812B 8x8 flexible

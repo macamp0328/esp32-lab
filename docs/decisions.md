@@ -3,6 +3,12 @@
 Newest first. Five lines each: date and title, what, instead of, why, revisit when.
 Read before changing anything an entry covers. A version bump is a new entry plus a green CI.
 
+## 2026-10-21 · The agent maintains inventory/stock.yaml
+- What: the agent edits stock.yaml when Miles asks (from an order, breakage or assignment), then `just inventory`
+- Instead of: SPEC's "Miles edits it; the agent proposes diffs"
+- Why: Miles' call: he will mostly prompt the agent ("look at this order and update stock") rather than edit YAML
+- Revisit when: never, unless stock drifts from reality
+
 ## 2026-10-21 · M1 open questions closed: stock S3 board JSON, M5Unified on the M5
 - What: s3mini stays `esp32-s3-devkitc-1` + overrides; the M5 uses M5Unified 0.2.27 for AXP192 and TFT
 - Instead of: a committed custom board JSON; a bare M5 with only LED and mic

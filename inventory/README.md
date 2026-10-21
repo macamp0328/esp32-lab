@@ -1,7 +1,8 @@
 # Inventory
 
-`stock.yaml` is the record of what exists. Miles edits it on every purchase, breakage or
-assignment; the agent reads it before proposing hardware and may propose a diff.
+`stock.yaml` is the record of what exists. The agent edits it when Miles asks: typically
+"I ordered X, look at the order and update stock", a breakage, or assigning parts to a project.
+The agent also reads it before proposing hardware. Miles rarely edits it by hand.
 
 `just inventory` prints a table and validates; `just check` validates too.
 
