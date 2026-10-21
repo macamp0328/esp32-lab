@@ -14,7 +14,8 @@ from labrepo import PROJECT_RE, ROOT, boards
 STOCK = ROOT / "inventory" / "stock.yaml"
 CATEGORIES = {"boards", "leds", "mics", "power", "parts", "tools"}
 REQUIRED = {"id", "model", "qty", "source"}
-OPTIONAL = {"revision", "specs", "date", "projects", "notes", "board"}
+OPTIONAL = {"revision", "specs", "date", "projects", "notes", "board", "type"}
+TEXT_KEYS = ("model", "source", "revision", "specs", "notes", "type")
 ID_RE = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*(?:\.\.\d+)?$")
 
 
@@ -50,6 +51,11 @@ def validate(data: object) -> list[str]:
                     errors.append(f"{where}: duplicate id")
                 else:
                     seen.add(item["id"])
+            errors += [
+                f"{where}: {k} must be text (quote it)"
+                for k in TEXT_KEYS
+                if k in item and not isinstance(item[k], str)
+            ]
             qty = item.get("qty")
             if "qty" in item and (not isinstance(qty, int) or isinstance(qty, bool) or qty < 0):
                 errors.append(f"{where}: qty must be an integer >= 0")

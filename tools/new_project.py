@@ -3,11 +3,13 @@
 from __future__ import annotations
 
 import argparse
+import re
 import shutil
+import subprocess
 import sys
 
 import status
-from labrepo import PROJECT_RE, PROJECTS, TEMPLATE, boards, projects, split_list
+from labrepo import PROJECT_RE, PROJECTS, ROOT, TEMPLATE, boards, projects, split_list
 
 import inventory
 
@@ -24,6 +26,10 @@ def main(argv: list[str] | None = None) -> int:
     taken = [p for p in projects() if p[:4] == number]
     if taken:
         return fail(f"{number} is already used by {taken[0]}; numbers are never reused")
+    if number in numbers_in_history():
+        return fail(
+            f"{number} was used by a deleted project (git history); numbers are never reused"
+        )
     if not args.board:
         on_hand = inventory.boards_on_hand(inventory.load())
         listing = ", ".join(f"{b} ({n} on hand)" for b, n in on_hand.items()) or "none in stock"
@@ -48,6 +54,18 @@ def main(argv: list[str] | None = None) -> int:
         f"&& just watch {args.name}"
     )
     return 0
+
+
+def numbers_in_history() -> set[str]:
+    """pNNN numbers of every project ever committed, so deleted ones are not reused."""
+    try:
+        out = subprocess.run(
+            ["git", "log", "--all", "--format=", "--name-only", "--", "projects/"],
+            cwd=ROOT, capture_output=True, text=True, check=True,
+        ).stdout  # fmt: skip
+    except (OSError, subprocess.CalledProcessError):
+        return set()
+    return set(re.findall(r"^projects/(p\d{3})-", out, re.M))
 
 
 def fail(msg: str) -> int:

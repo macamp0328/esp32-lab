@@ -36,6 +36,8 @@ def add_board(root: Path, name: str, chip: str, pio_board: str) -> list[str]:
         raise ValueError(f"'{name}' must be lowercase kebab-case, e.g. xiao-s3")
     if (boards / name).exists():
         raise ValueError(f"boards/{name} already exists")
+    if name == "native" or f"[env:{name}]" in (root / "platformio.common.ini").read_text():
+        raise ValueError(f"'{name}' clashes with an existing [env:{name}]")
     if chip not in CHIPS:
         raise ValueError(f"chip '{chip}' not one of {', '.join(CHIPS)}")
 

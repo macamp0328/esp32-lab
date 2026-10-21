@@ -40,3 +40,8 @@ def test_duplicate_ids_and_bad_project_refs():
 def test_render_lists_every_item():
     out = inventory.render({"leds": [item(id="matrix-8x8-01", model="BTF 8x8", qty=1)]})
     assert "matrix-8x8-01" in out and "BTF 8x8" in out
+
+
+def test_text_fields_must_be_strings():
+    errors = "\n".join(inventory.validate({"parts": [item(model=18650)]}))
+    assert "model must be text" in errors

@@ -9,6 +9,7 @@ Builds nothing: run `just build <p> <board>` first.
 from __future__ import annotations
 
 import argparse
+import os
 import re
 import socket
 import subprocess
@@ -90,7 +91,10 @@ def flash_ota(project: str, board: str, host: str | None) -> int:
         sys.exit(f"{app.relative_to(ROOT)} missing: run `just build {project} {board}`")
     if not ESPOTA.is_file():
         ESPOTA.parent.mkdir(exist_ok=True)
-        subprocess.check_call(["just", "_c", "cp", ESPOTA_IN_IMAGE, ".cache/espota.py"], cwd=ROOT)
+        cmd = ["just", "_c", "cp", ESPOTA_IN_IMAGE, ".cache/espota.py"]
+        if subprocess.call(cmd, cwd=ROOT) != 0:
+            print("flash: could not fetch espota.py from the image (is Docker running?)")
+            return 1
     include = PROJECTS / project / "include"
     host = host or f"{header_define(include / 'config.h', 'MDNS_NAME') or project}.local"
     ip = resolve(host)
@@ -131,7 +135,7 @@ def main(argv: list[str] | None = None) -> int:
         board = choose_board(supported, args.board, None)
         if flash_ota(args.project, board, args.ota or None) == 0:
             return 0
-        if not (args.port or candidates()):
+        if not (args.port or os.environ.get("LAB_PORT") or candidates()):
             return 1
         print("flash: OTA failed, falling back to USB", flush=True)
         port = args.port or pick_port()
