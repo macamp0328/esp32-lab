@@ -15,6 +15,7 @@ void begin() {
   auto cfg = M5.config();
   cfg.serial_baudrate = 0;  // lab_core already started Serial
   cfg.output_power = true;  // Grove 5 V
+  cfg.internal_imu = true;
   M5.begin(cfg);
   M5.Display.setRotation(1);
   M5.Display.fillScreen(TFT_BLACK);
@@ -56,8 +57,18 @@ Buttons buttons() {
   b.a_click = M5.BtnA.wasClicked();
   b.a_hold = M5.BtnA.wasHold();
   b.b_click = M5.BtnB.wasClicked();
+  b.b_hold = M5.BtnB.wasHold();
 #endif
   return b;
+}
+
+bool accel(float* x, float* y, float* z) {
+#if BOARD_HAS_IMU && defined(LAB_BOARD_M5STICKC_PLUS11)
+  M5.Imu.update();
+  if (M5.Imu.getAccel(x, y, z)) return true;
+#endif
+  *x = *y = *z = 0;
+  return false;
 }
 
 }  // namespace lab_board

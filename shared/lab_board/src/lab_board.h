@@ -50,8 +50,13 @@ struct Buttons {
   bool a_click = false;
   bool a_hold = false;
   bool b_click = false;
+  bool b_hold = false;
 };
 Buttons buttons();
+
+// Acceleration in g on the IMU chip's own axes (projects map them to their frame); false, with
+// zeros, on boards without BOARD_HAS_IMU or when the read fails.
+bool accel(float* x, float* y, float* z);
 #endif
 
 }  // namespace lab_board

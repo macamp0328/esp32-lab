@@ -23,6 +23,7 @@
 
 #define BOARD_HAS_PDM_MIC 1
 #define BOARD_HAS_TFT     1
+#define BOARD_HAS_IMU     1  // MPU6886 on the internal I2C bus, read through M5Unified
 
 #define BOARD_SAFE_PINS {26, 32, 33}  // datasheet; confirm with a wired strip
 #define BOARD_VERIFIED  1             // p000 confirmed chip, memory, USB, TFT and status LED

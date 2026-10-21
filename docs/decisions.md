@@ -3,6 +3,12 @@
 Newest first. Five lines each: date and title, what, instead of, why, revisit when.
 Read before changing anything an entry covers. A version bump is a new entry plus a green CI.
 
+## 2026-10-21 · IMU through `lab_board::accel()`, gated by `BOARD_HAS_IMU`
+- What: new required capability flag (1 on m5stickc-plus11, 0 elsewhere); `accel(&x, &y, &z)` in g on the chip's own axes; `Buttons` gains `b_hold`
+- Instead of: projects calling `M5.Imu` directly, or a project-level IMU flag
+- Why: AGENTS' board rule: capability flags gate features; raw chip axes keep lab_board free of any one project's mounting
+- Revisit when: a board's IMU is not reachable through M5Unified (add its branch in lab_board.cpp)
+
 ## 2026-10-21 · Simulations live in `shared/lab_sim` with caller-owned state; `lab_fx` stays time-only
 - What: Life, Ant, Snake, Tetris, Sand, Marble as structs with `reset(seed, layout)`, `step(Input)`, `draw(px, layout)`; fixed 16x16 grids, seeded `lab_sim::Rng`, no heap, no globals
 - Instead of: stateful effects inside `lab_fx`, or each project keeping its own copies

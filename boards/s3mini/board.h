@@ -17,6 +17,7 @@
 
 #define BOARD_HAS_PDM_MIC 0
 #define BOARD_HAS_TFT     0
+#define BOARD_HAS_IMU     0
 
 #define BOARD_SAFE_PINS \
   {1, 2, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13}  // datasheet; confirm with a wired strip

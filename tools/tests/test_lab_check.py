@@ -1,3 +1,5 @@
+import re
+
 import lab_check
 from labrepo import ROOT
 
@@ -44,6 +46,15 @@ def test_secrets_flagged_unless_placeholder(tmp_path, monkeypatch):
 def test_secrets_header_must_not_be_committed(tmp_path, monkeypatch):
     files = write(tmp_path, monkeypatch, "projects/p001-x/include/secrets.h", "")
     assert "untracked" in lab_check.check_secrets(files)[0]
+
+
+def test_every_capability_flag_shared_code_uses_is_required():
+    used = set()
+    for f in (ROOT / "shared").rglob("*.[ch]*"):
+        if ".pio" not in f.parts:
+            used |= set(re.findall(r"\bBOARD_HAS_\w+", f.read_text(errors="replace")))
+    assert "BOARD_HAS_IMU" in used
+    assert used <= set(lab_check.BOARD_MACROS)
 
 
 def test_repo_passes_its_own_rules():
