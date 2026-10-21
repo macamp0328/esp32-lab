@@ -1,6 +1,6 @@
 # p000-blink
 
-**Status:** prototype  ·  **Last HIL check:** never
+**Status:** bench-verified (s3mini)  ·  **Last HIL check:** 2026-10-21 s3mini ok
 
 Board bring-up firmware: proves a board builds, flashes, logs the serial contract (plus a `hw`
 event with measured chip facts), lights its LED, and takes one OTA update.

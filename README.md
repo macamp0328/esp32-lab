@@ -21,7 +21,7 @@ just new p003-desk-lamp --board s3mini
 <!-- status:begin -->
 | Project | Boards | Status | Last HIL check |
 | --- | --- | --- | --- |
-| [p000-blink](projects/p000-blink/README.md) | s3mini, m5stickc-plus11 | prototype | never |
+| [p000-blink](projects/p000-blink/README.md) | s3mini, m5stickc-plus11 | bench-verified (s3mini) | 2026-10-21 s3mini ok |
 <!-- status:end -->
 
 ## Layout
