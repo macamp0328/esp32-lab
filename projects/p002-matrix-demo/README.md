@@ -40,5 +40,4 @@ bounce, marquee (`MARQUEE_TEXT`). They all live in `shared/lab_fx`.
 `DEMO_PROBE 1` shows the wiring probe (`lab_fx::wiring`) instead.
 
 ## Open issues
-- [ ] Built from a `.claude/worktrees/*` checkout, the screen and `boot` show `fw=nogit`
-  (docs/lessons.md); build from the main checkout for a real hash.
+- [ ] None known.
