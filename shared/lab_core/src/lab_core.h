@@ -1,9 +1,14 @@
 #pragma once
-// Lab-wide runtime: serial contract output. On-target only; the encoder is lab_json.h.
-// Usage: lab_core::begin(LAB_PROJECT, LAB_FW);
+// Lab-wide runtime: serial contract and the power cap. On-target parts need Arduino; the pure
+// parts (lab_json.h, lab_power.h, lab_audio_frame.h) are host-tested.
+// Usage: lab_core::begin({LAB_PROJECT, LAB_FW, POWER_VOLTS, POWER_MAX_MA});
 //        lab_core::Event("leds").num("n", NUM_LEDS).emit();
 
+#include <stdint.h>
+
+#include "lab_audio_frame.h"
 #include "lab_json.h"
+#include "lab_power.h"
 
 #ifdef ARDUINO
 
@@ -11,8 +16,16 @@ namespace lab_core {
 
 constexpr size_t kLineMax = 256;
 
-// Starts Serial (waits up to 2 s for USB CDC), emits `boot`, then `hw` (measured chip facts).
-void begin(const char* project, const char* fw);
+struct Setup {
+  const char* project;  // LAB_PROJECT
+  const char* fw;       // LAB_FW (git sha, set by tools/pio_fw.py)
+  uint8_t volts;        // POWER_VOLTS
+  uint32_t max_ma;      // POWER_MAX_MA
+};
+
+// Starts Serial (waits up to 2 s for USB CDC), emits `boot` and `hw` (measured chip facts), and
+// applies the FastLED power cap, so no project can forget it.
+void begin(const Setup& setup);
 
 // FastLED's driver for clockless LEDs; the build fails unless it is RMT (AGENTS.md hardware rules).
 const char* led_driver();

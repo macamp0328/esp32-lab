@@ -40,7 +40,7 @@ void error(const char* code) {
   write_line(line.finish());
 }
 
-void begin(const char* project, const char* fw) {
+void begin(const Setup& setup) {
   Serial.begin(115200);
   const uint32_t start = millis();
   while (!Serial && millis() - start < 2000) delay(10);
@@ -53,8 +53,8 @@ void begin(const char* project, const char* fw) {
            ESP_ARDUINO_VERSION_PATCH);
 
   Event("boot")
-      .str("proj", project)
-      .str("fw", fw)
+      .str("proj", setup.project)
+      .str("fw", setup.fw)
       .str("board", BOARD_NAME)
       .str("fastled", fastled)
       .str("core", core)
@@ -76,6 +76,8 @@ void begin(const char* project, const char* fw) {
       .str("mac", mac_str)
       .str("app", esp_ota_get_running_partition()->label)  // app0 after USB, app1 after OTA
       .emit();
+
+  FastLED.setMaxPowerInVoltsAndMilliamps(setup.volts, setup.max_ma);
 }
 
 const char* led_driver() { return "RMT"; }
