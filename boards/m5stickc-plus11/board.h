@@ -1,6 +1,6 @@
 #pragma once
 // M5StickC Plus 1.1: ESP32-PICO-D4 (4 MB flash, no PSRAM), SPM1423 PDM mic, 1.14" ST7789v2
-// 135x240 TFT, AXP192 PMIC. From M5Stack docs. UNVERIFIED until p000 bring-up (M1).
+// 135x240 TFT, AXP192 PMIC. Chip, memory, USB, TFT and red LED measured 2026-10-21 (pinout.md).
 // The AXP192 must enable its rails (lab_board::begin()) before the TFT or Grove 5 V is used.
 
 #define BOARD_NAME     "m5stickc-plus11"
@@ -23,5 +23,5 @@
 #define BOARD_HAS_PDM_MIC 1
 #define BOARD_HAS_TFT     1
 
-#define BOARD_SAFE_PINS {26, 32, 33}  // verified at bring-up
-#define BOARD_VERIFIED  0
+#define BOARD_SAFE_PINS {26, 32, 33}  // datasheet; confirm with a wired strip
+#define BOARD_VERIFIED  1             // p000 confirmed chip, memory, USB, TFT and status LED

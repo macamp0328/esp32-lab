@@ -1,6 +1,6 @@
 # p000-blink
 
-**Status:** bench-verified (s3mini)  ·  **Last HIL check:** 2026-10-21 s3mini ok
+**Status:** bench-verified  ·  **Last HIL check:** 2026-10-21 s3mini ok, m5stickc-plus11 ok
 
 Board bring-up firmware: proves a board builds, flashes, logs the serial contract (plus a `hw`
 event with measured chip facts), lights its LED, and takes one OTA update.
@@ -22,4 +22,5 @@ LEDs: 1 onboard (s3mini) or none attached (M5) · cap 500 mA · supply: laptop U
 OTA: `just flash p000 s3mini --ota`.
 
 ## Open issues
-- [ ] …
+- [ ] M5 build is at 94% of its 1.25 MB app slot; a bigger project needs a 2 MB-app partition table.
+- [ ] Both boards answer to `p000-blink.local`; with both on WiFi, OTA reaches whichever replies first.
