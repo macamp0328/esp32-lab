@@ -47,13 +47,25 @@ PIN_LITERAL = [
     ),
     re.compile(r"\bGPIO_NUM_\d+"),
     re.compile(r"\baddLeds\s*<[^>]*,\s*\d+\s*[,>]"),
-    re.compile(r"#\s*define\s+\w*(PIN|GPIO)\w*\s+\d+\b"),
+    re.compile(r"#\s*define\s+\w*(PIN|GPIO)\w*\s+\(?\d+\)?(\s|$)"),
+    re.compile(r"\b(Wire\d?|SPI)\s*\.\s*begin\s*\(\s*\d"),  # Wire.begin(21, 22), SPI.begin(18, ...)
+    re.compile(
+        r"\bSerial\d\s*\.\s*begin\s*\([^,)]*,[^,)]*,\s*\d"
+    ),  # Serial1.begin(baud, cfg, 16, 17)
+    re.compile(r"_io_num\s*=\s*\d"),  # i2s/rmt config structs: .bck_io_num = 26
+    re.compile(r"\b(const|constexpr)\b[^=;]*\b\w*(Pin|PIN|_pin)\s*=\s*\d"),  # kLedPin = 5
 ]
-STRAY_SERIAL = re.compile(r"\b(Serial\d?\s*\.\s*(print|println|printf|write)|printf)\s*\(")
-SECRET = re.compile(
-    r"(?i)(ssid|passw(or)?d|psk|api[_-]?key|token|secret)\w*[\"']?\s*(=|:|\s)\s*\"([^\"]*)\""
+STRAY_SERIAL = re.compile(
+    r"\b(\w*Serial\d?\s*\.\s*(print|println|printf|write)|printf|ets_printf|puts)\s*\("
 )
-PLACEHOLDER = re.compile(r"(?i)^(|changeme|your[-_ ].*|<.*>|x+|\*+)$")
+# A credential-looking identifier (name ends in the key word) assigned a literal.
+SECRET_KEY = r"\w*(ssid|pass|passwd|password|pwd|psk|api[_-]?key|token|secret)"
+SECRET = re.compile(
+    rf"(?i)\b{SECRET_KEY}\b[\"']?\s*(?:=|:|\s)\s*(?:\"(?P<dq>[^\"]*)\"|'(?P<sq>[^']*)')"
+)
+SECRET_YAML = re.compile(rf"(?i)^\s*{SECRET_KEY}\s*:\s*(?P<val>[^\s#'\"][^#]*?)\s*$")
+# Not credentials: empty, placeholders, and CI expressions like ${{ secrets.GITHUB_TOKEN }}.
+PLACEHOLDER = re.compile(r"(?i)^(|changeme|your[-_ ].*|<.*>|x+|\*+|\$\{\{.*\}\})$")
 CODE_SUFFIXES = {".c", ".cpp", ".h", ".hpp", ".ino"}
 TEXT_SUFFIXES = CODE_SUFFIXES | {".ini", ".py", ".yaml", ".yml", ".json", ".toml", ".sh", ""}
 
@@ -88,7 +100,7 @@ def check_boards() -> list[str]:
                 for key in ("board", "build_flags", "lib_deps"):
                     if not ini.has_option(sec, key):
                         errors.append(f"boards/{b}/board.ini: [{sec}] missing '{key}'")
-                if f"-D{board_flag(b)}" not in ini.get(sec, "build_flags", fallback=""):
+                if f"-D{board_flag(b)}" not in ini.get(sec, "build_flags", fallback="").split():
                     errors.append(f"boards/{b}/board.ini: build_flags must set -D{board_flag(b)}")
         if (d / "board.h").is_file():
             header = (d / "board.h").read_text()
@@ -123,7 +135,7 @@ def check_projects() -> list[str]:
             for m in CONFIG_MACROS
             if not re.search(rf"#\s*define\s+{m}\b", text)
         ]
-        if text and f'"{p}"' not in text:
+        if text and not re.search(rf'#\s*define\s+LAB_PROJECT\s+"{re.escape(p)}"', text):
             errors.append(f'{where}/include/config.h: LAB_PROJECT must be "{p}"')
         if not list((PROJECTS / p / "test").glob("test_*/*.c*")):
             errors.append(f"{where}: needs at least one native test in test/test_*/")
@@ -154,7 +166,7 @@ def check_code(files: list[Path]) -> list[str]:
             code = strip_comment(line)
             if any(r.search(code) for r in PIN_LITERAL):
                 errors.append(f"{rel}:{n}: literal GPIO number; use a BOARD_* name from board.h")
-            if area != "include" and STRAY_SERIAL.search(code):
+            if STRAY_SERIAL.search(code):
                 errors.append(f"{rel}:{n}: stray Serial/printf; log through lab_core::Event")
     return errors
 
@@ -171,8 +183,12 @@ def check_secrets(files: list[Path]) -> list[str]:
         for n, line in enumerate(f.read_text(errors="replace").splitlines(), 1):
             if "lab:allow" in line:
                 continue
-            for m in SECRET.finditer(line):
-                if not PLACEHOLDER.match(m.group(4)):
+            values = [m.group("dq") if m.group("dq") is not None else m.group("sq")
+                      for m in SECRET.finditer(line)]  # fmt: skip
+            if f.suffix in (".yaml", ".yml") and (y := SECRET_YAML.match(line)):
+                values.append(y.group("val"))
+            for value in values:
+                if not PLACEHOLDER.match(value):
                     errors.append(f"{rel}:{n}: looks like a credential; move it to secrets.h")
     return errors
 
