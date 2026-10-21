@@ -1,0 +1,36 @@
+import new_project
+import pytest
+
+
+@pytest.fixture
+def tmp_projects(tmp_path, monkeypatch):
+    monkeypatch.setattr(new_project, "PROJECTS", tmp_path)
+    monkeypatch.setattr(new_project, "projects", lambda: sorted(p.name for p in tmp_path.iterdir()))
+    return tmp_path
+
+
+def test_creates_project_with_names_and_boards(tmp_projects):
+    assert new_project.main(["p042-desk-lamp", "--board", "s3mini,m5stickc-plus11"]) == 0
+    root = tmp_projects / "p042-desk-lamp"
+    assert "default_envs = s3mini, m5stickc-plus11" in (root / "platformio.ini").read_text()
+    assert '"p042-desk-lamp"' in (root / "include" / "config.h").read_text()
+    leftovers = [p for p in root.rglob("*") if p.is_file() and "{{" in p.read_text()]
+    assert leftovers == []
+
+
+@pytest.mark.parametrize(
+    "args",
+    [
+        ["desk-lamp", "--board", "s3mini"],
+        ["p042-Desk", "--board", "s3mini"],
+        ["p042-lamp", "--board", "uno"],
+    ],
+)
+def test_rejects_bad_names_and_boards(tmp_projects, args):
+    assert new_project.main(args) == 1
+    assert list(tmp_projects.iterdir()) == []
+
+
+def test_never_reuses_a_number(tmp_projects):
+    assert new_project.main(["p042-lamp", "--board", "s3mini"]) == 0
+    assert new_project.main(["p042-other", "--board", "s3mini"]) == 1
