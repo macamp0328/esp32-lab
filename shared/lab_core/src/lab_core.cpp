@@ -8,6 +8,10 @@
 
 #include "lab_board.h"
 
+#if !(defined(FASTLED_RMT5) && FASTLED_RMT5) || defined(FASTLED_ESP32_USE_CLOCKLESS_SPI)
+#error "esp32-lab drives clockless LEDs with FastLED's RMT driver; check FastLED flags"
+#endif
+
 namespace lab_core {
 
 namespace {
@@ -54,7 +58,25 @@ void begin(const char* project, const char* fw) {
       .str("fastled", fastled)
       .str("core", core)
       .emit();
+
+  const uint64_t mac = ESP.getEfuseMac();
+  char mac_str[18];
+  snprintf(mac_str, sizeof mac_str, "%02x:%02x:%02x:%02x:%02x:%02x", (unsigned)(mac & 0xff),
+           (unsigned)(mac >> 8 & 0xff), (unsigned)(mac >> 16 & 0xff), (unsigned)(mac >> 24 & 0xff),
+           (unsigned)(mac >> 32 & 0xff), (unsigned)(mac >> 40 & 0xff));
+  Event("hw")
+      .str("chip", ESP.getChipModel())
+      .num("rev", ESP.getChipRevision())
+      .num("cores", ESP.getChipCores())
+      .num("mhz", ESP.getCpuFreqMHz())
+      .num("flash_kb", ESP.getFlashChipSize() / 1024)
+      .num("psram_kb", ESP.getPsramSize() / 1024)
+      .num("heap", ESP.getFreeHeap())
+      .str("mac", mac_str)
+      .emit();
 }
+
+const char* led_driver() { return "RMT"; }
 
 }  // namespace lab_core
 

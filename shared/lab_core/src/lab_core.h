@@ -11,8 +11,11 @@ namespace lab_core {
 
 constexpr size_t kLineMax = 256;
 
-// Starts Serial (waits up to 2 s for USB CDC) and emits the `boot` event.
+// Starts Serial (waits up to 2 s for USB CDC), emits `boot`, then `hw` (measured chip facts).
 void begin(const char* project, const char* fw);
+
+// FastLED's driver for clockless LEDs; the build fails unless it is RMT (AGENTS.md hardware rules).
+const char* led_driver();
 
 // One serial-contract line. Emits on emit(); an overflowing line becomes an `err` event.
 class Event {
