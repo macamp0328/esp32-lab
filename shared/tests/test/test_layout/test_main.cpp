@@ -46,7 +46,7 @@ static void test_matrix_index_and_column_row_round_trip() {
 
 static void test_rings_split_by_wiring_order() {
   const uint16_t sizes[] = {16, 8};
-  const Layout l = Layout::rings(sizes, 2);
+  const Layout l = Layout::rings(sizes);
   TEST_ASSERT_EQUAL_UINT16(24, l.size());
   TEST_ASSERT_EQUAL_UINT8(0, l.ring(15));
   TEST_ASSERT_EQUAL_UINT8(1, l.ring(16));
@@ -58,10 +58,23 @@ static void test_rings_split_by_wiring_order() {
 
 static void test_ring_radius_follows_led_count() {
   const uint16_t sizes[] = {16, 8};
-  const Layout l = Layout::rings(sizes, 2);
+  const Layout l = Layout::rings(sizes);
   TEST_ASSERT_FLOAT_WITHIN(1e-5, 1.0f, l.position(0).x);    // outer ring, angle 0
   TEST_ASSERT_FLOAT_WITHIN(1e-5, 0.75f, l.position(16).x);  // inner ring, half the radius
   TEST_ASSERT_FLOAT_WITHIN(1e-5, 0.5f, l.position(16).y);
+}
+
+static void test_empty_layouts_do_not_divide_by_zero() {
+  const Layout none;
+  const Layout strip0 = Layout::strip(0);
+  const Layout matrix0 = Layout::matrix(0, 4, true);
+  const Layout* layouts[] = {&none, &strip0, &matrix0};
+  for (const Layout* l : layouts) {
+    TEST_ASSERT_EQUAL_UINT16(0, l->size());
+    TEST_ASSERT_EQUAL_UINT16(0, l->row(0));
+    TEST_ASSERT_EQUAL_UINT16(0, l->column(0));
+    TEST_ASSERT_FLOAT_WITHIN(1e-6, 0.5f, l->position(0).x);
+  }
 }
 
 int main() {
@@ -72,5 +85,6 @@ int main() {
   RUN_TEST(test_matrix_index_and_column_row_round_trip);
   RUN_TEST(test_rings_split_by_wiring_order);
   RUN_TEST(test_ring_radius_follows_led_count);
+  RUN_TEST(test_empty_layouts_do_not_divide_by_zero);
   return UNITY_END();
 }

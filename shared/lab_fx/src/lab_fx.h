@@ -24,7 +24,7 @@ inline void sweep(lab::Pixel* px, const lab::Layout& layout, const lab::AudioFra
 inline void rainbow(lab::Pixel* px, const lab::Layout& layout, const lab::AudioFrame& audio,
                     uint32_t t_ms) {
   const uint8_t drift = static_cast<uint8_t>(t_ms / 16);
-  const float level = audio.level < 0 ? 0 : (audio.level > 1 ? 1 : audio.level);
+  const float level = !(audio.level > 0) ? 0 : (audio.level > 1 ? 1 : audio.level);  // NaN -> 0
   const uint8_t value = 160 + static_cast<uint8_t>(95 * level);
   for (uint16_t i = 0; i < layout.size(); ++i) {
     const uint8_t hue = static_cast<uint8_t>(layout.angle(i) * 255) + drift;

@@ -3,6 +3,7 @@
 // Index = wiring order. Positions are normalized to 0..1. Pure; host-tested.
 
 #include <math.h>
+#include <stddef.h>
 #include <stdint.h>
 
 namespace lab {
@@ -37,10 +38,13 @@ class Layout {
   }
 
   // Concentric rings in wiring order; a ring's radius is proportional to its LED count.
-  static Layout rings(const uint16_t* sizes, uint8_t count) {
+  // Takes the array itself so more than kMaxRings rings is a compile error, not a silent cut.
+  template <size_t N>
+  static Layout rings(const uint16_t (&sizes)[N]) {
+    static_assert(N >= 1 && N <= kMaxRings, "Layout::rings takes 1..kMaxRings rings");
     Layout l;
     l.kind_ = Kind::kRings;
-    l.ring_count_ = count < kMaxRings ? count : kMaxRings;
+    l.ring_count_ = N;
     for (uint8_t r = 0; r < l.ring_count_; ++r) {
       l.rings_[r] = sizes[r];
       l.size_ += sizes[r];
@@ -64,16 +68,17 @@ class Layout {
     return y * w_ + col;
   }
 
-  uint16_t row(uint16_t i) const { return kind_ == Kind::kRings ? 0 : i / w_; }
+  // Empty layouts (0 LEDs) answer 0 everywhere instead of dividing by zero.
+  uint16_t row(uint16_t i) const { return (kind_ == Kind::kRings || w_ == 0) ? 0 : i / w_; }
   uint16_t column(uint16_t i) const {
-    if (kind_ == Kind::kRings) return i;
+    if (kind_ == Kind::kRings || w_ == 0) return kind_ == Kind::kRings ? i : 0;
     const uint16_t c = i % w_;
     return (serpentine_ && (row(i) & 1)) ? w_ - 1 - c : c;
   }
 
   // Rings: which ring (0 = first wired); strip/matrix: 0.
   uint8_t ring(uint16_t i) const {
-    if (kind_ != Kind::kRings) return 0;
+    if (kind_ != Kind::kRings || ring_count_ == 0) return 0;
     for (uint8_t r = 0; r < ring_count_; ++r) {
       if (i < rings_[r]) return r;
       i -= rings_[r];
@@ -92,6 +97,7 @@ class Layout {
   }
 
   Point position(uint16_t i) const {
+    if (size_ == 0) return {0.5f, 0.5f};
     if (kind_ == Kind::kRings) {
       const float radius = 0.5f * rings_[ring(i)] / max_ring_;
       const float a = 6.2831853f * angle(i);

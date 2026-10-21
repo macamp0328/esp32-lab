@@ -1,4 +1,5 @@
 // Effects and color math, on the host Pixel type (CRGB on the board).
+#include <math.h>
 #include <unity.h>
 
 #include "lab_fx.h"
@@ -60,9 +61,19 @@ static void test_rainbow_louder_is_brighter() {
   TEST_ASSERT_TRUE(lab::estimate_ma(loud, 8) > lab::estimate_ma(quiet, 8));
 }
 
+static void test_rainbow_treats_nan_level_as_silence() {
+  Pixel quiet[8], nan_px[8];
+  const Layout l = Layout::strip(8);
+  lab::AudioFrame audio;
+  lab_fx::rainbow(quiet, l, audio, 100);
+  audio.level = NAN;
+  lab_fx::rainbow(nan_px, l, audio, 100);
+  for (int i = 0; i < 8; ++i) assert_pixel(quiet[i], nan_px[i]);
+}
+
 static void test_rainbow_on_rings_uses_angle() {
   const uint16_t sizes[] = {16, 8};
-  const Layout l = Layout::rings(sizes, 2);
+  const Layout l = Layout::rings(sizes);
   Pixel px[24];
   lab_fx::rainbow(px, l, {}, 0);
   assert_pixel(px[0], px[16]);  // angle 0 on both rings
@@ -76,5 +87,6 @@ int main() {
   RUN_TEST(test_rainbow_hue_follows_position_and_time);
   RUN_TEST(test_rainbow_louder_is_brighter);
   RUN_TEST(test_rainbow_on_rings_uses_angle);
+  RUN_TEST(test_rainbow_treats_nan_level_as_silence);
   return UNITY_END();
 }
