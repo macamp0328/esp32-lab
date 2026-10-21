@@ -27,11 +27,14 @@ constexpr uint32_t kFpsPeriodMs = 5000;
 constexpr uint32_t kFrameMs = 16;  // ~60 fps
 constexpr uint8_t kLevels[] = {8, 20, 40, 80};
 constexpr uint8_t kBootLevel = 2;
-constexpr float kLevelG2 = 0.04f;  // tilt below ~11 degrees counts as lying flat
+constexpr float kStillG2 = 0.04f;  // less than ~11 degrees from the rest pose counts as still
 
-lab_sim::Input gravity;  // matrix space, from the IMU; straight down when flat or without one
-bool lying_flat = true;
-float raw[3] = {};  // last IMU reading, chip axes, in g
+// Tilt is measured from a rest pose, taken each time a tilt effect comes on, because the M5 rarely
+// lies flat (on the bench it rests about 40 degrees off). Without an IMU gravity points down.
+lab_sim::Input gravity;  // matrix space
+bool still = true;
+float raw[3] = {};   // last IMU reading, chip axes, in g
+float rest[3] = {};  // the rest pose
 
 // Every playlist entry renders into px at its own local time.
 using Render = void (*)(lab::Pixel* px, uint32_t t_ms);
@@ -43,10 +46,13 @@ void effect(lab::Pixel* px, uint32_t t_ms) {
 
 void marquee(lab::Pixel* px, uint32_t t_ms) { lab_fx::text(px, layout, MARQUEE_TEXT, t_ms); }
 
+enum class Tilt : uint8_t { kNone, kDown, kWander };
+
 // A simulation stepped every kTickMs of its local clock, restarted with a fresh seed whenever that
-// clock goes back to zero (each time the effect comes on). kWander: while the M5 lies flat,
-// gravity circles slowly instead of pointing down, so the marble keeps rolling.
-template <class Sim, uint32_t kTickMs, bool kWander = false>
+// clock goes back to zero (each time the effect comes on). Tilt effects also take the M5's pose at
+// that moment as rest; while it stays near rest, gravity points down (kDown) or circles slowly
+// (kWander, so the marble keeps rolling).
+template <class Sim, uint32_t kTickMs, Tilt kTilt = Tilt::kNone>
 void sim(lab::Pixel* px, uint32_t t_ms) {
   static Sim s;
   static uint32_t ticks = 0;
@@ -54,10 +60,13 @@ void sim(lab::Pixel* px, uint32_t t_ms) {
   if (t_ms < last_ms) {
     s.reset(esp_random(), layout);
     ticks = 0;
+    if (kTilt != Tilt::kNone) memcpy(rest, raw, sizeof rest);
   }
   last_ms = t_ms;
-  lab_sim::Input in = gravity;
-  if (kWander && lying_flat) in = {0.5f * cosf(t_ms * 0.0007f), 0.5f * sinf(t_ms * 0.0007f)};
+  lab_sim::Input in = kTilt == Tilt::kNone ? lab_sim::Input{} : gravity;
+  if (kTilt == Tilt::kWander && still) {
+    in = {0.5f * cosf(t_ms * 0.0007f), 0.5f * sinf(t_ms * 0.0007f)};
+  }
   const uint32_t due = t_ms / kTickMs;
   if (due - ticks > 4) ticks = due - 4;  // after a stall, skip ahead instead of racing
   for (; ticks < due; ++ticks) s.step(in);
@@ -88,13 +97,13 @@ const Entry kPlaylist[] = {
     {"life", 2, sim<lab_sim::Life, DEMO_TICK_LIFE_MS>},
     {"starfield", 2, effect<lab_fx::starfield>},
     {"tetris", 2, sim<lab_sim::Tetris, DEMO_TICK_TETRIS_MS>},
-    {"sand", 2, sim<lab_sim::Sand, DEMO_TICK_SAND_MS>},
+    {"sand", 2, sim<lab_sim::Sand, DEMO_TICK_SAND_MS, Tilt::kDown>},
     {"fireworks", 2, effect<lab_fx::fireworks>},
     {"pong", 2, effect<lab_fx::pong>},
     {"ant", 2, sim<lab_sim::Ant, DEMO_TICK_ANT_MS>},
     {"tunnel", 2, effect<lab_fx::tunnel>},
     {"snake", 2, sim<lab_sim::Snake, DEMO_TICK_SNAKE_MS>},
-    {"marble", 2, sim<lab_sim::Marble, DEMO_TICK_MARBLE_MS, true>},
+    {"marble", 2, sim<lab_sim::Marble, DEMO_TICK_MARBLE_MS, Tilt::kWander>},
     {"kaleidoscope", 2, effect<lab_fx::kaleidoscope>},
     {"snow", 2, effect<lab_fx::snow>},
     {"helix", 2, effect<lab_fx::helix>},
@@ -105,13 +114,14 @@ uint8_t set_of[kCount];  // filled from kPlaylist in setup()
 const demo::Config kDemo{kCount, DEMO_AUTO_MS, DEMO_FADE_MS, kLevels, sizeof kLevels, set_of, 2};
 demo::State state;
 
-// Accelerometer to matrix gravity (TILT_* from the calibration in the README).
+// Accelerometer change since the rest pose, as matrix gravity (TILT_* from the README calibration).
 void read_tilt() {
   if (!lab_board::accel(&raw[0], &raw[1], &raw[2])) return;
-  const float gx = TILT_X_SIGN * raw[TILT_SWAP_XY ? 1 : 0];
-  const float gy = TILT_Y_SIGN * raw[TILT_SWAP_XY ? 0 : 1];
-  lying_flat = gx * gx + gy * gy < kLevelG2;
-  gravity = lying_flat ? lab_sim::Input{} : lab_sim::Input{gx, gy};
+  const int ix = TILT_SWAP_XY ? 1 : 0, iy = TILT_SWAP_XY ? 0 : 1;
+  const float gx = TILT_X_SIGN * (raw[ix] - rest[ix]);
+  const float gy = TILT_Y_SIGN * (raw[iy] - rest[iy]);
+  still = gx * gx + gy * gy < kStillG2;
+  gravity = still ? lab_sim::Input{} : lab_sim::Input{gx, gy};
 }
 
 void announce() {
@@ -173,6 +183,7 @@ void setup() {
       .emit();
 #if BOARD_HAS_IMU
   const bool imu = lab_board::accel(&raw[0], &raw[1], &raw[2]);
+  memcpy(rest, raw, sizeof rest);
   lab_core::Event("imu")
       .flag("ok", imu)
       .real("ax", raw[0])
