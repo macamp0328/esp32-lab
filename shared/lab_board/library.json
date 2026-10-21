@@ -1,0 +1,7 @@
+{
+  "name": "lab_board",
+  "version": "0.1.0",
+  "description": "Selects boards/<name>/board.h from the LAB_BOARD_* build flag; pin-safety checks",
+  "frameworks": "*",
+  "platforms": "*"
+}
