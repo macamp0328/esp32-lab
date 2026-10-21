@@ -9,6 +9,7 @@
 #define BOARD_PSRAM_MB 0
 
 #define BOARD_LED_PIN               32  // Grove port, yellow wire; Grove red is 5 V from the AXP192
+#define BOARD_LED_PIN_ALT           33  // Grove port, white wire (p002's matrix data)
 #define BOARD_STATUS_LED            10  // red LED
 #define BOARD_STATUS_LED_ACTIVE_LOW 1
 #define BOARD_IR_LED                9
