@@ -1,5 +1,8 @@
 # p002-matrix-demo HIL checklist
 
-Asked in this order, batched in one connect (see docs/hil-protocol.md).
+Asked in this order, batched in one connect (see docs/hil-protocol.md). Hold the matrix with its
+cable at the top; that edge is "up".
 
-1. **Do:** plug the board into USB. **Look for:** LEDs go red → green → blue, 1 s each, repeating. **Fail looks like:** dark, wrong color order, first pixel only, flicker. **Reply:** `ok`, `fail: <what you saw>`, or a photo.
+1. **Wiring probe** (only with `DEMO_PROBE 1`). **Do:** nothing. **Look for:** 4 dots: red top-left, green bottom-left, blue just right of green, white top-right. **Fail looks like:** dark, other colors, dots elsewhere. **Reply:** `ok` or a photo.
+2. **Demo.** **Do:** press A (the big M5 button) to step through all 13 effects. **Look for:** the screen names each one (`1/13 rainbow` … `13/13 marquee`, `HOLD`); fire rises toward the cable; heart and invader are upright; `ESP32 LAB` reads normally, moving right to left. **Fail looks like:** a mirrored or sideways picture, flicker, a dark or frozen effect. **Reply:** `ok` or `fail: <effect>: <what you saw>`.
+3. **Buttons and brightness.** **Do:** press B (side button) 4 times, then hold A for 1 s. **Look for:** brightness steps up to 80, then wraps to the dimmest (8); after the hold the screen says `AUTO` and effects change every ~15 s. Nothing is uncomfortably bright. **Fail looks like:** no change, too bright at 80. **Reply:** `ok` or `fail: <what you saw>`.

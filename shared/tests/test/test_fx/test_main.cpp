@@ -126,7 +126,8 @@ static void test_rainbow_on_rings_uses_angle() {
 static void test_every_effect_is_deterministic_in_bounds_and_lit() {
   const uint16_t sizes[] = {12, 8};
   const Layout layouts[] = {Layout::strip(10), Layout::matrix(8, 8, true),
-                            Layout::matrix(8, 8, false), Layout::rings(sizes, 2)};
+                            Layout::matrix(8, 8, false), Layout::matrix(8, 8, true, true),
+                            Layout::rings(sizes, 2)};
   constexpr uint16_t kGuard = 4;
   const Pixel sentinel(1, 2, 3);
   for (const Named& fx : kEffects) {
@@ -160,6 +161,10 @@ static void test_wiring_marks_first_rows_and_last_led() {
   int on = 0;
   for (const Pixel& p : px) on += lit(p);
   TEST_ASSERT_EQUAL_INT(4, on);
+  Pixel tall[24];  // column-wired 3x8: the first wired line is a column of 8
+  lab_fx::wiring(tall, Layout::matrix(3, 8, true, true), {}, 0);
+  assert_pixel(Pixel(0, 255, 0), tall[7]);
+  assert_pixel(Pixel(0, 0, 255), tall[8]);
 }
 
 static void test_plasma_varies_in_space_and_time() {

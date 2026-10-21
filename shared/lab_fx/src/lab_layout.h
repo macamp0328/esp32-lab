@@ -25,14 +25,16 @@ class Layout {
     return l;
   }
 
-  // Row 0 is the first wired row; serpentine rows alternate direction.
-  static Layout matrix(uint16_t w, uint16_t h, bool serpentine) {
+  // Row 0 is the first wired row; serpentine rows alternate direction. `by_columns`: the wire runs
+  // down column 0 first (top to bottom), then along each next column instead.
+  static Layout matrix(uint16_t w, uint16_t h, bool serpentine, bool by_columns = false) {
     Layout l;
     l.kind_ = Kind::kMatrix;
     l.w_ = w;
     l.h_ = h;
     l.size_ = w * h;
     l.serpentine_ = serpentine;
+    l.by_columns_ = by_columns;
     return l;
   }
 
@@ -56,17 +58,25 @@ class Layout {
   uint16_t width() const { return w_; }
   uint16_t height() const { return h_; }
   uint8_t ring_count() const { return ring_count_; }
+  bool by_columns() const { return by_columns_; }
 
   // Strip/matrix: LED at column x, row y; size() when out of range or on rings.
   uint16_t index(uint16_t x, uint16_t y) const {
     if (kind_ == Kind::kRings || x >= w_ || y >= h_) return size_;
+    if (by_columns_) return x * h_ + ((serpentine_ && (x & 1)) ? h_ - 1 - y : y);
     const uint16_t col = (serpentine_ && (y & 1)) ? w_ - 1 - x : x;
     return y * w_ + col;
   }
 
-  uint16_t row(uint16_t i) const { return kind_ == Kind::kRings ? 0 : i / w_; }
+  uint16_t row(uint16_t i) const {
+    if (kind_ == Kind::kRings) return 0;
+    if (!by_columns_) return i / w_;
+    const uint16_t r = i % h_;
+    return (serpentine_ && ((i / h_) & 1)) ? h_ - 1 - r : r;
+  }
   uint16_t column(uint16_t i) const {
     if (kind_ == Kind::kRings) return i;
+    if (by_columns_) return i / h_;
     const uint16_t c = i % w_;
     return (serpentine_ && (row(i) & 1)) ? w_ - 1 - c : c;
   }
@@ -106,6 +116,7 @@ class Layout {
   uint16_t w_ = 0;
   uint16_t h_ = 0;
   bool serpentine_ = false;
+  bool by_columns_ = false;
   uint8_t ring_count_ = 0;
   uint16_t rings_[kMaxRings] = {};
   uint16_t max_ring_ = 0;

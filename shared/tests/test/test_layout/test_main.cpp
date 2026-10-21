@@ -32,11 +32,31 @@ static void test_progressive_matrix_keeps_direction() {
   TEST_ASSERT_EQUAL_UINT16(7, l.index(3, 1));
 }
 
+static void test_column_wired_matrix_runs_down_columns() {
+  const Layout l = Layout::matrix(4, 2, true, true);
+  TEST_ASSERT_EQUAL_UINT16(0, l.index(0, 0));
+  TEST_ASSERT_EQUAL_UINT16(1, l.index(0, 1));  // down column 0
+  TEST_ASSERT_EQUAL_UINT16(2, l.index(1, 1));  // column 1 runs bottom to top
+  TEST_ASSERT_EQUAL_UINT16(3, l.index(1, 0));
+  TEST_ASSERT_EQUAL_UINT16(7, l.index(3, 0));
+  TEST_ASSERT_EQUAL_UINT16(2, Layout::matrix(4, 2, false, true).index(1, 0));
+  // matrix-8x8-01 as measured: 0 top-left, 7 bottom-left, 8 beside it, 63 top-right
+  const Layout m = Layout::matrix(8, 8, true, true);
+  TEST_ASSERT_EQUAL_UINT16(7, m.index(0, 7));
+  TEST_ASSERT_EQUAL_UINT16(8, m.index(1, 7));
+  TEST_ASSERT_EQUAL_UINT16(63, m.index(7, 0));
+  TEST_ASSERT_FLOAT_WITHIN(1e-6, 0.1875f, m.position(8).x);
+  TEST_ASSERT_FLOAT_WITHIN(1e-6, 0.9375f, m.position(8).y);
+}
+
 static void test_matrix_index_and_column_row_round_trip() {
   for (int serp = 0; serp < 2; ++serp) {
-    const Layout l = Layout::matrix(8, 8, serp);
-    for (uint16_t i = 0; i < l.size(); ++i) {
-      TEST_ASSERT_EQUAL_UINT16(i, l.index(l.column(i), l.row(i)));
+    for (int cols = 0; cols < 2; ++cols) {
+      const Layout l = Layout::matrix(8, 4, serp, cols);
+      for (uint16_t i = 0; i < l.size(); ++i) {
+        TEST_ASSERT_EQUAL_UINT16(i, l.index(l.column(i), l.row(i)));
+        TEST_ASSERT_TRUE(l.column(i) < 8 && l.row(i) < 4);
+      }
     }
   }
   const Layout l = Layout::matrix(8, 8, true);
@@ -69,6 +89,7 @@ int main() {
   RUN_TEST(test_strip_is_a_single_row);
   RUN_TEST(test_serpentine_matrix_reverses_odd_rows);
   RUN_TEST(test_progressive_matrix_keeps_direction);
+  RUN_TEST(test_column_wired_matrix_runs_down_columns);
   RUN_TEST(test_matrix_index_and_column_row_round_trip);
   RUN_TEST(test_rings_split_by_wiring_order);
   RUN_TEST(test_ring_radius_follows_led_count);

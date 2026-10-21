@@ -10,7 +10,8 @@
 namespace {
 CRGB leds[NUM_LEDS];
 CRGB fading_out[NUM_LEDS];
-const lab::Layout layout = lab::Layout::matrix(MATRIX_W, MATRIX_H, MATRIX_SERPENTINE);
+const lab::Layout layout =
+    lab::Layout::matrix(MATRIX_W, MATRIX_H, MATRIX_SERPENTINE, MATRIX_COLUMNS);
 constexpr uint32_t kFpsPeriodMs = 5000;
 constexpr uint32_t kFrameMs = 16;  // ~60 fps
 constexpr uint8_t kLevels[] = {8, 20, 40, 80};
@@ -76,6 +77,7 @@ void setup() {
       .num("w", MATRIX_W)
       .num("h", MATRIX_H)
       .flag("serpentine", MATRIX_SERPENTINE)
+      .flag("columns", MATRIX_COLUMNS)
       .emit();
 #if DEMO_PROBE
   FastLED.setBrightness(kLevels[kBootLevel]);

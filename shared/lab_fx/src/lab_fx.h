@@ -26,14 +26,15 @@ inline void sweep(lab::Pixel* px, const lab::Layout& layout, const lab::AudioFra
   for (uint16_t i = 0; i < layout.size(); ++i) px[i] = c;
 }
 
-// Bring-up probe in wiring order, not layout order: LED 0 red, last LED of the first row green,
-// first LED of the second row blue, last LED white. Blue under green means serpentine, blue under
-// red means progressive; white proves the whole chain.
+// Bring-up probe in wiring order, not layout order: LED 0 red, last LED of the first wired line
+// green, first LED of the second line blue, last LED white. Green at the end of the top row means
+// rows (else `by_columns`); blue next to green means serpentine, next to red progressive; white
+// proves the whole chain.
 inline void wiring(lab::Pixel* px, const lab::Layout& layout, const lab::AudioFrame&, uint32_t) {
   const uint16_t n = layout.size();
   for (uint16_t i = 0; i < n; ++i) px[i] = lab::Pixel(0, 0, 0);
   if (n == 0) return;
-  const uint16_t w = layout.width();
+  const uint16_t w = layout.by_columns() ? layout.height() : layout.width();
   px[n - 1] = lab::Pixel(255, 255, 255);
   if (w < n) px[w] = lab::Pixel(0, 0, 255);
   px[w - 1] = lab::Pixel(0, 255, 0);

@@ -5,7 +5,8 @@
 
 #define LAB_PROJECT "p002-matrix-demo"
 
-// LEDs: matrix data is on the Grove white wire (G33), measured 2026-10-21
+// LEDs: data on the Grove white wire (G33). Wiring probe 2026-10-21, cable at the top: LED 0
+// top-left, the wire runs down column 0, then up column 1 (serpentine by columns); GRB confirmed.
 #define LED_TYPE          WS2812B
 #define LED_ORDER         GRB
 #define LED_RGBW          0
@@ -14,6 +15,7 @@
 #define MATRIX_W          8  // 0 when not a matrix
 #define MATRIX_H          8
 #define MATRIX_SERPENTINE 1
+#define MATRIX_COLUMNS    1  // 1: the wire runs down columns, not along rows
 
 // Power (mandatory): Grove 5 V from the AXP192 boost on laptop USB; the M5 itself takes ~100 mA
 #define POWER_VOLTS  5
@@ -28,7 +30,7 @@
 #define MDNS_NAME    "p002-matrix-demo"
 
 // Demo
-#define DEMO_PROBE   1      // 1: show only the wiring probe (lab_fx::wiring) for bring-up
+#define DEMO_PROBE   0      // 1: show only the wiring probe (lab_fx::wiring) for bring-up
 #define DEMO_AUTO_MS 15000  // auto-advance period
 #define DEMO_FADE_MS 600    // crossfade between effects
 #define MARQUEE_TEXT "ESP32 LAB"
