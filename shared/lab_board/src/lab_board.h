@@ -22,4 +22,24 @@ constexpr bool pin_is_safe(int pin) {
   return false;
 }
 
+// LED data may also go to the board's own onboard RGB LED, which is wired on the PCB.
+constexpr bool led_pin_ok(int pin) {
+#ifdef BOARD_ONBOARD_RGB
+  if (pin == BOARD_ONBOARD_RGB) return true;
+#endif
+  return pin_is_safe(pin);
+}
+
+#ifdef ARDUINO
+// Board power-up: on the M5StickC this enables the AXP192 rails (TFT, Grove 5 V) via M5Unified.
+// Call after lab_core::begin() so Serial is already owned by lab_core.
+void begin();
+
+// Drives BOARD_STATUS_LED if the board has one (handles active-low); no-op otherwise.
+void status_led(bool on);
+
+// Prints a line on the board's display if BOARD_HAS_TFT; no-op otherwise.
+void status_text(const char* line);
+#endif
+
 }  // namespace lab_board
