@@ -13,7 +13,7 @@ One sentence on what it is and where it lives.
 LEDs: 8 × WS2812B · cap 500 mA · supply: USB 5 V
 
 ## Demo
-`just build {{PROJECT}} && just flash {{PROJECT}} && just watch {{PROJECT}}`; expect `boot`, `leds`, then `fps` every 5 s.
+`just build {{PROJECT}} && just flash {{PROJECT}} && just watch {{PROJECT}}`; expect `boot`, `leds`, then `fps` every 5 s; LEDs go red → green → blue.
 
 ## Open issues
 - [ ] …
