@@ -1,0 +1,19 @@
+# build output and caches
+.pio/
+.venv/
+__pycache__/
+*.pyc
+.ruff_cache/
+.pytest_cache/
+
+# serial captures from `just watch`
+.hil/
+
+# secrets: only secrets.example.h is committed
+secrets.h
+
+# local tooling
+.DS_Store
+.vscode/
+.claude/worktrees/
+.claude/settings.local.json

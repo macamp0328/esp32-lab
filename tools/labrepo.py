@@ -1,0 +1,49 @@
+"""Shared helpers for tools/: repo paths, board and project discovery."""
+
+from __future__ import annotations
+
+import configparser
+import re
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parent.parent
+BOARDS = ROOT / "boards"
+PROJECTS = ROOT / "projects"
+TEMPLATE = ROOT / "templates" / "project"
+PROJECT_RE = re.compile(r"^p\d{3}-[a-z0-9]+(?:-[a-z0-9]+)*$")
+BOARD_RE = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
+
+
+def boards() -> list[str]:
+    """Physical board names (folders under boards/, excluding _template)."""
+    return sorted(p.name for p in BOARDS.iterdir() if p.is_dir() and not p.name.startswith("_"))
+
+
+def board_section(board: str) -> str:
+    return "boards_" + board.replace("-", "_")
+
+
+def board_flag(board: str) -> str:
+    return "LAB_BOARD_" + board.replace("-", "_").upper()
+
+
+def projects() -> list[str]:
+    if not PROJECTS.is_dir():
+        return []
+    return sorted(p.name for p in PROJECTS.iterdir() if (p / "platformio.ini").is_file())
+
+
+def read_ini(path: Path) -> configparser.ConfigParser:
+    cp = configparser.ConfigParser(interpolation=None, inline_comment_prefixes=(";",))
+    cp.read(path)
+    return cp
+
+
+def split_list(value: str) -> list[str]:
+    return [v.strip() for v in re.split(r"[,\n]", value) if v.strip()]
+
+
+def project_boards(project: str) -> list[str]:
+    """Boards a project supports: its [platformio] default_envs."""
+    cp = read_ini(PROJECTS / project / "platformio.ini")
+    return split_list(cp.get("platformio", "default_envs", fallback=""))
