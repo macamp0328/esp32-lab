@@ -28,12 +28,15 @@ engineer and a hobbyist at hardware: he solders well, he is not an EE. Full desi
 | `just test <p>` / `just test-all` | native Unity tests (+ tools pytest for test-all) | works |
 | `just check` (= `just lint`) / `just fmt` | clang-format, cppcheck, ruff, repo rules | works |
 | `just inventory` / `just status` | print+validate stock / refresh README table | works |
-| `just flash <p> [b]`, `just watch <p>` | USB flash, 30 s serial capture | M1 (exits 2) |
-| `just sim <p>` / `just add-board <name>` | Wokwi scenario / scaffold a board | M1 / M2 (exit 2) |
+| `just flash <p> [b] [--ota]` | USB (board auto-detected) or OTA with USB fallback | works |
+| `just watch <p>` | reset, 30 s serial to `.hil/last-run.jsonl`, then `hil_assert` | works |
+| `just sim <p>` / `just add-board <name>` | Wokwi scenario / scaffold a board | no token yet / M2 (exit 2) |
 
 `<p>` may be the full name or its `pNNN` prefix. Toolchain verbs run in the Docker image
 automatically; inside the container (CI, devcontainer, `just shell`) they run directly.
-Flash and serial run on the host: USB does not cross Docker on macOS.
+Flash and serial run on the host (`.venv`): USB does not cross Docker on macOS. Two boards
+plugged in: `--port` or `LAB_PORT`. esptool baud is each board.ini's `upload_speed`.
+Skills: `.claude/skills/flash-and-watch`, `.claude/skills/hil-check`.
 
 ## 4. Board rule
 - Read `boards/<b>/board.h` and `boards/<b>/pinout.md` before touching any pin.
