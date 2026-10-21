@@ -3,6 +3,12 @@
 Newest first. Five lines each: date and title, what, instead of, why, revisit when.
 Read before changing anything an entry covers. A version bump is a new entry plus a green CI.
 
+## 2026-10-21 · p002 plays two sets; a B hold switches 1 → 2 → all
+- What: each playlist entry carries a set id; A and auto-advance stay inside the current set; `DEMO_BOOT_SET`/`DEMO_BOOT_FX` pick the start
+- Instead of: one 29-effect playlist (a 7 minute cycle)
+- Why: Miles' call; the sets have different moods (set 1 abstract, set 2 scenes, games and sims)
+- Revisit when: a third kind of effect arrives (sets is a count, so add set 3)
+
 ## 2026-10-21 · IMU through `lab_board::accel()`, gated by `BOARD_HAS_IMU`
 - What: new required capability flag (1 on m5stickc-plus11, 0 elsewhere); `accel(&x, &y, &z)` in g on the chip's own axes; `Buttons` gains `b_hold`
 - Instead of: projects calling `M5.Imu` directly, or a project-level IMU flag

@@ -1,9 +1,9 @@
 # p002-matrix-demo
 
-**Status:** bench-verified  ·  **Last HIL check:** 2026-10-21 m5stickc-plus11 ok
+**Status:** bench-verified  ·  **Last HIL check:** 2026-10-21 m5stickc-plus11 ok (set 1; set 2 tilt responds)
 
-Thirteen animations on the BTF 8x8 WS2812B matrix (matrix-8x8-01), driven from the M5StickC
-Plus Grove port and powered from laptop USB: the lab's first real demo.
+29 animations in two sets on the BTF 8x8 WS2812B matrix (matrix-8x8-01), driven from the
+M5StickC Plus Grove port and powered from laptop USB: the lab's first real demo.
 
 ## Wiring
 Hold the matrix with its cable at the top; that edge is "up" for every effect.
@@ -26,7 +26,8 @@ Grove 5 V. Measured `ma_max` about 300 mA at brightness 40; the cap holds bright
 
 ## Demo
 `just build p002 && just flash p002 && just watch p002`; expect `boot`, `leds` (pin 33,
-columns), an `fx` event per change and `fps` about 62 every 5 s.
+columns), `imu` (`ok` true), an `fx` event per change (name, set) and `fps` about 62 every 5 s.
+Every set-2 effect, simulations included, measured 60–62 fps.
 
 | Control | Does |
 | ------- | ---- |
@@ -34,10 +35,26 @@ columns), an `fx` event per change and `fps` about 62 every 5 s.
 | A click (big M5 button) | next effect, then stay on it (`HOLD`) |
 | A hold, 0.5 s | next effect, back to `AUTO` |
 | B click (side button) | brightness 8 → 20 → 40 → 80 |
+| B hold, 0.5 s | next set: 1 → 2 → all, from the set's first effect |
 
-Effects: rainbow, plasma, fire, rain, ripple, heart, spiral, twinkle, invader, lava, radar,
-bounce, marquee (`MARQUEE_TEXT`). They all live in `shared/lab_fx`.
-`DEMO_PROBE 1` shows the wiring probe (`lab_fx::wiring`) instead.
+The screen shows the effect, `set N  i/n`, brightness and `AUTO`/`HOLD`.
+
+| Set | Effects |
+| --- | ------- |
+| 1 (13) | rainbow, plasma, fire, rain, ripple, heart, spiral, twinkle, invader, lava, radar, bounce, marquee (`MARQUEE_TEXT`) |
+| 2 (16) | aurora, pacman, life, starfield, tetris, sand, fireworks, pong, ant, tunnel, snake, marble, kaleidoscope, snow, helix, lightning |
+
+Pure effects live in `shared/lab_fx`. The simulations (life, ant, snake, tetris, sand, marble)
+live in `shared/lab_sim`; each restarts with a fresh seed when it comes on and steps at its
+`DEMO_TICK_*` rate. Sand and marble follow the M5's tilt, measured from the pose it was in when
+the effect started; while the M5 sits still, sand falls down and the marble circles.
+
+Boot options in `include/config.h`: `DEMO_BOOT_SET` (1, 2, 0 = all), `DEMO_BOOT_FX` (start on
+one effect, held), `DEMO_PROBE 1` (the wiring probe, `lab_fx::wiring`), `TILT_LOG_MS` (1 Hz
+`tilt` events for calibration).
 
 ## Open issues
-- [ ] None known.
+- [ ] Tilt directions are not calibrated (`TILT_SWAP_XY`, `TILT_*_SIGN` are defaults). Sand and
+  marble respond, but tilting a separate stick feels arbitrary. The better fix is mounting the M5
+  on the matrix frame and calibrating against real gravity (Miles, 2026-10-21: fine for now).
+- [ ] Set 2 has not had a full HIL pass, effect by effect.

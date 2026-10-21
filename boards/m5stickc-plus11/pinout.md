@@ -14,7 +14,8 @@
 | IR LED | GPIO9 | datasheet |
 | Buttons | A = GPIO37, B = GPIO39, power button on AXP192 | datasheet |
 | Buzzer | GPIO2 | datasheet |
-| IMU / RTC | MPU6886, BM8563 on internal I2C | datasheet |
+| IMU | MPU6886 via M5Unified `M5.Imu` (`BOARD_HAS_IMU`, `lab_board::accel`): answers at boot; +z out of the screen (az ≈ +1.0 lying screen-up); x/y directions not mapped yet | measured (p002) |
+| RTC | BM8563 on internal I2C | datasheet |
 | Grove port | G32 (yellow), G33 (white), 5 V (red, from AXP192), GND (black) | datasheet |
 | Header | G0, G26, G25/G36 (shared pin), 3V3, 5V, BAT, GND | datasheet |
 | Default LED data | G32 on Grove (`BOARD_LED_PIN`) | lab choice |
@@ -29,4 +30,5 @@
 - 2026-10-21 p000: WiFi STA joined in ~1.8 s at RSSI −41; ArduinoOTA ready on 3232.
 - 2026-10-21 p000 with WiFi + OTA + M5Unified + FastLED uses 94% of the 1.25 MB app slot (default.csv).
 - 2026-10-21: the cable shipped with this unit appeared charge-only (no USB device at all); a data cable fixed it.
+- 2026-10-21 p002: resting on the bench with cables plugged in, the M5 reads ax -0.62, ay 0.20, az 0.75 (|a| = 1.0 g, about 40 degrees off flat).
 - 2026-10-21 p002: 64 WS2812B on G33 with Grove 5 V from USB: 62 fps steady, ~300 mA estimated peak at brightness 40, no brown-out in 40 s; data straight at 3.3 V.
