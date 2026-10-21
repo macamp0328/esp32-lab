@@ -75,6 +75,30 @@ inline bool bitmap8(const uint8_t* rows, const lab::Layout& layout, uint16_t i) 
   return (rows[cell(p.y)] >> (7 - cell(p.x))) & 1;
 }
 
+inline void clear(lab::Pixel* px, const lab::Layout& layout) {
+  for (uint16_t i = 0; i < layout.size(); ++i) px[i] = lab::Pixel(0, 0, 0);
+}
+
+// Per-channel max, so overlapping lights neither wrap nor wash out.
+inline void lighten(lab::Pixel& dst, lab::Pixel c) {
+  if (c.r > dst.r) dst.r = c.r;
+  if (c.g > dst.g) dst.g = c.g;
+  if (c.b > dst.b) dst.b = c.b;
+}
+
+// A soft dot at (x, y) in layout space, fading to nothing at `radius`.
+inline void splat(lab::Pixel* px, const lab::Layout& layout, float x, float y, float radius,
+                  lab::Pixel c) {
+  for (uint16_t i = 0; i < layout.size(); ++i) {
+    const lab::Point p = layout.position(i);
+    const float d2 = (p.x - x) * (p.x - x) + (p.y - y) * (p.y - y);
+    if (d2 < radius * radius) lighten(px[i], lab::scale(c, 1 - sqrtf(d2) / radius));
+  }
+}
+
+// 0 -> 1 -> 0 once per unit of u.
+inline float tri(float u) { return 1 - fabsf(2 * lab::frac(u) - 1); }
+
 }  // namespace detail
 
 // Sine-sum plasma in full hue.
@@ -285,6 +309,300 @@ inline void text(lab::Pixel* px, const lab::Layout& layout, const char* s, uint3
     if ((lab::glyph(s[tc / kPitch])[tc % kPitch] >> y) & 1) {
       px[i] = lab::hsv(static_cast<uint8_t>(tc * 6 + t_ms / 20), 255, 255);
     }
+  }
+}
+
+// Warp speed: stars stream out of the center, accelerating and brightening toward the edge.
+inline void starfield(lab::Pixel* px, const lab::Layout& layout, const lab::AudioFrame&,
+                      uint32_t t_ms) {
+  constexpr uint32_t kStars = 24;
+  const float s = t_ms * 0.001f;
+  detail::clear(px, layout);
+  for (uint32_t k = 0; k < kStars; ++k) {
+    const float a = lab::kTau * lab::hash01(k * 4 + 1);
+    const float life =
+        lab::frac(s * (0.3f + 0.5f * lab::hash01(k * 4 + 2)) + lab::hash01(k * 4 + 3));
+    const float r = 0.72f * life * life;
+    const lab::Pixel tint =
+        lab::blend(lab::Pixel(140, 170, 255), lab::Pixel(255, 255, 255), lab::hash01(k * 4 + 4));
+    const float ca = cosf(a), sa = sinf(a), v = 0.15f + 0.85f * life * sqrtf(life);
+    detail::splat(px, layout, 0.5f + r * ca, 0.5f + r * sa, 0.15f, lab::scale(tint, v));
+    detail::splat(px, layout, 0.5f + 0.7f * r * ca, 0.5f + 0.7f * r * sa, 0.12f,
+                  lab::scale(tint, 0.4f * v));  // streak
+  }
+}
+
+namespace detail {
+
+constexpr float kRiseS = 0.7f, kBurnS = 1.6f;
+
+// One firework `u` seconds into its cycle: a rocket climbs for kRiseS, then sparks burst from its
+// apex, falling and fading for kBurnS. `seed` picks its column, height and color.
+inline void firework(lab::Pixel* px, const lab::Layout& layout, uint32_t seed, float u) {
+  constexpr int kSparks = 14;
+  const float x0 = 0.2f + 0.6f * lab::hash01(seed * 5 + 1);
+  const float apex = 0.2f + 0.2f * lab::hash01(seed * 5 + 2);
+  const uint8_t hue = static_cast<uint8_t>(lab::hash32(seed * 5 + 3));
+  if (u < kRiseS) {
+    const float k = 1 - u / kRiseS;
+    const float y = 1 - (1 - apex) * (1 - k * k);  // decelerating climb
+    splat(px, layout, x0, y, 0.15f, lab::Pixel(255, 140, 40));
+    splat(px, layout, x0, y + 0.13f, 0.12f, lab::Pixel(110, 50, 10));
+    return;
+  }
+  const float dt = u - kRiseS;
+  if (dt >= kBurnS) return;
+  if (dt < 0.15f) {
+    splat(px, layout, x0, apex, 0.25f, lab::scale(lab::Pixel(255, 255, 255), 1 - dt / 0.15f));
+  }
+  const float fade = 1 - (dt / kBurnS) * (dt / kBurnS);  // holds, then drops
+  for (int j = 0; j < kSparks; ++j) {
+    const float a = lab::kTau * (j + 0.3f * lab::hash01(seed * 31 + j)) / kSparks;
+    const float v = 0.3f + 0.12f * lab::hash01(seed * 37 + j);
+    const float x = x0 + v * dt * cosf(a);
+    const float y = apex + v * dt * sinf(a) + 0.25f * dt * dt;
+    splat(px, layout, x, y, 0.15f,
+          lab::scale(lab::hsv(static_cast<uint8_t>(hue + j * 4), 220, 255), fade));
+  }
+}
+
+}  // namespace detail
+
+// Fireworks: two launch slots half a cycle apart, each rising and bursting every 2.6 s.
+inline void fireworks(lab::Pixel* px, const lab::Layout& layout, const lab::AudioFrame&,
+                      uint32_t t_ms) {
+  constexpr uint32_t kCycleMs = 2600;
+  detail::clear(px, layout);
+  for (uint32_t slot = 0; slot < 2; ++slot) {
+    const uint32_t t = t_ms + slot * kCycleMs / 2;
+    detail::firework(px, layout, (t / kCycleMs) * 2 + slot, (t % kCycleMs) * 0.001f);
+  }
+}
+
+// Aurora: green curtains waving on noise, brightest at their lower edge, turning teal and violet
+// as they fade upward in vertical rays.
+inline void aurora(lab::Pixel* px, const lab::Layout& layout, const lab::AudioFrame&,
+                   uint32_t t_ms) {
+  const float s = t_ms * 0.001f;
+  for (uint16_t i = 0; i < layout.size(); ++i) {
+    const lab::Point p = layout.position(i);
+    const float edge = 0.72f + 0.44f * (lab::noise(1.6f * p.x + 0.15f * s, 0.2f * s, 3) - 0.5f);
+    const float above = edge - p.y;
+    const float rays = 0.3f + 0.7f * lab::noise(7 * p.x + 0.5f * s, 0.6f * s, 9);
+    const float v = above >= 0 ? expf(-2.2f * above) * rays : expf(12 * above);
+    const uint8_t hue = 96 + static_cast<uint8_t>(85 * lab::clamp01(1.3f * above));
+    px[i] = lab::hsv(hue, 230, static_cast<uint8_t>(255 * v));
+  }
+}
+
+namespace detail {
+
+// Snowflake k at time s: it falls at its own speed and sways round its column.
+inline void snowflake(uint32_t k, float s, float* x, float* y) {
+  const float speed = 0.12f + 0.14f * lab::hash01(k * 4 + 1);
+  *y = 1.2f * lab::frac(s * speed + lab::hash01(k * 4 + 2)) - 0.1f;
+  *x = lab::hash01(k * 4 + 3) + 0.05f * sinf(1.3f * s + k);
+}
+
+}  // namespace detail
+
+// Snow drifting down onto a white bottom row.
+inline void snow(lab::Pixel* px, const lab::Layout& layout, const lab::AudioFrame&, uint32_t t_ms) {
+  constexpr uint32_t kFlakes = 14;
+  const float s = t_ms * 0.001f;
+  detail::clear(px, layout);
+  for (uint32_t k = 0; k < kFlakes; ++k) {
+    float x, y;
+    detail::snowflake(k, s, &x, &y);
+    detail::splat(px, layout, x, y, 0.14f,
+                  lab::scale(lab::Pixel(210, 225, 255), 0.7f + 0.3f * lab::hash01(k * 4 + 4)));
+  }
+  if (layout.height() < 2) return;
+  for (uint16_t i = 0; i < layout.size(); ++i) {
+    if (layout.row(i) == layout.height() - 1) detail::lighten(px[i], lab::Pixel(110, 110, 140));
+  }
+}
+
+// Tunnel: spiral hue rings rushing toward you and slowly turning; the far center is dark.
+inline void tunnel(lab::Pixel* px, const lab::Layout& layout, const lab::AudioFrame&,
+                   uint32_t t_ms) {
+  const float s = t_ms * 0.001f;
+  for (uint16_t i = 0; i < layout.size(); ++i) {
+    const detail::Polar q = detail::polar(layout, i);
+    const float d = q.d > 0.04f ? q.d : 0.04f;
+    const float depth = 0.25f / d + 1.2f * s;
+    float ring = 0.5f + 0.5f * cosf(lab::kTau * (depth + q.a + 0.15f * s));
+    ring *= ring;
+    const float v = (0.15f + 0.85f * ring) * lab::clamp01(3 * d);
+    px[i] = lab::hsv(static_cast<uint8_t>(static_cast<uint32_t>(depth * 30) + t_ms / 40), 255,
+                     static_cast<uint8_t>(255 * v));
+  }
+}
+
+// Kaleidoscope: drifting noise folded into 8-way mirror symmetry about the center.
+inline void kaleidoscope(lab::Pixel* px, const lab::Layout& layout, const lab::AudioFrame&,
+                         uint32_t t_ms) {
+  const float s = t_ms * 0.001f;
+  for (uint16_t i = 0; i < layout.size(); ++i) {
+    const lab::Point p = layout.position(i);
+    float fx = fabsf(p.x - 0.5f), fy = fabsf(p.y - 0.5f);
+    if (fy > fx) {
+      const float swap = fx;
+      fx = fy;
+      fy = swap;
+    }
+    const float n = lab::noise(5 * fx + 0.4f * s, 5 * fy + 0.3f * s, 0.2f * s);
+    const uint8_t hue = static_cast<uint8_t>(static_cast<uint32_t>(n * 380) + t_ms / 30);
+    const float v = 0.15f + 0.85f * lab::smooth(lab::clamp01(1.6f * n - 0.3f));
+    px[i] = lab::hsv(hue, 240, static_cast<uint8_t>(255 * v));
+  }
+}
+
+// DNA: two strands (cyan, magenta) winding round a vertical axis, the nearer one brighter, with
+// dim rungs between them on every other row.
+inline void helix(lab::Pixel* px, const lab::Layout& layout, const lab::AudioFrame&,
+                  uint32_t t_ms) {
+  const float s = t_ms * 0.001f;
+  for (uint16_t i = 0; i < layout.size(); ++i) {
+    const lab::Point p = layout.position(i);
+    const float th = lab::kTau * 0.8f * p.y + 2.2f * s;
+    const float xa = 0.5f + 0.33f * sinf(th), xb = 1 - xa;
+    const float za = cosf(th);  // +1 = in front
+    auto strand = [&p](float xs, float z) {
+      return lab::clamp01(1.3f - fabsf(p.x - xs) / 0.13f) * (0.3f + 0.35f * (z + 1));
+    };
+    lab::Pixel c = lab::scale(lab::Pixel(0, 220, 255), strand(xa, za));
+    detail::lighten(c, lab::scale(lab::Pixel(255, 40, 200), strand(xb, -za)));
+    if ((layout.row(i) & 1) == 0 && p.x > fminf(xa, xb) && p.x < fmaxf(xa, xb)) {
+      detail::lighten(c, lab::Pixel(30, 30, 40));
+    }
+    px[i] = c;
+  }
+}
+
+namespace detail {
+
+constexpr uint32_t kStormMs = 3200;
+
+// When storm cycle c strikes, in ms after the cycle starts.
+inline uint32_t strike_ms(uint32_t c) { return 400 + lab::hash32(c * 7 + 1) % 1800; }
+
+// The bolt's column (0..1) at height y (0 top .. 1 bottom) in storm cycle c: a hashed random walk.
+inline float bolt_x(uint32_t c, float y) {
+  float x = 0.25f + 0.5f * lab::hash01(c * 7 + 2);
+  const int steps = static_cast<int>(y * 8);
+  for (int k = 0; k < steps && k < 8; ++k) x += 0.22f * (lab::hash01(c * 131 + k) - 0.5f);
+  return x;
+}
+
+}  // namespace detail
+
+// Lightning: dim clouds churn along the top; once per 3.2 s a bolt forks down in 80 ms, the sky
+// flashes twice and the bolt fades.
+inline void lightning(lab::Pixel* px, const lab::Layout& layout, const lab::AudioFrame&,
+                      uint32_t t_ms) {
+  const float s = t_ms * 0.001f;
+  const uint32_t c = t_ms / detail::kStormMs;
+  const float since =
+      (static_cast<int32_t>(t_ms % detail::kStormMs) - static_cast<int32_t>(detail::strike_ms(c))) *
+      0.001f;  // seconds since the strike; negative before it
+  float flash = 0, bolt = 0, reach = -1;
+  if (since >= 0) {
+    flash =
+        lab::clamp01(expf(-12 * since) + (since > 0.12f ? 0.6f * expf(-14 * (since - 0.12f)) : 0));
+    bolt = since < 0.6f ? lab::clamp01(1.5f - 2.5f * since) : 0;
+    reach = since / 0.08f;
+  }
+  for (uint16_t i = 0; i < layout.size(); ++i) {
+    const lab::Point p = layout.position(i);
+    const float cloud =
+        p.y < 0.4f
+            ? (1 - p.y / 0.4f) * (0.3f + 0.7f * lab::noise(3 * p.x + 0.3f * s, 3 * p.y, 0.4f * s))
+            : 0;
+    lab::Pixel out = lab::scale(lab::Pixel(70, 70, 110), cloud);
+    detail::lighten(out, lab::scale(lab::Pixel(90, 90, 140), 0.6f * flash));
+    if (bolt > 0 && p.y <= reach && fabsf(p.x - detail::bolt_x(c, p.y)) < 0.08f) {
+      detail::lighten(out, lab::scale(lab::Pixel(230, 230, 255), bolt));
+    }
+    px[i] = out;
+  }
+}
+
+// Pong: paddles in the first and last column always return a ball bouncing round the court; each
+// paddle follows the ball a little late.
+inline void pong(lab::Pixel* px, const lab::Layout& layout, const lab::AudioFrame&, uint32_t t_ms) {
+  const int w = layout.width(), h = layout.height();
+  const float s = t_ms * 0.001f;
+  auto ball_row = [h](float t) { return static_cast<int>(detail::tri(t / 2.9f) * (h - 1) + 0.5f); };
+  auto paddle = [&](float lag) {
+    const int c = ball_row(s - lag);
+    return c > h - 2 ? (h - 2 < 1 ? 1 : h - 2) : (c < 1 ? 1 : c);
+  };
+  const int bx = w < 3 ? 0 : 1 + static_cast<int>(detail::tri(s / 2.0f) * (w - 3) + 0.5f);
+  const int by = ball_row(s);
+  const int left = paddle(0.08f), right = paddle(0.06f);
+  for (uint16_t i = 0; i < layout.size(); ++i) {
+    const int col = layout.column(i), row = layout.row(i);
+    lab::Pixel c(0, 0, 0);
+    if (col == bx && row == by) {
+      c = lab::Pixel(255, 255, 255);
+    } else if (col == 0 && row >= left - 1 && row <= left + 1) {
+      c = lab::Pixel(0, 200, 255);
+    } else if (col == w - 1 && row >= right - 1 && row <= right + 1) {
+      c = lab::Pixel(255, 60, 160);
+    }
+    px[i] = c;
+  }
+}
+
+// Pac-Man eats a row of dots with a ghost on his tail, swallows the power pellet, then chases the
+// blue ghost back across the screen. Maze walls run along the top and bottom rows.
+inline void pacman(lab::Pixel* px, const lab::Layout& layout, const lab::AudioFrame&,
+                   uint32_t t_ms) {
+  static const uint8_t kOpen[6] = {0x1E, 0x3E, 0x38, 0x38, 0x3E, 0x1E};  // 6x6, bit 5 = left
+  static const uint8_t kShut[6] = {0x1E, 0x3F, 0x3F, 0x3F, 0x3F, 0x1E};
+  static const uint8_t kGhost[2][6] = {{0x1E, 0x3F, 0x3F, 0x3F, 0x3F, 0x2D},
+                                       {0x1E, 0x3F, 0x3F, 0x3F, 0x3F, 0x33}};
+  constexpr float kSpeed = 6;  // columns per second
+  const int w = layout.width(), h = layout.height();
+  const int y0 = (h - 6) / 2;
+  const float out_s = (w + 15) / kSpeed, back_s = (w + 18) / kSpeed;
+  const float u = fmodf(t_ms * 0.001f, out_s + back_s);
+  const bool chased = u < out_s;  // first half: the ghost chases Pac-Man to the right
+  int pac_x, ghost_x;
+  if (chased) {
+    pac_x = static_cast<int>(floorf(kSpeed * u)) - 6;
+    ghost_x = pac_x - 9;
+  } else {
+    ghost_x = w + 3 - static_cast<int>(floorf(kSpeed * (u - out_s)));
+    pac_x = ghost_x + 9;
+  }
+  const uint8_t* pac = (t_ms / 120) % 2 ? kShut : kOpen;
+  const uint8_t* ghost = kGhost[(t_ms / 250) % 2];
+  const bool blink = !chased && u - out_s > 1.8f && (t_ms / 125) % 2;
+  const lab::Pixel ghost_c = chased ? lab::Pixel(255, 0, 0)
+                                    : (blink ? lab::Pixel(255, 255, 255) : lab::Pixel(40, 40, 255));
+  auto hit = [](const uint8_t* rows, int sx, int sy, bool mirror) {
+    if (sx < 0 || sx > 5 || sy < 0 || sy > 5) return false;
+    return ((rows[sy] >> (mirror ? sx : 5 - sx)) & 1) != 0;
+  };
+  for (uint16_t i = 0; i < layout.size(); ++i) {
+    const int col = layout.column(i), row = layout.row(i);
+    lab::Pixel c(0, 0, 0);
+    if (h >= 8 && (row == 0 || row == h - 1)) c = lab::Pixel(20, 20, 120);
+    if (chased && row == y0 + 3) {
+      if (col >= w - 2 && pac_x + 4 < w - 2) {
+        c = lab::scale(lab::Pixel(255, 180, 150), 0.6f + 0.4f * ((t_ms / 200) % 2));
+      } else if (col % 2 == 0 && col > pac_x + 4 && col < w - 2) {
+        c = lab::Pixel(160, 120, 90);
+      }
+    }
+    if (hit(ghost, col - ghost_x, row - y0, false)) {
+      const bool eye = row - y0 == 2 && (col - ghost_x == 1 || col - ghost_x == 4);
+      c = eye ? lab::Pixel(255, 255, 255) : ghost_c;
+    }
+    if (hit(pac, col - pac_x, row - y0, !chased)) c = lab::Pixel(255, 220, 0);
+    px[i] = c;
   }
 }
 
