@@ -3,6 +3,12 @@
 Newest first. Five lines each: date and title, what, instead of, why, revisit when.
 Read before changing anything an entry covers. A version bump is a new entry plus a green CI.
 
+## 2026-10-21 · M4 (p002-wheel-chandelier) is shelved; p002 was an example idea
+- What: no p002 project or scaffold; SPEC's M4 is not on the roadmap. Next milestone is M3 once its parts arrive
+- Instead of: SPEC's M4 "p002 scaffold" milestone
+- Why: Miles' call: the wheel chandelier is not planned and may never be built
+- Revisit when: Miles decides to build it (then `just new` it like any other idea)
+
 ## 2026-10-21 · Effects take `lab::Pixel` (CRGB on the board, plain RGB on the host)
 - What: `lab_pixel.h` aliases CRGB under Arduino and defines a 3-byte `{r,g,b}` natively; color math (`lab::hsv`) is ours
 - Instead of: SPEC's "CRGB and CRGBPalette16 are available in FastLED's stub build" for host tests
