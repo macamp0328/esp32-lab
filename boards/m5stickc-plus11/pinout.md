@@ -18,8 +18,9 @@
 | Grove port | G32 (yellow), G33 (white), 5 V (red, from AXP192), GND (black) | datasheet |
 | Header | G0, G26, G25/G36 (shared pin), 3V3, 5V, BAT, GND | datasheet |
 | Default LED data | G32 on Grove (`BOARD_LED_PIN`) | lab choice |
-| Safe pins | 26, 32, 33 (`BOARD_SAFE_PINS`); G0 is strapping + mic, G36 input-only, G25 shares G36 | datasheet |
-| Logic level | 3.3 V; 5 V WS2812 data needs a level shifter | datasheet |
+| Second LED data | G33 on Grove white (`BOARD_LED_PIN_ALT`); drives matrix-8x8-01 (64 px, RMT, 62 fps) | measured (p002, HIL ok) |
+| Safe pins | 26, 32, 33 (`BOARD_SAFE_PINS`); G0 is strapping + mic, G36 input-only, G25 shares G36. G33 confirmed with a wired matrix | datasheet; G33 measured |
+| Logic level | 3.3 V; WS2812B ECO (matrix-8x8-01) took 3.3 V data on G33 with no shifter over a short Grove cable; other strips may still need one | measured (p002) |
 
 ## Measured at bring-up
 - 2026-10-21 esptool `flash-id`: ESP32-PICO-D4 rev v1.0; Wi-Fi, BT, dual core, 240 MHz; flash mfr 0xc8 dev 0x4016, 4 MB, 3.3 V set by strapping pin.
@@ -28,3 +29,4 @@
 - 2026-10-21 p000: WiFi STA joined in ~1.8 s at RSSI −41; ArduinoOTA ready on 3232.
 - 2026-10-21 p000 with WiFi + OTA + M5Unified + FastLED uses 94% of the 1.25 MB app slot (default.csv).
 - 2026-10-21: the cable shipped with this unit appeared charge-only (no USB device at all); a data cable fixed it.
+- 2026-10-21 p002: 64 WS2812B on G33 with Grove 5 V from USB: 62 fps steady, ~300 mA estimated peak at brightness 40, no brown-out in 40 s; data straight at 3.3 V.

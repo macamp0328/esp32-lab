@@ -3,6 +3,30 @@
 Newest first. Five lines each: date and title, what, instead of, why, revisit when.
 Read before changing anything an entry covers. A version bump is a new entry plus a green CI.
 
+## 2026-10-21 · p002 is the matrix demo on the M5; effects are functions of time only
+- What: p002-matrix-demo (M5StickC Plus + matrix-8x8-01 on Grove G33, 400 mA cap); 12 new `lab_fx` effects, each `f(t)` with no state
+- Instead of: leaving p002 to the shelved chandelier; stateful effects (life, snake) with their own memory
+- Why: p002 was never created, so no number is reused; pure `f(t)` effects host-test deterministically, crossfade freely and restart from frame 0
+- Revisit when: an effect needs memory (then keep its state in the project, not in `lab_fx`)
+
+## 2026-10-21 · `Layout::matrix` takes `by_columns`, not rotate/flip options
+- What: one flag for matrices wired down columns; the origin stays top-left (LED 0)
+- Instead of: a general rotation/mirror transform
+- Why: matrix-8x8-01 measured as column-wired from the top-left; YAGNI for the other seven orientations
+- Revisit when: a panel's LED 0 is not in a corner we can hold at top-left
+
+## 2026-10-21 · Buttons go through `lab_board::buttons()` (M5Unified's debounce)
+- What: `{a_click, a_hold, b_click}` per loop, from `M5.BtnA`/`BtnB`; all false on boards without buttons
+- Instead of: `digitalRead(BOARD_BUTTON_A)` and our own debounce in each project
+- Why: M5Unified is already linked and knows each M5 model's buttons (polarity, hold timing); projects stay board-agnostic
+- Revisit when: a non-M5 board with buttons joins (add its branch in lab_board.cpp)
+
+## 2026-10-21 · 400 mA LED cap for the M5 Grove port on laptop USB
+- What: `POWER_MAX_MA 400` in p002; measured `ma_max` about 300 mA at brightness 40
+- Instead of: the template's 500 mA
+- Why: the M5 itself takes ~100 mA; 400 + 100 stays inside a 500 mA USB 2.0 port, well under the 800 mA rule
+- Revisit when: the matrix gets its own 5 V supply
+
 ## 2026-10-21 · M4 (p002-wheel-chandelier) is shelved; p002 was an example idea
 - What: no p002 project or scaffold; SPEC's M4 is not on the roadmap. Next milestone is M3 once its parts arrive
 - Instead of: SPEC's M4 "p002 scaffold" milestone
