@@ -1,6 +1,6 @@
 # p003-bench
 
-**Status:** prototype  ·  **Last HIL check:** never
+**Status:** bench-verified  ·  **Last HIL check:** 2026-10-22 m5stickc-plus11 ok (showcase fps per LED count; A-hold starts the suite)
 
 How fast can each board go? A benchmark suite that runs unchanged on every board (compute,
 LED output, dual-core, memory, screen), plus an uncapped showcase. Results for all boards are in
