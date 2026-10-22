@@ -1,7 +1,7 @@
 {
   "project": "p003-bench",
   "board": "s3mini",
-  "fw": "5a599c5+",
+  "fw": "8c7d296",
   "core": "3.3.12",
   "fastled": "3.10.7",
   "date": "2026-10-22",
@@ -11,23 +11,23 @@
       "group": "compute",
       "test": "math/sinf",
       "n": 1000,
-      "us": 567.84,
-      "max_us": 611.0,
-      "per_s": 1761.1
+      "us": 567.86,
+      "max_us": 618.0,
+      "per_s": 1761.0
     },
     {
       "group": "compute",
       "test": "math/sqrtf",
       "n": 1000,
-      "us": 352.68,
-      "max_us": 384.0,
-      "per_s": 2835.4
+      "us": 352.64,
+      "max_us": 385.0,
+      "per_s": 2835.8
     },
     {
       "group": "compute",
       "test": "math/atan2f",
       "n": 1000,
-      "us": 1335.67,
+      "us": 1335.68,
       "max_us": 1408.0,
       "per_s": 748.7
     },
@@ -35,55 +35,55 @@
       "group": "compute",
       "test": "math/noise",
       "n": 1000,
-      "us": 3452.62,
-      "max_us": 3503.0,
+      "us": 3452.46,
+      "max_us": 3502.0,
       "per_s": 289.6
     },
     {
       "group": "compute",
       "test": "math/hsv",
       "n": 1000,
-      "us": 338.9,
-      "max_us": 373.0,
-      "per_s": 2950.7
+      "us": 338.91,
+      "max_us": 369.0,
+      "per_s": 2950.6
     },
     {
       "group": "compute",
       "test": "board/buttons_per_frame",
       "n": 1,
-      "us": 0.01,
-      "max_us": 1.0,
-      "per_s": 100000000.0
+      "us": 1.01,
+      "max_us": 2.0,
+      "per_s": 990099.0
     },
     {
       "group": "compute",
       "test": "board/status_led",
       "n": 1,
-      "us": 0.03,
+      "us": 0.05,
       "max_us": 14.0,
-      "per_s": 37337716.0
+      "per_s": 21671540.8
     },
     {
       "group": "compute",
       "test": "fx/rainbow",
       "n": 64,
-      "us": 88.24,
-      "max_us": 139.0,
-      "per_s": 11332.1
+      "us": 88.27,
+      "max_us": 126.0,
+      "per_s": 11329.4
     },
     {
       "group": "compute",
       "test": "fx/rainbow",
       "n": 256,
-      "us": 376.73,
-      "max_us": 412.0,
-      "per_s": 2654.4
+      "us": 376.72,
+      "max_us": 411.0,
+      "per_s": 2654.5
     },
     {
       "group": "compute",
       "test": "fx/rainbow",
       "n": 1024,
-      "us": 1507.96,
+      "us": 1508.02,
       "max_us": 1534.0,
       "per_s": 663.1
     },
@@ -92,39 +92,39 @@
       "test": "fx/plasma",
       "n": 64,
       "us": 344.06,
-      "max_us": 433.0,
+      "max_us": 430.0,
       "per_s": 2906.5
     },
     {
       "group": "compute",
       "test": "fx/plasma",
       "n": 256,
-      "us": 1316.32,
+      "us": 1316.41,
       "max_us": 1385.0,
-      "per_s": 759.7
+      "per_s": 759.6
     },
     {
       "group": "compute",
       "test": "fx/plasma",
       "n": 1024,
-      "us": 5309.95,
-      "max_us": 5400.0,
+      "us": 5309.68,
+      "max_us": 5398.0,
       "per_s": 188.3
     },
     {
       "group": "compute",
       "test": "fx/fire",
       "n": 64,
-      "us": 543.68,
+      "us": 543.65,
       "max_us": 586.0,
-      "per_s": 1839.3
+      "per_s": 1839.4
     },
     {
       "group": "compute",
       "test": "fx/fire",
       "n": 256,
-      "us": 2190.73,
-      "max_us": 2211.0,
+      "us": 2190.67,
+      "max_us": 2209.0,
       "per_s": 456.5
     },
     {
@@ -132,30 +132,30 @@
       "test": "fx/fire",
       "n": 1024,
       "us": 8753.31,
-      "max_us": 8770.0,
+      "max_us": 8769.0,
       "per_s": 114.2
     },
     {
       "group": "compute",
       "test": "fx/rain",
       "n": 64,
-      "us": 129.97,
-      "max_us": 160.0,
-      "per_s": 7693.8
+      "us": 129.96,
+      "max_us": 161.0,
+      "per_s": 7694.8
     },
     {
       "group": "compute",
       "test": "fx/rain",
       "n": 256,
-      "us": 503.78,
-      "max_us": 535.0,
-      "per_s": 1985.0
+      "us": 503.79,
+      "max_us": 536.0,
+      "per_s": 1984.9
     },
     {
       "group": "compute",
       "test": "fx/rain",
       "n": 1024,
-      "us": 1794.4,
+      "us": 1794.26,
       "max_us": 1858.0,
       "per_s": 557.3
     },
@@ -163,24 +163,24 @@
       "group": "compute",
       "test": "fx/ripple",
       "n": 64,
-      "us": 309.86,
+      "us": 309.88,
       "max_us": 399.0,
-      "per_s": 3227.3
+      "per_s": 3227.0
     },
     {
       "group": "compute",
       "test": "fx/ripple",
       "n": 256,
-      "us": 1246.31,
-      "max_us": 1317.0,
+      "us": 1246.23,
+      "max_us": 1304.0,
       "per_s": 802.4
     },
     {
       "group": "compute",
       "test": "fx/ripple",
       "n": 1024,
-      "us": 4942.31,
-      "max_us": 5062.0,
+      "us": 4942.1,
+      "max_us": 5064.0,
       "per_s": 202.3
     },
     {
@@ -188,38 +188,38 @@
       "test": "fx/heart",
       "n": 64,
       "us": 85.47,
-      "max_us": 167.0,
-      "per_s": 11700.2
+      "max_us": 176.0,
+      "per_s": 11699.9
     },
     {
       "group": "compute",
       "test": "fx/heart",
       "n": 256,
-      "us": 355.2,
+      "us": 355.18,
       "max_us": 394.0,
-      "per_s": 2815.3
+      "per_s": 2815.5
     },
     {
       "group": "compute",
       "test": "fx/heart",
       "n": 1024,
-      "us": 1411.61,
-      "max_us": 1459.0,
+      "us": 1411.62,
+      "max_us": 1451.0,
       "per_s": 708.4
     },
     {
       "group": "compute",
       "test": "fx/spiral",
       "n": 64,
-      "us": 310.58,
+      "us": 310.56,
       "max_us": 395.0,
-      "per_s": 3219.8
+      "per_s": 3219.9
     },
     {
       "group": "compute",
       "test": "fx/spiral",
       "n": 256,
-      "us": 1262.25,
+      "us": 1262.37,
       "max_us": 1327.0,
       "per_s": 792.2
     },
@@ -227,8 +227,8 @@
       "group": "compute",
       "test": "fx/spiral",
       "n": 1024,
-      "us": 5091.98,
-      "max_us": 5154.0,
+      "us": 5091.85,
+      "max_us": 5152.0,
       "per_s": 196.4
     },
     {
@@ -236,32 +236,32 @@
       "test": "fx/twinkle",
       "n": 64,
       "us": 110.29,
-      "max_us": 178.0,
-      "per_s": 9067.1
+      "max_us": 172.0,
+      "per_s": 9067.2
     },
     {
       "group": "compute",
       "test": "fx/twinkle",
       "n": 256,
-      "us": 431.1,
-      "max_us": 486.0,
-      "per_s": 2319.7
+      "us": 431.13,
+      "max_us": 494.0,
+      "per_s": 2319.5
     },
     {
       "group": "compute",
       "test": "fx/twinkle",
       "n": 1024,
-      "us": 1702.98,
-      "max_us": 1744.0,
-      "per_s": 587.2
+      "us": 1702.85,
+      "max_us": 1742.0,
+      "per_s": 587.3
     },
     {
       "group": "compute",
       "test": "fx/invader",
       "n": 64,
-      "us": 82.18,
-      "max_us": 134.0,
-      "per_s": 12168.4
+      "us": 82.2,
+      "max_us": 137.0,
+      "per_s": 12165.9
     },
     {
       "group": "compute",
@@ -269,7 +269,7 @@
       "n": 256,
       "us": 351.87,
       "max_us": 381.0,
-      "per_s": 2842.0
+      "per_s": 2841.9
     },
     {
       "group": "compute",
@@ -283,24 +283,24 @@
       "group": "compute",
       "test": "fx/lava",
       "n": 64,
-      "us": 187.8,
-      "max_us": 264.0,
-      "per_s": 5324.8
+      "us": 187.83,
+      "max_us": 263.0,
+      "per_s": 5323.9
     },
     {
       "group": "compute",
       "test": "fx/lava",
       "n": 256,
-      "us": 756.56,
-      "max_us": 800.0,
-      "per_s": 1321.8
+      "us": 756.51,
+      "max_us": 801.0,
+      "per_s": 1321.9
     },
     {
       "group": "compute",
       "test": "fx/lava",
       "n": 1024,
-      "us": 3010.26,
-      "max_us": 3068.0,
+      "us": 3010.22,
+      "max_us": 3060.0,
       "per_s": 332.2
     },
     {
@@ -308,14 +308,14 @@
       "test": "fx/radar",
       "n": 64,
       "us": 341.77,
-      "max_us": 435.0,
-      "per_s": 2925.9
+      "max_us": 434.0,
+      "per_s": 2926.0
     },
     {
       "group": "compute",
       "test": "fx/radar",
       "n": 256,
-      "us": 1392.23,
+      "us": 1392.18,
       "max_us": 1458.0,
       "per_s": 718.3
     },
@@ -323,31 +323,31 @@
       "group": "compute",
       "test": "fx/radar",
       "n": 1024,
-      "us": 5561.46,
-      "max_us": 5620.0,
+      "us": 5561.22,
+      "max_us": 5617.0,
       "per_s": 179.8
     },
     {
       "group": "compute",
       "test": "fx/bounce",
       "n": 64,
-      "us": 417.56,
-      "max_us": 474.0,
-      "per_s": 2394.9
+      "us": 417.6,
+      "max_us": 476.0,
+      "per_s": 2394.6
     },
     {
       "group": "compute",
       "test": "fx/bounce",
       "n": 256,
-      "us": 1678.12,
-      "max_us": 1712.0,
+      "us": 1678.27,
+      "max_us": 1730.0,
       "per_s": 595.9
     },
     {
       "group": "compute",
       "test": "fx/bounce",
       "n": 1024,
-      "us": 6702.47,
+      "us": 6702.4,
       "max_us": 6733.0,
       "per_s": 149.2
     },
@@ -355,48 +355,48 @@
       "group": "compute",
       "test": "fx/marquee",
       "n": 64,
-      "us": 37.67,
-      "max_us": 60.0,
-      "per_s": 26545.3
+      "us": 37.68,
+      "max_us": 47.0,
+      "per_s": 26542.0
     },
     {
       "group": "compute",
       "test": "fx/marquee",
       "n": 256,
-      "us": 146.29,
+      "us": 146.3,
       "max_us": 160.0,
-      "per_s": 6835.6
+      "per_s": 6835.1
     },
     {
       "group": "compute",
       "test": "fx/marquee",
       "n": 1024,
-      "us": 538.22,
+      "us": 538.19,
       "max_us": 561.0,
-      "per_s": 1858.0
+      "per_s": 1858.1
     },
     {
       "group": "compute",
       "test": "fx/aurora",
       "n": 64,
-      "us": 528.02,
-      "max_us": 621.0,
-      "per_s": 1893.9
+      "us": 527.95,
+      "max_us": 620.0,
+      "per_s": 1894.1
     },
     {
       "group": "compute",
       "test": "fx/aurora",
       "n": 256,
-      "us": 2138.88,
-      "max_us": 2219.0,
+      "us": 2138.89,
+      "max_us": 2217.0,
       "per_s": 467.5
     },
     {
       "group": "compute",
       "test": "fx/aurora",
       "n": 1024,
-      "us": 8666.91,
-      "max_us": 8748.0,
+      "us": 8666.89,
+      "max_us": 8746.0,
       "per_s": 115.4
     },
     {
@@ -404,31 +404,31 @@
       "test": "fx/pacman",
       "n": 64,
       "us": 35.38,
-      "max_us": 96.0,
-      "per_s": 28264.5
+      "max_us": 98.0,
+      "per_s": 28266.1
     },
     {
       "group": "compute",
       "test": "fx/pacman",
       "n": 256,
-      "us": 157.86,
-      "max_us": 198.0,
-      "per_s": 6334.8
+      "us": 157.87,
+      "max_us": 195.0,
+      "per_s": 6334.5
     },
     {
       "group": "compute",
       "test": "fx/pacman",
       "n": 1024,
-      "us": 630.82,
-      "max_us": 661.0,
+      "us": 630.85,
+      "max_us": 664.0,
       "per_s": 1585.2
     },
     {
       "group": "compute",
       "test": "fx/starfield",
       "n": 64,
-      "us": 3511.05,
-      "max_us": 3638.0,
+      "us": 3511.03,
+      "max_us": 3633.0,
       "per_s": 284.8
     },
     {
@@ -436,62 +436,62 @@
       "test": "fx/starfield",
       "n": 256,
       "us": 15058.55,
-      "max_us": 15097.0,
+      "max_us": 15101.0,
       "per_s": 66.4
     },
     {
       "group": "compute",
       "test": "fx/starfield",
       "n": 1024,
-      "us": 60163.25,
-      "max_us": 60256.0,
+      "us": 60164.1,
+      "max_us": 60255.0,
       "per_s": 16.6
     },
     {
       "group": "compute",
       "test": "fx/fireworks",
       "n": 64,
-      "us": 1376.02,
+      "us": 1375.98,
       "max_us": 2177.0,
-      "per_s": 726.7
+      "per_s": 726.8
     },
     {
       "group": "compute",
       "test": "fx/fireworks",
       "n": 256,
       "us": 5765.09,
-      "max_us": 9172.0,
+      "max_us": 9173.0,
       "per_s": 173.5
     },
     {
       "group": "compute",
       "test": "fx/fireworks",
       "n": 1024,
-      "us": 20295.8,
-      "max_us": 20324.0,
+      "us": 20295.9,
+      "max_us": 20329.0,
       "per_s": 49.3
     },
     {
       "group": "compute",
       "test": "fx/pong",
       "n": 64,
-      "us": 30.82,
-      "max_us": 57.0,
-      "per_s": 32441.5
+      "us": 30.8,
+      "max_us": 64.0,
+      "per_s": 32462.5
     },
     {
       "group": "compute",
       "test": "fx/pong",
       "n": 256,
-      "us": 138.69,
-      "max_us": 169.0,
-      "per_s": 7210.4
+      "us": 138.7,
+      "max_us": 170.0,
+      "per_s": 7209.8
     },
     {
       "group": "compute",
       "test": "fx/pong",
       "n": 1024,
-      "us": 547.45,
+      "us": 547.43,
       "max_us": 581.0,
       "per_s": 1826.7
     },
@@ -499,16 +499,16 @@
       "group": "compute",
       "test": "fx/tunnel",
       "n": 64,
-      "us": 319.97,
-      "max_us": 415.0,
-      "per_s": 3125.3
+      "us": 319.98,
+      "max_us": 420.0,
+      "per_s": 3125.2
     },
     {
       "group": "compute",
       "test": "fx/tunnel",
       "n": 256,
-      "us": 1299.9,
-      "max_us": 1376.0,
+      "us": 1299.93,
+      "max_us": 1365.0,
       "per_s": 769.3
     },
     {
@@ -516,78 +516,78 @@
       "test": "fx/tunnel",
       "n": 1024,
       "us": 5194.67,
-      "max_us": 5271.0,
+      "max_us": 5274.0,
       "per_s": 192.5
     },
     {
       "group": "compute",
       "test": "fx/kaleidoscope",
       "n": 64,
-      "us": 331.58,
-      "max_us": 391.0,
-      "per_s": 3015.9
+      "us": 331.54,
+      "max_us": 392.0,
+      "per_s": 3016.2
     },
     {
       "group": "compute",
       "test": "fx/kaleidoscope",
       "n": 256,
       "us": 1338.21,
-      "max_us": 1383.0,
+      "max_us": 1384.0,
       "per_s": 747.3
     },
     {
       "group": "compute",
       "test": "fx/kaleidoscope",
       "n": 1024,
-      "us": 5340.05,
-      "max_us": 5378.0,
+      "us": 5340.07,
+      "max_us": 5377.0,
       "per_s": 187.3
     },
     {
       "group": "compute",
       "test": "fx/snow",
       "n": 64,
-      "us": 1043.22,
-      "max_us": 1135.0,
-      "per_s": 958.6
+      "us": 1043.27,
+      "max_us": 1136.0,
+      "per_s": 958.5
     },
     {
       "group": "compute",
       "test": "fx/snow",
       "n": 256,
-      "us": 4430.94,
-      "max_us": 4491.0,
+      "us": 4430.87,
+      "max_us": 4488.0,
       "per_s": 225.7
     },
     {
       "group": "compute",
       "test": "fx/snow",
       "n": 1024,
-      "us": 17672.95,
-      "max_us": 17741.0,
+      "us": 17673.05,
+      "max_us": 17743.0,
       "per_s": 56.6
     },
     {
       "group": "compute",
       "test": "fx/helix",
       "n": 64,
-      "us": 313.62,
-      "max_us": 384.0,
-      "per_s": 3188.6
+      "us": 313.59,
+      "max_us": 380.0,
+      "per_s": 3188.9
     },
     {
       "group": "compute",
       "test": "fx/helix",
       "n": 256,
-      "us": 1261.48,
-      "max_us": 1283.0,
-      "per_s": 792.7
+      "us": 1261.43,
+      "max_us": 1284.0,
+      "per_s": 792.8
     },
     {
       "group": "compute",
       "test": "fx/helix",
       "n": 1024,
-      "us": 4967.0,
+      "us": 4966.89,
       "max_us": 5050.0,
       "per_s": 201.3
     },
@@ -597,54 +597,54 @@
       "n": 64,
       "us": 229.91,
       "max_us": 309.0,
-      "per_s": 4349.4
+      "per_s": 4349.5
     },
     {
       "group": "compute",
       "test": "fx/lightning",
       "n": 256,
-      "us": 940.14,
+      "us": 940.22,
       "max_us": 1240.0,
-      "per_s": 1063.7
+      "per_s": 1063.6
     },
     {
       "group": "compute",
       "test": "fx/lightning",
       "n": 1024,
-      "us": 3634.13,
-      "max_us": 3684.0,
+      "us": 3634.08,
+      "max_us": 3682.0,
       "per_s": 275.2
     },
     {
       "group": "compute",
       "test": "sim/life",
       "n": 64,
-      "us": 108.3,
-      "max_us": 150.0,
-      "per_s": 9233.4
+      "us": 108.29,
+      "max_us": 151.0,
+      "per_s": 9234.1
     },
     {
       "group": "compute",
       "test": "sim/life",
       "n": 256,
-      "us": 452.62,
-      "max_us": 487.0,
-      "per_s": 2209.4
+      "us": 452.64,
+      "max_us": 476.0,
+      "per_s": 2209.3
     },
     {
       "group": "compute",
       "test": "sim/ant",
       "n": 64,
-      "us": 36.21,
-      "max_us": 66.0,
-      "per_s": 27613.6
+      "us": 36.22,
+      "max_us": 60.0,
+      "per_s": 27612.0
     },
     {
       "group": "compute",
       "test": "sim/ant",
       "n": 256,
       "us": 168.15,
-      "max_us": 193.0,
+      "max_us": 189.0,
       "per_s": 5947.0
     },
     {
@@ -652,118 +652,118 @@
       "test": "sim/snake",
       "n": 64,
       "us": 138.79,
-      "max_us": 231.0,
-      "per_s": 7205.3
+      "max_us": 232.0,
+      "per_s": 7204.9
     },
     {
       "group": "compute",
       "test": "sim/snake",
       "n": 256,
-      "us": 445.64,
+      "us": 445.63,
       "max_us": 728.0,
-      "per_s": 2243.9
+      "per_s": 2244.0
     },
     {
       "group": "compute",
       "test": "sim/tetris",
       "n": 64,
-      "us": 100.46,
-      "max_us": 619.0,
-      "per_s": 9954.3
+      "us": 100.47,
+      "max_us": 621.0,
+      "per_s": 9953.3
     },
     {
       "group": "compute",
       "test": "sim/tetris",
       "n": 256,
       "us": 392.59,
-      "max_us": 3073.0,
+      "max_us": 3076.0,
       "per_s": 2547.2
     },
     {
       "group": "compute",
       "test": "sim/sand",
       "n": 64,
-      "us": 79.77,
-      "max_us": 102.0,
-      "per_s": 12535.9
+      "us": 79.76,
+      "max_us": 104.0,
+      "per_s": 12537.3
     },
     {
       "group": "compute",
       "test": "sim/sand",
       "n": 256,
-      "us": 302.58,
-      "max_us": 427.0,
-      "per_s": 3304.9
+      "us": 302.61,
+      "max_us": 428.0,
+      "per_s": 3304.5
     },
     {
       "group": "compute",
       "test": "sim/marble",
       "n": 64,
-      "us": 195.0,
-      "max_us": 247.0,
-      "per_s": 5128.2
+      "us": 195.02,
+      "max_us": 246.0,
+      "per_s": 5127.7
     },
     {
       "group": "compute",
       "test": "sim/marble",
       "n": 256,
-      "us": 797.22,
+      "us": 797.27,
       "max_us": 823.0,
-      "per_s": 1254.4
+      "per_s": 1254.3
     },
     {
       "group": "led",
       "test": "show",
       "n": 64,
-      "us": 3327.76,
-      "max_us": 3770.0,
-      "per_s": 300.5
+      "us": 3328.43,
+      "max_us": 3806.0,
+      "per_s": 300.4
     },
     {
       "group": "led",
       "test": "show",
       "n": 256,
-      "us": 9526.03,
-      "max_us": 10065.0,
+      "us": 9525.69,
+      "max_us": 10057.0,
       "per_s": 105.0
     },
     {
       "group": "led",
       "test": "show",
       "n": 512,
-      "us": 18020.7,
-      "max_us": 18549.0,
+      "us": 18020.8,
+      "max_us": 18551.0,
       "per_s": 55.5
     },
     {
       "group": "led",
       "test": "show",
       "n": 1024,
-      "us": 34969.45,
-      "max_us": 34996.0,
+      "us": 34969.7,
+      "max_us": 34997.0,
       "per_s": 28.6
     },
     {
       "group": "led",
       "test": "show_call",
       "n": 64,
-      "us": 3224.75,
-      "max_us": 3438.0,
-      "per_s": 310.1
+      "us": 3225.5,
+      "max_us": 3435.0,
+      "per_s": 310.0
     },
     {
       "group": "led",
       "test": "show_call",
       "n": 256,
-      "us": 9503.45,
-      "max_us": 10099.0,
+      "us": 9503.0,
+      "max_us": 10101.0,
       "per_s": 105.2
     },
     {
       "group": "led",
       "test": "show_call",
       "n": 512,
-      "us": 18080.0,
+      "us": 18079.35,
       "max_us": 18104.0,
       "per_s": 55.3
     },
@@ -771,25 +771,25 @@
       "group": "led",
       "test": "show_call",
       "n": 1024,
-      "us": 34543.2,
-      "max_us": 35096.0,
-      "per_s": 28.9
+      "us": 34542.0,
+      "max_us": 35098.0,
+      "per_s": 29.0
     },
     {
       "group": "led",
       "test": "limiter",
       "n": 64,
-      "us": 28.59,
-      "max_us": 65.0,
-      "per_s": 34977.7
+      "us": 28.58,
+      "max_us": 66.0,
+      "per_s": 34983.7
     },
     {
       "group": "led",
       "test": "limiter",
       "n": 256,
-      "us": 107.65,
+      "us": 107.66,
       "max_us": 127.0,
-      "per_s": 9289.3
+      "per_s": 9288.5
     },
     {
       "group": "led",
@@ -797,29 +797,29 @@
       "n": 512,
       "us": 211.72,
       "max_us": 245.0,
-      "per_s": 4723.3
+      "per_s": 4723.2
     },
     {
       "group": "led",
       "test": "limiter",
       "n": 1024,
-      "us": 421.94,
-      "max_us": 445.0,
-      "per_s": 2370.0
+      "us": 421.98,
+      "max_us": 444.0,
+      "per_s": 2369.8
     },
     {
       "group": "led",
       "test": "plasma+show",
       "n": 64,
-      "us": 3993.03,
+      "us": 3992.8,
       "max_us": 4004.0,
-      "per_s": 250.4
+      "per_s": 250.5
     },
     {
       "group": "led",
       "test": "plasma+show",
       "n": 256,
-      "us": 11013.75,
+      "us": 11013.96,
       "max_us": 11490.0,
       "per_s": 90.8
     },
@@ -827,7 +827,7 @@
       "group": "led",
       "test": "plasma+show",
       "n": 1024,
-      "us": 40042.1,
+      "us": 40045.9,
       "max_us": 40485.0,
       "per_s": 25.0
     },
@@ -835,47 +835,47 @@
       "group": "led",
       "test": "showcase_frame",
       "n": 64,
-      "us": 3992.75,
-      "max_us": 4084.0,
+      "us": 3991.39,
+      "max_us": 4010.0,
       "per_s": 250.5
     },
     {
       "group": "led",
       "test": "parallel/1_pins",
       "n": 1024,
-      "us": 34971.85,
-      "max_us": 35000.0,
+      "us": 34970.6,
+      "max_us": 34999.0,
       "per_s": 28.6
     },
     {
       "group": "led",
       "test": "parallel/2_pins",
       "n": 1024,
-      "us": 19183.25,
-      "max_us": 20501.0,
+      "us": 19183.2,
+      "max_us": 20495.0,
       "per_s": 52.1
     },
     {
       "group": "led",
       "test": "parallel/4_pins",
       "n": 1024,
-      "us": 11452.96,
-      "max_us": 14275.0,
+      "us": 11453.04,
+      "max_us": 14274.0,
       "per_s": 87.3
     },
     {
       "group": "dualcore",
       "test": "starfield/single",
       "n": 1024,
-      "us": 95012.7,
-      "max_us": 95403.0,
+      "us": 95012.55,
+      "max_us": 95401.0,
       "per_s": 10.5
     },
     {
       "group": "dualcore",
       "test": "starfield/dual",
       "n": 1024,
-      "us": 62414.85,
+      "us": 62414.97,
       "max_us": 95807.0,
       "per_s": 16.0
     },
@@ -883,8 +883,8 @@
       "group": "dualcore",
       "test": "fire/single",
       "n": 1024,
-      "us": 43492.25,
-      "max_us": 43654.0,
+      "us": 43491.9,
+      "max_us": 43655.0,
       "per_s": 23.0
     },
     {
@@ -892,14 +892,14 @@
       "test": "fire/dual",
       "n": 1024,
       "us": 35655.74,
-      "max_us": 44396.0,
+      "max_us": 44397.0,
       "per_s": 28.0
     },
     {
       "group": "dualcore",
       "test": "rainbow/single",
       "n": 1024,
-      "us": 36163.25,
+      "us": 36163.1,
       "max_us": 36567.0,
       "per_s": 27.7
     },
@@ -907,7 +907,7 @@
       "group": "dualcore",
       "test": "rainbow/dual",
       "n": 1024,
-      "us": 35023.76,
+      "us": 35023.78,
       "max_us": 36679.0,
       "per_s": 28.6
     },
@@ -915,23 +915,23 @@
       "group": "memory",
       "test": "memcpy/sram",
       "n": 32768,
-      "us": 86.67,
-      "max_us": 105.0,
-      "per_s": 11537.5
+      "us": 86.68,
+      "max_us": 104.0,
+      "per_s": 11536.3
     },
     {
       "group": "memory",
       "test": "memset/sram",
       "n": 32768,
-      "us": 43.86,
+      "us": 43.84,
       "max_us": 58.0,
-      "per_s": 22798.2
+      "per_s": 22811.6
     },
     {
       "group": "memory",
       "test": "memcpy/psram",
       "n": 32768,
-      "us": 3441.06,
+      "us": 3441.15,
       "max_us": 3445.0,
       "per_s": 290.6
     },
@@ -939,32 +939,32 @@
       "group": "memory",
       "test": "memset/psram",
       "n": 32768,
-      "us": 49.05,
+      "us": 49.08,
       "max_us": 1498.0,
-      "per_s": 20387.6
+      "per_s": 20374.8
     },
     {
       "group": "memory",
       "test": "memcpy/sram_to_psram",
       "n": 32768,
-      "us": 91.51,
-      "max_us": 213.0,
-      "per_s": 10928.0
+      "us": 91.56,
+      "max_us": 212.0,
+      "per_s": 10921.6
     },
     {
-      "group": "memory",
-      "test": "fx/plasma_sram",
+      "group": "compute",
+      "test": "fx/plasma_into_sram",
       "n": 1024,
-      "us": 5311.11,
+      "us": 5310.86,
       "max_us": 5471.0,
       "per_s": 188.3
     },
     {
-      "group": "memory",
-      "test": "fx/plasma_psram",
+      "group": "compute",
+      "test": "fx/plasma_into_psram",
       "n": 1024,
-      "us": 5239.28,
-      "max_us": 5345.0,
+      "us": 5239.34,
+      "max_us": 5346.0,
       "per_s": 190.9
     }
   ]
