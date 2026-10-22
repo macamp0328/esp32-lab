@@ -22,7 +22,7 @@ import serial
 import serial_watch
 from hil_assert import PANIC_MARKERS
 from labrepo import PROJECTS
-from ports import pick_port
+from ports import pick_port_for
 
 GROUPS = ("compute", "led", "dualcore", "memory", "screen")
 N_HEADER = {"led": "LEDs", "memory": "bytes"}
@@ -300,12 +300,13 @@ def summary(doc: dict) -> list[str]:
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(prog="just bench")
     ap.add_argument("project")
+    ap.add_argument("board", nargs="?", help="which board, when several are plugged in")
     ap.add_argument("--port")
     ap.add_argument("--timeout", type=float, default=180, help="seconds from reset to bench_done")
     args = ap.parse_args(argv)
 
     root = PROJECTS / args.project
-    port = args.port or pick_port()
+    port = args.port or pick_port_for(args.project, args.board)
     print(f"bench: {port}: reset, send `bench` after leds, up to {args.timeout:.0f} s", flush=True)
     lines = collect(port, args.timeout)
     tracker = Tracker()

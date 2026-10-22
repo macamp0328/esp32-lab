@@ -14,7 +14,7 @@ import time
 import hil_assert
 import serial
 from labrepo import PROJECTS
-from ports import pick_port
+from ports import pick_port_for
 
 
 def reset(ser: serial.Serial) -> None:
@@ -73,12 +73,13 @@ def reopen(port: str, baud: int, deadline: float) -> serial.Serial | None:
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(prog="just watch")
     ap.add_argument("project")
+    ap.add_argument("board", nargs="?", help="which board, when several are plugged in")
     ap.add_argument("--seconds", type=float, default=30)
     ap.add_argument("--port")
     ap.add_argument("--no-reset", action="store_true")
     args = ap.parse_args(argv)
 
-    port = args.port or pick_port()
+    port = args.port or pick_port_for(args.project, args.board)
     out = PROJECTS / args.project / ".hil"
     out.mkdir(exist_ok=True)
     print(f"watch: {port} for {args.seconds:.0f} s → {out}/last-run.jsonl", flush=True)

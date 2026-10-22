@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import configparser
 import re
+import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -47,3 +48,19 @@ def project_boards(project: str) -> list[str]:
     """Boards a project supports: its [platformio] default_envs."""
     cp = read_ini(PROJECTS / project / "platformio.ini")
     return split_list(cp.get("platformio", "default_envs", fallback=""))
+
+
+def header_define(path: Path, name: str) -> str | None:
+    """Value of `#define NAME value` in a header, quotes stripped; None if absent."""
+    if not path.is_file():
+        return None
+    m = re.search(rf"^\s*#\s*define\s+{name}\s+(.+?)\s*(//.*)?$", path.read_text(), re.M)
+    return m.group(1).strip('"') if m else None
+
+
+def board_chip(board: str) -> str:
+    """The board's BOARD_CHIP (esptool's --chip name)."""
+    chip = header_define(BOARDS / board / "board.h", "BOARD_CHIP")
+    if not chip:
+        sys.exit(f"boards/{board}/board.h has no BOARD_CHIP")
+    return chip

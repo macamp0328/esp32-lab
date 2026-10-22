@@ -37,8 +37,10 @@ engineer and a hobbyist at hardware: he solders well, he is not an EE. Full desi
 
 `<p>` may be the full name or its `pNNN` prefix. Toolchain verbs run in the Docker image
 automatically; inside the container (CI, devcontainer, `just shell`) they run directly.
-Flash and serial run on the host (`.venv`): USB does not cross Docker on macOS. Two boards
-plugged in: `--port` or `LAB_PORT`. esptool baud is each board.ini's `upload_speed`.
+Flash and serial run on the host (`.venv`): USB does not cross Docker on macOS. Several boards
+plugged in: flash/watch/bench pick the port from the board's chip (native USB vs bridge); name
+the board when the project runs on more than one (`just watch p003 s3mini`); two of the same
+board need `--port` or `LAB_PORT`. esptool baud is each board.ini's `upload_speed`.
 Skills in `.claude/skills/`: new-project, add-board, flash-and-watch, hil-check.
 
 ## 4. Board rule

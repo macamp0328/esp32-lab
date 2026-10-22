@@ -10,33 +10,26 @@ from __future__ import annotations
 
 import argparse
 import os
-import re
 import socket
 import subprocess
 import sys
 import time
 from pathlib import Path
 
-from labrepo import BOARDS, PROJECTS, ROOT, board_section, project_boards, read_ini
-from ports import candidates, pick_port
+from labrepo import (  # noqa: F401  (header_define: re-exported for callers and tests)
+    BOARDS,
+    PROJECTS,
+    ROOT,
+    board_chip,
+    board_section,
+    header_define,
+    project_boards,
+    read_ini,
+)
+from ports import candidates, pick_port_for
 
 ESPOTA = ROOT / ".cache" / "espota.py"
 ESPOTA_IN_IMAGE = "/pio/packages/framework-arduinoespressif32/tools/espota.py"
-
-
-def header_define(path: Path, name: str) -> str | None:
-    """Value of `#define NAME value` in a header, quotes stripped; None if absent."""
-    if not path.is_file():
-        return None
-    m = re.search(rf"^\s*#\s*define\s+{name}\s+(.+?)\s*(//.*)?$", path.read_text(), re.M)
-    return m.group(1).strip('"') if m else None
-
-
-def board_chip(board: str) -> str:
-    chip = header_define(BOARDS / board / "board.h", "BOARD_CHIP")
-    if not chip:
-        sys.exit(f"boards/{board}/board.h has no BOARD_CHIP")
-    return chip
 
 
 def board_baud(board: str) -> str:
@@ -138,9 +131,9 @@ def main(argv: list[str] | None = None) -> int:
         if not (args.port or os.environ.get("LAB_PORT") or candidates()):
             return 1
         print("flash: OTA failed, falling back to USB", flush=True)
-        port = args.port or pick_port()
+        port = args.port or pick_port_for(args.project, args.board)
     else:
-        port = args.port or pick_port()
+        port = args.port or pick_port_for(args.project, args.board)
         need_detect = not args.board and len(supported) > 1
         board = choose_board(supported, args.board, detect_chip(port) if need_detect else None)
     return flash_usb(args.project, board, port)

@@ -8,7 +8,8 @@ description: Build, flash and verify esp32-lab firmware on a board over USB or O
 1. `just build <p> <board>`: never flash a stale build.
 2. `just flash <p> [board]`: USB; board is auto-detected from the chip when the project supports
    several. Over WiFi: `just flash <p> <board> --ota` (falls back to USB if a port exists).
-   Two boards plugged in: pass `--port /dev/cu.…` or set `LAB_PORT`.
+   Several boards plugged in: the port is picked from the board's chip; name the board when the
+   project supports several (`just watch p003 s3mini` too); two of the same board need `--port`.
 3. `just watch <p>`: resets the board, captures 30 s to `projects/<p>/.hil/last-run.{log,jsonl}`,
    then runs `tools/hil_assert.py`. PASS = one `boot`, `leds` within 2 s, every `fps` >= 30, no `err`.
 4. Report the rung reached in one line, e.g. `rung 4: hil_assert PASS fw=<sha> fps min 90`.
