@@ -22,7 +22,7 @@ just new p003-desk-lamp --board s3mini
 | Project | Boards | Status | Last HIL check |
 | --- | --- | --- | --- |
 | [p000-blink](projects/p000-blink/README.md) | s3mini, m5stickc-plus11 | bench-verified | 2026-10-21 s3mini ok, m5stickc-plus11 ok |
-| [p002-matrix-demo](projects/p002-matrix-demo/README.md) | m5stickc-plus11 | bench-verified | 2026-10-21 m5stickc-plus11 ok (set 1; set 2 tilt responds) |
+| [p002-matrix-demo](projects/p002-matrix-demo/README.md) | m5stickc-plus11 | bench-verified | 2026-10-21 m5stickc-plus11 ok (sets 1 and 2) |
 <!-- status:end -->
 
 ## Layout

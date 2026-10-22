@@ -1,6 +1,6 @@
 # p002-matrix-demo
 
-**Status:** bench-verified  ·  **Last HIL check:** 2026-10-21 m5stickc-plus11 ok (set 1; set 2 tilt responds)
+**Status:** bench-verified  ·  **Last HIL check:** 2026-10-21 m5stickc-plus11 ok (sets 1 and 2)
 
 29 animations in two sets on the BTF 8x8 WS2812B matrix (matrix-8x8-01), driven from the
 M5StickC Plus Grove port and powered from laptop USB: the lab's first real demo.
@@ -57,4 +57,3 @@ one effect, held), `DEMO_PROBE 1` (the wiring probe, `lab_fx::wiring`), `TILT_LO
 - [ ] Tilt directions are not calibrated (`TILT_SWAP_XY`, `TILT_*_SIGN` are defaults). Sand and
   marble respond, but tilting a separate stick feels arbitrary. The better fix is mounting the M5
   on the matrix frame and calibrating against real gravity (Miles, 2026-10-21: fine for now).
-- [ ] Set 2 has not had a full HIL pass, effect by effect.
