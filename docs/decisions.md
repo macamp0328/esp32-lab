@@ -3,6 +3,12 @@
 Newest first. Five lines each: date and title, what, instead of, why, revisit when.
 Read before changing anything an entry covers. A version bump is a new entry plus a green CI.
 
+## 2026-10-21 · Benchmarks run on demand over serial (`just bench`), not at boot
+- What: p003 boots into its showcase; the line `bench` on USB serial runs the suite (`bench_start`, a `bench` event per test, `bench_done`), then the showcase resumes; `tools/bench.py` sends it after `leds`, writes `results/<board>.json` and rebuilds `RESULTS.md`
+- Instead of: running the suite at boot, before or inside the normal loop
+- Why: a suite that blocks for minutes breaks the serial contract's `fps` every 5 s, so `just watch` would fail; on demand keeps p003 a normal project and a rerun is one host command
+- Revisit when: a board cannot take USB serial input (then trigger it from a button)
+
 ## 2026-10-21 · p002 plays two sets; a B hold switches 1 → 2 → all
 - What: each playlist entry carries a set id; A and auto-advance stay inside the current set; `DEMO_BOOT_SET`/`DEMO_BOOT_FX` pick the start
 - Instead of: one 29-effect playlist (a 7 minute cycle)

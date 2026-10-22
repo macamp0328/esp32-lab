@@ -31,6 +31,7 @@ engineer and a hobbyist at hardware: he solders well, he is not an EE. Full desi
 | `just inventory` / `just status` | print+validate stock / refresh README table | works |
 | `just flash <p> [b] [--ota]` | USB (board auto-detected) or OTA with USB fallback | works |
 | `just watch <p>` | reset, 30 s serial to `.hil/last-run.jsonl`, then `hil_assert` | works |
+| `just bench <p>` | reset, run the on-demand suite, write results/<board>.json and RESULTS.md | works once p003 exists |
 | `just add-board <n> --chip <c> --pio-board <id>` | board folder + lab_board.h branch + env | works |
 | `just sim <p>` | Wokwi scenario | exits 2: no Wokwi token yet |
 
