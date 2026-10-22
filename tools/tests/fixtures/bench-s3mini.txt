@@ -1,0 +1,21 @@
+ESP-ROM:esp32s3-20210327
+Build:Mar 27 2021
+rst:0x1 (POWERON),boot:0x8 (SPI_FAST_FLASH_BOOT)
+{"t":1210,"ev":"boot","proj":"p003-bench","fw":"a1b2c3d","board":"s3mini","fastled":"3.10.7","core":"3.3.12"}
+{"t":1215,"ev":"hw","chip":"ESP32-S3","cores":2,"mhz":240,"flash_mb":4,"psram_mb":2}
+{"t":1300,"ev":"leds","n":64,"driver":"RMT","cap_ma":500}
+{"t":6300,"ev":"fps","fps":412,"heap":281000}
+{"t":7012,"ev":"bench_start","tests":10}
+{"t":7400,"ev":"bench","group":"compute","test":"int_add","n":1,"us":0.0125,"max_us":0.05,"per_s":80000000}
+{"t":7800,"ev":"bench","group":"compute","test":"float_mul","n":1,"us":0.0213,"max_us":0.09,"per_s":46948357}
+{"t":8200,"ev":"bench","group":"compute","test":"sha256_1k","n":1,"us":95.2,"max_us":101.4,"per_s":10504}
+{"t":9000,"ev":"bench","group":"led","test":"render_rainbow","n":64,"us":38.5,"max_us":44.0,"per_s":25974}
+{"t":9500,"ev":"bench","group":"led","test":"show","n":64,"us":2110.0,"max_us":2190.0,"per_s":473.9}
+{"t":11300,"ev":"fps","fps":12,"heap":279500}
+{"t":12000,"ev":"bench","group":"dualcore","test":"queue_roundtrip","n":1,"us":14.2,"max_us":30.1,"per_s":70423}
+{"t":13000,"ev":"bench","group":"dualcore","test":"split_render","n":64,"us":22.1,"max_us":25.0,"per_s":45249,"note":"2 cores"}
+{"t":14000,"ev":"bench","group":"memory","test":"memcpy_internal","n":4096,"us":10.0,"max_us":12.5,"per_s":100000}
+{"t":15000,"ev":"bench","group":"memory","test":"memcpy_psram","n":4096,"us":61.4,"max_us":70.2,"per_s":16287,"note":"PSRAM"}
+{"t":16000,"ev":"bench","group":"memory","test":"malloc_free","n":1,"us":3.1,"max_us":9.0,"per_s":322581}
+{"t":16100,"ev":"bench_done","ms":9088,"tests":10}
+{"t":21300,"ev":"fps","fps":410,"heap":281000}

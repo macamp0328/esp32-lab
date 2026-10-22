@@ -90,6 +90,13 @@ watch project *args: _host_tools
     p=$(just _project {{ project }})
     exec {{ host_python }} tools/serial_watch.py "$p" {{ args }}
 
+# reset the board, run its on-demand benchmark suite, write results/<board>.json + RESULTS.md (host)
+bench project *args: _host_tools
+    #!/usr/bin/env bash
+    set -euo pipefail
+    p=$(just _project {{ project }})
+    exec {{ host_python }} tools/bench.py "$p" {{ args }}
+
 # run a project's Wokwi scenario (not set up: needs a WOKWI_CLI_TOKEN, see docs/decisions.md)
 sim project:
     @echo "just sim: not set up yet; needs a Wokwi token (docs/decisions.md)" >&2; exit 2
