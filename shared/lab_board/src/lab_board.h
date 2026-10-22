@@ -10,6 +10,11 @@
 #error "No LAB_BOARD_* flag: build a board env, e.g. `just build <project> s3mini`"
 #endif
 
+#ifdef ARDUINO
+#include "lab_layout.h"
+#include "lab_pixel.h"
+#endif
+
 namespace lab_board {
 
 inline constexpr int kSafePins[] = BOARD_SAFE_PINS;
@@ -43,6 +48,13 @@ void status_text(const char* line);
 
 // Clears the board's display and homes the cursor if BOARD_HAS_TFT; no-op otherwise.
 void status_clear();
+
+// Fills the board's display with one color if BOARD_HAS_TFT; no-op otherwise.
+void screen_fill(uint8_t r, uint8_t g, uint8_t b);
+
+// Draws the LEDs as a grid of squares (layout columns x rows, full brightness), right-aligned on
+// the board's display, if BOARD_HAS_TFT; no-op otherwise.
+void status_pixels(const lab::Pixel* px, const lab::Layout& layout);
 
 // Debounced button events since the last call; call once per loop(). All false on boards
 // without buttons. Hold fires once, after 500 ms.

@@ -50,6 +50,34 @@ void status_clear() {
 #endif
 }
 
+void screen_fill(uint8_t r, uint8_t g, uint8_t b) {
+#if BOARD_HAS_TFT && defined(LAB_BOARD_M5STICKC_PLUS11)
+  M5.Display.fillScreen(M5.Display.color565(r, g, b));
+#else
+  (void)r, (void)g, (void)b;
+#endif
+}
+
+void status_pixels(const lab::Pixel* px, const lab::Layout& layout) {
+#if BOARD_HAS_TFT && defined(LAB_BOARD_M5STICKC_PLUS11)
+  const int w = layout.width(), h = layout.height();
+  if (w == 0 || h == 0) return;
+  const int cw = M5.Display.width() / w, ch = M5.Display.height() / h;
+  const int cell = cw < ch ? cw : ch;
+  if (cell < 1) return;
+  const int x0 = M5.Display.width() - cell * w;
+  const int gap = cell > 3 ? 1 : 0;
+  M5.Display.startWrite();
+  for (uint16_t i = 0; i < layout.size(); ++i) {
+    M5.Display.fillRect(x0 + layout.column(i) * cell, layout.row(i) * cell, cell - gap, cell - gap,
+                        M5.Display.color565(px[i].r, px[i].g, px[i].b));
+  }
+  M5.Display.endWrite();
+#else
+  (void)px, (void)layout;
+#endif
+}
+
 Buttons buttons() {
   Buttons b;
 #if defined(LAB_BOARD_M5STICKC_PLUS11)
