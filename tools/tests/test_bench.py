@@ -229,3 +229,17 @@ def test_main_resends_bench_when_the_board_did_not_answer(board, monkeypatch):
     fake = board(after=[])
     assert bench.main(["p003-bench", "--port", "/dev/fake", "--timeout", "0.5"]) == 1
     assert fake.writes == [b"bench\n"] * bench.MAX_SENDS
+
+
+def test_math_rows_show_time_per_call():
+    e = {
+        "group": "compute",
+        "test": "math/sinf",
+        "n": 1000,
+        "us": 695.4,
+        "max_us": 716,
+        "per_s": 1438,
+    }
+    assert bench.row_kind("compute", 1000, [e]) == "per_op"
+    assert bench.fmt_cell("per_op", e) == bench.fmt_time(0.6954) + "/call"
+    assert bench.row_kind("compute", 64, [{**e, "test": "fx/plasma", "n": 64}]) == "rate"

@@ -388,11 +388,11 @@ void memory(Runner& r, Outputs& o) {
     r.measure("memory", "memcpy/sram_to_psram", kBytes, [&] { memcpy(pa, a, kBytes); });
     const lab::Layout& l = bench_layout(BENCH_MAX_LEDS);
     uint32_t t = 0;
-    r.measure("memory", "fx/plasma_sram", BENCH_MAX_LEDS, [&] {
+    r.measure("compute", "fx/plasma_into_sram", BENCH_MAX_LEDS, [&] {
       lab_fx::plasma(o.buf, l, lab::AudioFrame{}, t);
       t += 16;
     });
-    r.measure("memory", "fx/plasma_psram", BENCH_MAX_LEDS, [&] {
+    r.measure("compute", "fx/plasma_into_psram", BENCH_MAX_LEDS, [&] {
       lab_fx::plasma(pbuf, l, lab::AudioFrame{}, t);
       t += 16;
     });

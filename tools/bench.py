@@ -207,15 +207,20 @@ def _per_s(e: dict) -> float:
 
 
 def row_kind(group: str, n: int, entries: list[dict]) -> str:
-    """bytes: memory throughput; time: 1 ms or more per iteration; rate: anything faster."""
+    """bytes: memory throughput; per_op: math/ loops of n calls; time: 1 ms or more per iteration;
+    rate: anything faster."""
     if group == "memory" and n > 1:
         return "bytes"
+    if n > 1 and entries[0]["test"].startswith("math/"):
+        return "per_op"
     return "time" if max(e["us"] for e in entries) >= 1000 else "rate"
 
 
 def fmt_cell(kind: str, e: dict) -> str:
     if kind == "bytes":
         return fmt_rate(_per_s(e) * e["n"], "B")
+    if kind == "per_op":
+        return f"{fmt_time(e['us'] / e['n'])}/call"
     return fmt_time(e["us"]) if kind == "time" else fmt_rate(_per_s(e))
 
 
@@ -273,7 +278,8 @@ def render(project: str, docs: list[dict]) -> str:
     for group in groups(docs):
         out += ["", f"## {group}", "", *group_table(group, docs)]
     out += ["", "Each row shows its most readable figure: iterations per second when one takes"]
-    out.append("under 1 ms, the mean time per iteration when longer, and throughput for memory.")
+    out.append("under 1 ms, the mean time per iteration when longer, time per call for `math/`")
+    out.append("rows, and throughput for memory.")
     if len(docs) == 2:
         a, b = docs[0]["board"], docs[1]["board"]
         out.append(f"`{a} vs {b}` = {b}'s time ÷ {a}'s: how many times faster {a} ran.")

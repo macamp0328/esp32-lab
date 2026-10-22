@@ -1,0 +1,963 @@
+{
+  "project": "p003-bench",
+  "board": "m5stickc-plus11",
+  "fw": "5a599c5+",
+  "core": "3.3.12",
+  "fastled": "3.10.7",
+  "date": "2026-10-22",
+  "ms": 50365,
+  "results": [
+    {
+      "group": "compute",
+      "test": "math/sinf",
+      "n": 1000,
+      "us": 695.44,
+      "max_us": 736.0,
+      "per_s": 1437.9
+    },
+    {
+      "group": "compute",
+      "test": "math/sqrtf",
+      "n": 1000,
+      "us": 397.93,
+      "max_us": 408.0,
+      "per_s": 2513.0
+    },
+    {
+      "group": "compute",
+      "test": "math/atan2f",
+      "n": 1000,
+      "us": 1500.17,
+      "max_us": 1641.0,
+      "per_s": 666.6
+    },
+    {
+      "group": "compute",
+      "test": "math/noise",
+      "n": 1000,
+      "us": 4229.49,
+      "max_us": 4311.0,
+      "per_s": 236.4
+    },
+    {
+      "group": "compute",
+      "test": "math/hsv",
+      "n": 1000,
+      "us": 414.36,
+      "max_us": 445.0,
+      "per_s": 2413.4
+    },
+    {
+      "group": "compute",
+      "test": "board/buttons_per_frame",
+      "n": 1,
+      "us": 208.58,
+      "max_us": 955.0,
+      "per_s": 4794.3
+    },
+    {
+      "group": "compute",
+      "test": "board/status_led",
+      "n": 1,
+      "us": 1.11,
+      "max_us": 45.0,
+      "per_s": 903905.1
+    },
+    {
+      "group": "compute",
+      "test": "board/accel",
+      "n": 1,
+      "us": 234.14,
+      "max_us": 1004.0,
+      "per_s": 4270.9
+    },
+    {
+      "group": "compute",
+      "test": "fx/rainbow",
+      "n": 64,
+      "us": 98.75,
+      "max_us": 218.0,
+      "per_s": 10126.9
+    },
+    {
+      "group": "compute",
+      "test": "fx/rainbow",
+      "n": 256,
+      "us": 424.55,
+      "max_us": 434.0,
+      "per_s": 2355.5
+    },
+    {
+      "group": "compute",
+      "test": "fx/rainbow",
+      "n": 1024,
+      "us": 1699.93,
+      "max_us": 1706.0,
+      "per_s": 588.3
+    },
+    {
+      "group": "compute",
+      "test": "fx/plasma",
+      "n": 64,
+      "us": 409.07,
+      "max_us": 542.0,
+      "per_s": 2444.6
+    },
+    {
+      "group": "compute",
+      "test": "fx/plasma",
+      "n": 256,
+      "us": 1567.03,
+      "max_us": 1630.0,
+      "per_s": 638.2
+    },
+    {
+      "group": "compute",
+      "test": "fx/plasma",
+      "n": 1024,
+      "us": 6338.02,
+      "max_us": 6413.0,
+      "per_s": 157.8
+    },
+    {
+      "group": "compute",
+      "test": "fx/fire",
+      "n": 64,
+      "us": 663.2,
+      "max_us": 788.0,
+      "per_s": 1507.8
+    },
+    {
+      "group": "compute",
+      "test": "fx/fire",
+      "n": 256,
+      "us": 2669.93,
+      "max_us": 2675.0,
+      "per_s": 374.5
+    },
+    {
+      "group": "compute",
+      "test": "fx/fire",
+      "n": 1024,
+      "us": 10664.48,
+      "max_us": 10684.0,
+      "per_s": 93.8
+    },
+    {
+      "group": "compute",
+      "test": "fx/rain",
+      "n": 64,
+      "us": 152.1,
+      "max_us": 225.0,
+      "per_s": 6574.8
+    },
+    {
+      "group": "compute",
+      "test": "fx/rain",
+      "n": 256,
+      "us": 591.6,
+      "max_us": 627.0,
+      "per_s": 1690.3
+    },
+    {
+      "group": "compute",
+      "test": "fx/rain",
+      "n": 1024,
+      "us": 2129.18,
+      "max_us": 2195.0,
+      "per_s": 469.7
+    },
+    {
+      "group": "compute",
+      "test": "fx/ripple",
+      "n": 64,
+      "us": 351.28,
+      "max_us": 508.0,
+      "per_s": 2846.7
+    },
+    {
+      "group": "compute",
+      "test": "fx/ripple",
+      "n": 256,
+      "us": 1412.06,
+      "max_us": 1491.0,
+      "per_s": 708.2
+    },
+    {
+      "group": "compute",
+      "test": "fx/ripple",
+      "n": 1024,
+      "us": 5617.31,
+      "max_us": 5767.0,
+      "per_s": 178.0
+    },
+    {
+      "group": "compute",
+      "test": "fx/heart",
+      "n": 64,
+      "us": 97.14,
+      "max_us": 287.0,
+      "per_s": 10294.5
+    },
+    {
+      "group": "compute",
+      "test": "fx/heart",
+      "n": 256,
+      "us": 405.89,
+      "max_us": 444.0,
+      "per_s": 2463.7
+    },
+    {
+      "group": "compute",
+      "test": "fx/heart",
+      "n": 1024,
+      "us": 1613.14,
+      "max_us": 1658.0,
+      "per_s": 619.9
+    },
+    {
+      "group": "compute",
+      "test": "fx/spiral",
+      "n": 64,
+      "us": 354.16,
+      "max_us": 493.0,
+      "per_s": 2823.6
+    },
+    {
+      "group": "compute",
+      "test": "fx/spiral",
+      "n": 256,
+      "us": 1443.5,
+      "max_us": 1525.0,
+      "per_s": 692.8
+    },
+    {
+      "group": "compute",
+      "test": "fx/spiral",
+      "n": 1024,
+      "us": 5818.62,
+      "max_us": 5907.0,
+      "per_s": 171.9
+    },
+    {
+      "group": "compute",
+      "test": "fx/twinkle",
+      "n": 64,
+      "us": 129.16,
+      "max_us": 197.0,
+      "per_s": 7742.6
+    },
+    {
+      "group": "compute",
+      "test": "fx/twinkle",
+      "n": 256,
+      "us": 506.9,
+      "max_us": 546.0,
+      "per_s": 1972.8
+    },
+    {
+      "group": "compute",
+      "test": "fx/twinkle",
+      "n": 1024,
+      "us": 1991.23,
+      "max_us": 2025.0,
+      "per_s": 502.2
+    },
+    {
+      "group": "compute",
+      "test": "fx/invader",
+      "n": 64,
+      "us": 93.01,
+      "max_us": 140.0,
+      "per_s": 10752.0
+    },
+    {
+      "group": "compute",
+      "test": "fx/invader",
+      "n": 256,
+      "us": 400.97,
+      "max_us": 431.0,
+      "per_s": 2493.9
+    },
+    {
+      "group": "compute",
+      "test": "fx/invader",
+      "n": 1024,
+      "us": 1605.05,
+      "max_us": 1638.0,
+      "per_s": 623.0
+    },
+    {
+      "group": "compute",
+      "test": "fx/lava",
+      "n": 64,
+      "us": 218.05,
+      "max_us": 330.0,
+      "per_s": 4586.0
+    },
+    {
+      "group": "compute",
+      "test": "fx/lava",
+      "n": 256,
+      "us": 879.19,
+      "max_us": 926.0,
+      "per_s": 1137.4
+    },
+    {
+      "group": "compute",
+      "test": "fx/lava",
+      "n": 1024,
+      "us": 3497.16,
+      "max_us": 3546.0,
+      "per_s": 285.9
+    },
+    {
+      "group": "compute",
+      "test": "fx/radar",
+      "n": 64,
+      "us": 395.51,
+      "max_us": 549.0,
+      "per_s": 2528.4
+    },
+    {
+      "group": "compute",
+      "test": "fx/radar",
+      "n": 256,
+      "us": 1611.69,
+      "max_us": 1682.0,
+      "per_s": 620.5
+    },
+    {
+      "group": "compute",
+      "test": "fx/radar",
+      "n": 1024,
+      "us": 6433.91,
+      "max_us": 6517.0,
+      "per_s": 155.4
+    },
+    {
+      "group": "compute",
+      "test": "fx/bounce",
+      "n": 64,
+      "us": 439.48,
+      "max_us": 512.0,
+      "per_s": 2275.4
+    },
+    {
+      "group": "compute",
+      "test": "fx/bounce",
+      "n": 256,
+      "us": 1769.93,
+      "max_us": 1783.0,
+      "per_s": 565.0
+    },
+    {
+      "group": "compute",
+      "test": "fx/bounce",
+      "n": 1024,
+      "us": 7071.0,
+      "max_us": 7081.0,
+      "per_s": 141.4
+    },
+    {
+      "group": "compute",
+      "test": "fx/marquee",
+      "n": 64,
+      "us": 45.96,
+      "max_us": 70.0,
+      "per_s": 21757.4
+    },
+    {
+      "group": "compute",
+      "test": "fx/marquee",
+      "n": 256,
+      "us": 179.38,
+      "max_us": 194.0,
+      "per_s": 5574.7
+    },
+    {
+      "group": "compute",
+      "test": "fx/marquee",
+      "n": 1024,
+      "us": 664.29,
+      "max_us": 692.0,
+      "per_s": 1505.4
+    },
+    {
+      "group": "compute",
+      "test": "fx/aurora",
+      "n": 64,
+      "us": 628.44,
+      "max_us": 744.0,
+      "per_s": 1591.3
+    },
+    {
+      "group": "compute",
+      "test": "fx/aurora",
+      "n": 256,
+      "us": 2569.75,
+      "max_us": 2631.0,
+      "per_s": 389.1
+    },
+    {
+      "group": "compute",
+      "test": "fx/aurora",
+      "n": 1024,
+      "us": 10390.0,
+      "max_us": 10468.0,
+      "per_s": 96.2
+    },
+    {
+      "group": "compute",
+      "test": "fx/pacman",
+      "n": 64,
+      "us": 44.5,
+      "max_us": 132.0,
+      "per_s": 22472.2
+    },
+    {
+      "group": "compute",
+      "test": "fx/pacman",
+      "n": 256,
+      "us": 200.1,
+      "max_us": 221.0,
+      "per_s": 4997.4
+    },
+    {
+      "group": "compute",
+      "test": "fx/pacman",
+      "n": 1024,
+      "us": 809.41,
+      "max_us": 818.0,
+      "per_s": 1235.5
+    },
+    {
+      "group": "compute",
+      "test": "fx/starfield",
+      "n": 64,
+      "us": 3835.44,
+      "max_us": 4019.0,
+      "per_s": 260.7
+    },
+    {
+      "group": "compute",
+      "test": "fx/starfield",
+      "n": 256,
+      "us": 16531.9,
+      "max_us": 16573.0,
+      "per_s": 60.5
+    },
+    {
+      "group": "compute",
+      "test": "fx/starfield",
+      "n": 1024,
+      "us": 65984.6,
+      "max_us": 66080.0,
+      "per_s": 15.2
+    },
+    {
+      "group": "compute",
+      "test": "fx/fireworks",
+      "n": 64,
+      "us": 1461.91,
+      "max_us": 2373.0,
+      "per_s": 684.0
+    },
+    {
+      "group": "compute",
+      "test": "fx/fireworks",
+      "n": 256,
+      "us": 6115.98,
+      "max_us": 10077.0,
+      "per_s": 163.5
+    },
+    {
+      "group": "compute",
+      "test": "fx/fireworks",
+      "n": 1024,
+      "us": 22308.15,
+      "max_us": 22355.0,
+      "per_s": 44.8
+    },
+    {
+      "group": "compute",
+      "test": "fx/pong",
+      "n": 64,
+      "us": 37.44,
+      "max_us": 104.0,
+      "per_s": 26706.0
+    },
+    {
+      "group": "compute",
+      "test": "fx/pong",
+      "n": 256,
+      "us": 169.78,
+      "max_us": 181.0,
+      "per_s": 5890.1
+    },
+    {
+      "group": "compute",
+      "test": "fx/pong",
+      "n": 1024,
+      "us": 671.19,
+      "max_us": 680.0,
+      "per_s": 1489.9
+    },
+    {
+      "group": "compute",
+      "test": "fx/tunnel",
+      "n": 64,
+      "us": 356.48,
+      "max_us": 524.0,
+      "per_s": 2805.2
+    },
+    {
+      "group": "compute",
+      "test": "fx/tunnel",
+      "n": 256,
+      "us": 1456.43,
+      "max_us": 1531.0,
+      "per_s": 686.6
+    },
+    {
+      "group": "compute",
+      "test": "fx/tunnel",
+      "n": 1024,
+      "us": 5816.96,
+      "max_us": 5907.0,
+      "per_s": 171.9
+    },
+    {
+      "group": "compute",
+      "test": "fx/kaleidoscope",
+      "n": 64,
+      "us": 397.16,
+      "max_us": 477.0,
+      "per_s": 2517.9
+    },
+    {
+      "group": "compute",
+      "test": "fx/kaleidoscope",
+      "n": 256,
+      "us": 1601.22,
+      "max_us": 1623.0,
+      "per_s": 624.5
+    },
+    {
+      "group": "compute",
+      "test": "fx/kaleidoscope",
+      "n": 1024,
+      "us": 6390.83,
+      "max_us": 6422.0,
+      "per_s": 156.5
+    },
+    {
+      "group": "compute",
+      "test": "fx/snow",
+      "n": 64,
+      "us": 1144.05,
+      "max_us": 1249.0,
+      "per_s": 874.1
+    },
+    {
+      "group": "compute",
+      "test": "fx/snow",
+      "n": 256,
+      "us": 4881.39,
+      "max_us": 4966.0,
+      "per_s": 204.9
+    },
+    {
+      "group": "compute",
+      "test": "fx/snow",
+      "n": 1024,
+      "us": 19446.4,
+      "max_us": 19538.0,
+      "per_s": 51.4
+    },
+    {
+      "group": "compute",
+      "test": "fx/helix",
+      "n": 64,
+      "us": 372.14,
+      "max_us": 544.0,
+      "per_s": 2687.1
+    },
+    {
+      "group": "compute",
+      "test": "fx/helix",
+      "n": 256,
+      "us": 1495.59,
+      "max_us": 1519.0,
+      "per_s": 668.6
+    },
+    {
+      "group": "compute",
+      "test": "fx/helix",
+      "n": 1024,
+      "us": 5876.9,
+      "max_us": 5967.0,
+      "per_s": 170.2
+    },
+    {
+      "group": "compute",
+      "test": "fx/lightning",
+      "n": 64,
+      "us": 280.96,
+      "max_us": 388.0,
+      "per_s": 3559.2
+    },
+    {
+      "group": "compute",
+      "test": "fx/lightning",
+      "n": 256,
+      "us": 1110.8,
+      "max_us": 1506.0,
+      "per_s": 900.3
+    },
+    {
+      "group": "compute",
+      "test": "fx/lightning",
+      "n": 1024,
+      "us": 4335.33,
+      "max_us": 4419.0,
+      "per_s": 230.7
+    },
+    {
+      "group": "compute",
+      "test": "sim/life",
+      "n": 64,
+      "us": 132.6,
+      "max_us": 222.0,
+      "per_s": 7541.4
+    },
+    {
+      "group": "compute",
+      "test": "sim/life",
+      "n": 256,
+      "us": 555.94,
+      "max_us": 570.0,
+      "per_s": 1798.8
+    },
+    {
+      "group": "compute",
+      "test": "sim/ant",
+      "n": 64,
+      "us": 47.07,
+      "max_us": 106.0,
+      "per_s": 21242.8
+    },
+    {
+      "group": "compute",
+      "test": "sim/ant",
+      "n": 256,
+      "us": 217.14,
+      "max_us": 236.0,
+      "per_s": 4605.3
+    },
+    {
+      "group": "compute",
+      "test": "sim/snake",
+      "n": 64,
+      "us": 178.72,
+      "max_us": 353.0,
+      "per_s": 5595.5
+    },
+    {
+      "group": "compute",
+      "test": "sim/snake",
+      "n": 256,
+      "us": 594.24,
+      "max_us": 978.0,
+      "per_s": 1682.8
+    },
+    {
+      "group": "compute",
+      "test": "sim/tetris",
+      "n": 64,
+      "us": 126.65,
+      "max_us": 845.0,
+      "per_s": 7895.6
+    },
+    {
+      "group": "compute",
+      "test": "sim/tetris",
+      "n": 256,
+      "us": 493.43,
+      "max_us": 3829.0,
+      "per_s": 2026.6
+    },
+    {
+      "group": "compute",
+      "test": "sim/sand",
+      "n": 64,
+      "us": 99.73,
+      "max_us": 180.0,
+      "per_s": 10026.8
+    },
+    {
+      "group": "compute",
+      "test": "sim/sand",
+      "n": 256,
+      "us": 372.95,
+      "max_us": 545.0,
+      "per_s": 2681.4
+    },
+    {
+      "group": "compute",
+      "test": "sim/marble",
+      "n": 64,
+      "us": 217.95,
+      "max_us": 305.0,
+      "per_s": 4588.3
+    },
+    {
+      "group": "compute",
+      "test": "sim/marble",
+      "n": 256,
+      "us": 891.57,
+      "max_us": 920.0,
+      "per_s": 1121.6
+    },
+    {
+      "group": "led",
+      "test": "show",
+      "n": 64,
+      "us": 3014.79,
+      "max_us": 4615.0,
+      "per_s": 331.7
+    },
+    {
+      "group": "led",
+      "test": "show",
+      "n": 256,
+      "us": 10018.47,
+      "max_us": 10655.0,
+      "per_s": 99.8
+    },
+    {
+      "group": "led",
+      "test": "show",
+      "n": 512,
+      "us": 18268.0,
+      "max_us": 19180.0,
+      "per_s": 54.7
+    },
+    {
+      "group": "led",
+      "test": "show",
+      "n": 1024,
+      "us": 35992.8,
+      "max_us": 36010.0,
+      "per_s": 27.8
+    },
+    {
+      "group": "led",
+      "test": "show_call",
+      "n": 64,
+      "us": 3100.8,
+      "max_us": 4085.0,
+      "per_s": 322.5
+    },
+    {
+      "group": "led",
+      "test": "show_call",
+      "n": 256,
+      "us": 10046.8,
+      "max_us": 10081.0,
+      "per_s": 99.5
+    },
+    {
+      "group": "led",
+      "test": "show_call",
+      "n": 512,
+      "us": 18159.75,
+      "max_us": 19081.0,
+      "per_s": 55.1
+    },
+    {
+      "group": "led",
+      "test": "show_call",
+      "n": 1024,
+      "us": 36046.8,
+      "max_us": 36081.0,
+      "per_s": 27.7
+    },
+    {
+      "group": "led",
+      "test": "limiter",
+      "n": 64,
+      "us": 37.16,
+      "max_us": 68.0,
+      "per_s": 26907.5
+    },
+    {
+      "group": "led",
+      "test": "limiter",
+      "n": 256,
+      "us": 141.92,
+      "max_us": 147.0,
+      "per_s": 7046.0
+    },
+    {
+      "group": "led",
+      "test": "limiter",
+      "n": 512,
+      "us": 279.9,
+      "max_us": 284.0,
+      "per_s": 3572.7
+    },
+    {
+      "group": "led",
+      "test": "limiter",
+      "n": 1024,
+      "us": 558.59,
+      "max_us": 561.0,
+      "per_s": 1790.2
+    },
+    {
+      "group": "led",
+      "test": "plasma+show",
+      "n": 64,
+      "us": 3989.92,
+      "max_us": 4401.0,
+      "per_s": 250.6
+    },
+    {
+      "group": "led",
+      "test": "plasma+show",
+      "n": 256,
+      "us": 11514.52,
+      "max_us": 11973.0,
+      "per_s": 86.8
+    },
+    {
+      "group": "led",
+      "test": "plasma+show",
+      "n": 1024,
+      "us": 42026.5,
+      "max_us": 42752.0,
+      "per_s": 23.8
+    },
+    {
+      "group": "led",
+      "test": "showcase_frame",
+      "n": 64,
+      "us": 5010.93,
+      "max_us": 6066.0,
+      "per_s": 199.6
+    },
+    {
+      "group": "led",
+      "test": "parallel/1_pins",
+      "n": 1024,
+      "us": 35984.65,
+      "max_us": 35998.0,
+      "per_s": 27.8
+    },
+    {
+      "group": "led",
+      "test": "parallel/2_pins",
+      "n": 1024,
+      "us": 20154.1,
+      "max_us": 23101.0,
+      "per_s": 49.6
+    },
+    {
+      "group": "dualcore",
+      "test": "starfield/single",
+      "n": 1024,
+      "us": 102039.25,
+      "max_us": 103054.0,
+      "per_s": 9.8
+    },
+    {
+      "group": "dualcore",
+      "test": "starfield/dual",
+      "n": 1024,
+      "us": 67487.97,
+      "max_us": 102690.0,
+      "per_s": 14.8
+    },
+    {
+      "group": "dualcore",
+      "test": "fire/single",
+      "n": 1024,
+      "us": 46487.9,
+      "max_us": 46848.0,
+      "per_s": 21.5
+    },
+    {
+      "group": "dualcore",
+      "test": "fire/dual",
+      "n": 1024,
+      "us": 36190.71,
+      "max_us": 46731.0,
+      "per_s": 27.6
+    },
+    {
+      "group": "dualcore",
+      "test": "rainbow/single",
+      "n": 1024,
+      "us": 37155.55,
+      "max_us": 37981.0,
+      "per_s": 26.9
+    },
+    {
+      "group": "dualcore",
+      "test": "rainbow/dual",
+      "n": 1024,
+      "us": 36029.41,
+      "max_us": 37695.0,
+      "per_s": 27.8
+    },
+    {
+      "group": "memory",
+      "test": "memcpy/sram",
+      "n": 32768,
+      "us": 172.02,
+      "max_us": 176.0,
+      "per_s": 5813.2
+    },
+    {
+      "group": "memory",
+      "test": "memset/sram",
+      "n": 32768,
+      "us": 43.57,
+      "max_us": 48.0,
+      "per_s": 22953.1
+    },
+    {
+      "group": "screen",
+      "test": "fill",
+      "n": 1,
+      "us": 13017.54,
+      "max_us": 13040.0,
+      "per_s": 76.8
+    },
+    {
+      "group": "screen",
+      "test": "status_4_lines",
+      "n": 1,
+      "us": 19591.25,
+      "max_us": 19757.0,
+      "per_s": 51.0
+    },
+    {
+      "group": "screen",
+      "test": "mirror/8x8",
+      "n": 64,
+      "us": 5987.75,
+      "max_us": 6126.0,
+      "per_s": 167.0
+    },
+    {
+      "group": "screen",
+      "test": "mirror/16x16",
+      "n": 256,
+      "us": 5822.88,
+      "max_us": 5970.0,
+      "per_s": 171.7
+    }
+  ]
+}
