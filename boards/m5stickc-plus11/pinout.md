@@ -36,3 +36,4 @@
 - 2026-10-23 p004: MPU6886 die temperature idles at ~55 °C (±0.9 °C per reading) and follows the LED current; the AXP192 die idles at ~39 °C (0.1 °C steps).
 - 2026-10-23 p004: battery 4.16 V, charge current ~0 (full) after a day on USB; USB sags 4.97 → 4.76 V as the matrix goes from dark to the 400 mA cap.
 - 2026-10-23 p004: `lab_board::power()` (power chip, 10 reads) + `imu_temp()` take ~2.6 ms; p004 calls them every 250 ms and holds 60 fps with the mic running.
+- 2026-10-23 p004: a fist around the M5 raises the MPU6886 reading ~3 °C within ~10 s (traps the board's heat); it had not come back down 40 s after letting go.

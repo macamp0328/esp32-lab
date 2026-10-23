@@ -49,8 +49,9 @@ The screen shows the scene, USB (or battery) volts and mA, battery, IMU temperat
 change, sound dB, level and energy, and the time.
 
 What the sensors turned out to measure (2026-10-23, see docs/lessons.md):
-- The IMU reads the board's own heat (~55 °C), which follows the LED current. A hand cannot be
-  told from that, so warmth is shown, not used to steer.
+- The IMU reads the board's own heat (~55 °C), which follows the LED current. A fist around the
+  M5 raised it ~3 °C within ~10 s and it stayed up 40 s after letting go, but a 2-3 °C dip came
+  with nothing reported touching it a minute earlier, so warmth is shown, not used to steer.
 - The RTC had never been set; p004 sets it from the build time (`CLOCK_UTC_OFFSET_MIN`) when it
   holds no valid date, runs behind the build, or is far ahead.
 - USB current is sampled instantly by the AXP192 and the load is pulsed, so p004 reads it every
@@ -59,5 +60,3 @@ What the sensors turned out to measure (2026-10-23, see docs/lessons.md):
 ## Open issues
 - [ ] `CLOCK_UTC_OFFSET_MIN` is EDT (−240); make it −300 after 2026-11-01. The RTC keeps its
   time, so only a lost or wrong clock picks up a new offset.
-- [ ] A hand on the M5 is still unmeasured: HIL step 3 passed (warmth stayed lit) but no `imu`
-  readings came back, so whether the IMU sees a hand, and which way, is open.
