@@ -37,3 +37,4 @@
 - 2026-10-23 p004: battery 4.16 V, charge current ~0 (full) after a day on USB; USB sags 4.97 → 4.76 V as the matrix goes from dark to the 400 mA cap.
 - 2026-10-23 p004: `lab_board::power()` (power chip, 10 reads) + `imu_temp()` take ~2.6 ms; p004 calls them every 250 ms and holds 60 fps with the mic running.
 - 2026-10-23 p004: a fist around the M5 raises the MPU6886 reading ~3 °C within ~10 s (traps the board's heat); it had not come back down 40 s after letting go.
+- 2026-10-23 p004: set on top of a running Mac mini 30 s after boot, the MPU6886 rose ~1.3 °C and the AXP192 ~0.55 °C over 90 s, gradually: inside the range an untouched M5 drifts after a reset, unlike a fist's ~3 °C step.
