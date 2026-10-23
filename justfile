@@ -193,16 +193,19 @@ _check:
     cpp() {
       cppcheck --language=c++ --std=c++17 --enable=warning,performance --inline-suppr --quiet \
         --suppress=missingIncludeSystem --suppress=missingInclude --suppress=unknownMacro \
-        -DLAB_BOARD_S3MINI -DARDUINO=10812 -DFASTLED_RMT5=1 -Iboards -Ishared/lab_board/src \
-        -Ishared/lab_core/src -Ishared/lab_net/src -Ishared/lab_fx/src \
+        -DARDUINO=10812 -DFASTLED_RMT5=1 -Iboards -Ishared/lab_board/src \
+        -Ishared/lab_core/src -Ishared/lab_net/src -Ishared/lab_fx/src -Ishared/lab_audio/src \
         --template='{severity}: {file}:{line}: {message} [{id}]' "$@" 2>&1 || true
     }
     log=$(mktemp)
     {
-      cpp -ishared/tests/.pio boards shared
+      cpp -DLAB_BOARD_S3MINI -ishared/tests/.pio boards shared
       for d in templates/project projects/*; do
         src=(); for s in src include lib test; do [ -d "$d/$s" ] && src+=("$d/$s"); done
-        cpp -I"$d/include" "${src[@]}"
+        # as the project's first board, so board-only rules (lab_checks.h) see a board it supports
+        env=$(sed -n 's/^default_envs *= *\([a-z0-9-]*\).*/\1/p' "$d/platformio.ini")
+        board=LAB_BOARD_$(echo "${env:-s3mini}" | tr 'a-z-' 'A-Z_')
+        cpp -D"$board" -I"$d/include" "${src[@]}"
       done
     } | tee "$log"
     if grep -q '^error:' "$log"; then echo "cppcheck: errors above" >&2; exit 1; fi
