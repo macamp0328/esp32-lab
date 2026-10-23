@@ -7,15 +7,15 @@
 | --- | --- | --- |
 | SoC | ESP32-PICO-D4 rev v1.0, 240 MHz dual core; 4 MB GigaDevice flash (0xc8/0x4016, 3.3 V by strapping), no PSRAM; 40 MHz crystal | measured |
 | USB | USB-C via FTDI bridge (0403:6001, "M5stack"), `/dev/cu.usbserial-*`; auto-reset works; flash at 1500000 baud (921600 drops after the baud switch) | measured |
-| PMIC | AXP192 on internal I2C (SDA 21, SCL 22); `lab_board::begin()` (M5Unified 0.2.27) brings up the TFT rails | measured (TFT lit) |
+| PMIC | AXP192 on internal I2C (SDA 21, SCL 22); `lab_board::begin()` (M5Unified 0.2.27) brings up the TFT rails and turns on its USB ADCs; USB arrives on VBUS (not ACIN); `lab_board::power()` / `vbus_ma()` / `ext_power()` (`BOARD_HAS_PMIC`) | measured (TFT lit; p004) |
 | Display | 1.14" ST7789v2 135×240 (MOSI 15, CLK 13, DC 23, RST 18, CS 5) via M5Unified; text readable at rotation 1, size 2 | measured (HIL ok) |
-| Mic | SPM1423 PDM: CLK 0, DATA 34 | datasheet |
+| Mic | SPM1423 PDM: CLK 0, DATA 34; `M5.Mic` at 16 kHz through `lab_board::mic_read` (`AUDIO_MODE 2`); quiet room ~−56 dBFS, first ~1 s after begin is a start-up transient | measured (p004) |
 | Red LED | GPIO10 blinks 1 Hz from `lab_board::status_led`; active-low is from datasheet (a 50% blink cannot show polarity) | measured (HIL ok) |
 | IR LED | GPIO9 | datasheet |
 | Buttons | A = GPIO37, B = GPIO39, power button on AXP192 | datasheet |
 | Buzzer | GPIO2 | datasheet |
 | IMU | MPU6886 via M5Unified `M5.Imu` (`BOARD_HAS_IMU`, `lab_board::accel`): answers at boot; +z out of the screen (az ≈ +1.0 lying screen-up); x/y directions not mapped yet | measured (p002) |
-| RTC | BM8563 on internal I2C | datasheet |
+| RTC | BM8563 on internal I2C (`BOARD_HAS_RTC`, `lab_board::rtc_now`/`rtc_set`); m5stickc-01 had never been set; keeps time across resets once set | measured (p004) |
 | Grove port | G32 (yellow), G33 (white), 5 V (red, from AXP192), GND (black) | datasheet |
 | Header | G0, G26, G25/G36 (shared pin), 3V3, 5V, BAT, GND | datasheet |
 | Default LED data | G32 on Grove (`BOARD_LED_PIN`) | lab choice |
@@ -32,3 +32,7 @@
 - 2026-10-21: the cable shipped with this unit appeared charge-only (no USB device at all); a data cable fixed it.
 - 2026-10-21 p002: resting on the bench with cables plugged in, the M5 reads ax -0.62, ay 0.20, az 0.75 (|a| = 1.0 g, about 40 degrees off flat).
 - 2026-10-21 p002: 64 WS2812B on G33 with Grove 5 V from USB: 62 fps steady, ~300 mA estimated peak at brightness 40, no brown-out in 40 s; data straight at 3.3 V.
+- 2026-10-23 p004: on USB with the matrix dark the M5 draws ~144 mA (mean of ~180 readings over 3 s); single AXP192 current readings scatter ±60 mA, so average them.
+- 2026-10-23 p004: MPU6886 die temperature idles at ~55 °C (±0.9 °C per reading) and follows the LED current; the AXP192 die idles at ~39 °C (0.1 °C steps).
+- 2026-10-23 p004: battery 4.16 V, charge current ~0 (full) after a day on USB; USB sags 4.97 → 4.76 V as the matrix goes from dark to the 400 mA cap.
+- 2026-10-23 p004: `lab_board::power()` (power chip, 10 reads) + `imu_temp()` take ~2.6 ms; p004 calls them every 250 ms and holds 60 fps with the mic running.
