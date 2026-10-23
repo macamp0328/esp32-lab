@@ -3,6 +3,18 @@
 Newest first. Five lines each: date and title, what, instead of, why, revisit when.
 Read before changing anything an entry covers. A version bump is a new entry plus a green CI.
 
+## 2026-10-23 · `AUDIO_MODE 2` reads the board's PDM mic before M3: level and onsets only
+- What: `lab_board::mic_begin/mic_read` (M5Unified `M5.Mic`, I2S0 in PDM mode) feed `lab_audio::Level`, which fills `AudioFrame.level` and `.beat` (adaptive noise floor, onset = sharp rise over the recent average); `lab_checks.h` allows 2 only with `BOARD_HAS_PDM_MIC`, still refuses 1
+- Instead of: keeping every mic out until M3's INMP441 on the S3
+- Why: Miles' call for p004: sound is the only no-motion sensor on the M5 that answers within a frame; onboard mic pins are PCB-wired, so `BOARD_SAFE_PINS` does not apply (like `BOARD_ONBOARD_RGB`)
+- Revisit when: M3 starts (bands and beat tracking join `lab_audio`; FastLED's audio input may replace `M5.Mic`)
+
+## 2026-10-23 · Power chip and RTC through `lab_board`, gated by `BOARD_HAS_PMIC` / `BOARD_HAS_RTC`
+- What: new required flags (1 on m5stickc-plus11, 0 elsewhere); `power()` (USB/battery V and mA, chip temperature), `ext_power()`, `imu_temp()`, `rtc_now()`/`rtc_set()`; `begin()` turns on the AXP192's USB ADCs, which power up off
+- Instead of: projects calling `M5.Power`/`M5.Rtc` directly, or gating on the M5 build flag alone
+- Why: same rule as `BOARD_HAS_IMU` (decision below); readings come back as plain structs with `ok`, so p004's logic stays host-testable
+- Revisit when: a non-M5 board has a PMIC or RTC (add its branch in lab_board.cpp)
+
 ## 2026-10-22 · With several boards plugged in, the port comes from the board's chip
 - What: `ports.pick_port_for(project, board)`: native-USB chips (ESP32-S3 and newer) take Espressif's 303a port, the classic ESP32 a bridge (FTDI/WCH/SiLabs); watch and bench take an optional board like flash
 - Instead of: `--port`/`LAB_PORT` on every command once the USB-C dock holds both boards

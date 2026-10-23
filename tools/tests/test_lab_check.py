@@ -53,7 +53,7 @@ def test_every_capability_flag_shared_code_uses_is_required():
     for f in (ROOT / "shared").rglob("*.[ch]*"):
         if ".pio" not in f.parts:
             used |= set(re.findall(r"\bBOARD_HAS_\w+", f.read_text(errors="replace")))
-    assert "BOARD_HAS_IMU" in used
+    assert {"BOARD_HAS_IMU", "BOARD_HAS_PMIC", "BOARD_HAS_RTC"} <= used
     assert used <= set(lab_check.BOARD_MACROS)
 
 

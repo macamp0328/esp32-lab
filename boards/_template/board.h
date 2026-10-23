@@ -12,6 +12,8 @@
 #define BOARD_HAS_PDM_MIC 0
 #define BOARD_HAS_TFT     0
 #define BOARD_HAS_IMU     0
+#define BOARD_HAS_PMIC    0
+#define BOARD_HAS_RTC     0
 
 #define BOARD_SAFE_PINS {4}  // datasheet; confirm at bring-up
 #define BOARD_VERIFIED  0    // 1 once p000 has confirmed this file on real hardware
