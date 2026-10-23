@@ -1,0 +1,7 @@
+{
+  "name": "lab_audio",
+  "version": "0.1.0",
+  "description": "Audio features for effects from raw mic samples: loudness over an adaptive noise floor and onsets (claps); frequency bands come with M3",
+  "frameworks": "*",
+  "platforms": "*"
+}

@@ -18,7 +18,7 @@
 #define POWER_VOLTS  5
 #define POWER_MAX_MA 500
 
-// Audio: 0 off, 1 external I2S (INMP441), 2 board PDM mic (M5 and friends)
+// Audio: 0 off, 1 external I2S (INMP441, from M3), 2 board PDM mic (M5 and friends)
 #define AUDIO_MODE 0
 
 // Connectivity

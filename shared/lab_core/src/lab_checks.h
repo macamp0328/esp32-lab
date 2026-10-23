@@ -9,8 +9,12 @@
 #if LED_RGBW
 #error "LED_RGBW 1 is not supported yet: the template sends 3-byte RGB frames"
 #endif
-#if AUDIO_MODE != 0
-#error "AUDIO_MODE != 0 needs lab_audio (milestone M3); keep it 0 for now"
+#if AUDIO_MODE == 1
+#error "AUDIO_MODE 1 (external I2S mic) needs lab_audio's I2S input (milestone M3); use 0 or 2"
+#elif AUDIO_MODE == 2 && !BOARD_HAS_PDM_MIC
+#error "AUDIO_MODE 2 reads the board's PDM mic: this board has no BOARD_HAS_PDM_MIC"
+#elif AUDIO_MODE != 0 && AUDIO_MODE != 2
+#error "AUDIO_MODE is 0 (off), 1 (external I2S, M3) or 2 (board PDM mic)"
 #endif
 #if OTA_ENABLED && !WIFI_ENABLED
 #error "OTA_ENABLED 1 needs WIFI_ENABLED 1"

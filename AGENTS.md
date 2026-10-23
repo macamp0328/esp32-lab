@@ -102,7 +102,8 @@ Grep `docs/lessons.md` before debugging. Read `docs/decisions.md` before changin
 - No comments restating FastLED docs. Secrets in `include/secrets.h` (gitignored) only.
 - WiFi/OTA: set `WIFI_ENABLED`/`OTA_ENABLED` 1 in config.h, delete `lib_ignore = lab_net` from the
   project's platformio.ini, copy `secrets.example.h` to `secrets.h`. Events: `wifi`, `ota`.
-- `AUDIO_MODE` and `LED_RGBW` must stay 0 until M3; `lab_checks.h` enforces it.
+- `LED_RGBW` must stay 0, and `AUDIO_MODE` 0 or 2 (board PDM mic: `lab_board::mic_read` +
+  `lab_audio::Level`, level and onsets only) until M3; `lab_checks.h` enforces it.
 
 ## Serial contract
 One JSON object per line on USB CDC at 115200. Required: `boot` (proj, fw, board, fastled,
