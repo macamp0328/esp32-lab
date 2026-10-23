@@ -1,6 +1,6 @@
 # p004-sense
 
-**Status:** prototype  ·  **Last HIL check:** never
+**Status:** bench-verified  ·  **Last HIL check:** 2026-10-23 m5stickc-plus11 ok (all six steps)
 
 The M5StickC Plus's sensors that need no movement (mic, power chip, RTC, IMU temperature) steer
 six scenes on the BTF 8x8 matrix (matrix-8x8-01), on the same Grove wiring as p002.
@@ -59,4 +59,5 @@ What the sensors turned out to measure (2026-10-23, see docs/lessons.md):
 ## Open issues
 - [ ] `CLOCK_UTC_OFFSET_MIN` is EDT (−240); make it −300 after 2026-11-01. The RTC keeps its
   time, so only a lost or wrong clock picks up a new offset.
-- [ ] A hand on the M5 has not been measured: does the IMU read it at all, and which way?
+- [ ] A hand on the M5 is still unmeasured: HIL step 3 passed (warmth stayed lit) but no `imu`
+  readings came back, so whether the IMU sees a hand, and which way, is open.
