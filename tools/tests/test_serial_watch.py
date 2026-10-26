@@ -48,3 +48,57 @@ def test_watch_all_without_a_link_skips_the_mesh_check(monkeypatch, tmp_path):
     monkeypatch.setattr(serial_watch, "node_tag", lambda port: port[-1])
     monkeypatch.setattr(serial_watch, "capture", fake_capture(by_port))
     assert serial_watch.watch_all("p000-blink", 5, True, tmp_path) == 0
+
+
+class FakePort:
+    """Serves chunks in order; a chunk that is an exception is raised (USB drop-out)."""
+
+    def __init__(self, chunks):
+        self.chunks = list(chunks)
+        self.dtr = self.rts = False
+
+    def reset_input_buffer(self):
+        pass
+
+    def read(self, n):
+        if not self.chunks:
+            return b""
+        c = self.chunks.pop(0)
+        if isinstance(c, Exception):
+            raise c
+        return c
+
+    def close(self):
+        pass
+
+
+def run_capture(monkeypatch, *ports):
+    opened = list(ports)
+    monkeypatch.setattr(serial_watch, "open_port", lambda p, b: opened.pop(0))
+    monkeypatch.setattr(serial_watch.time, "sleep", lambda s: None)
+    return [line[9:] for line in serial_watch.capture("/dev/x", 0.05)]
+
+
+def test_capture_drops_what_an_s3_queued_before_its_reset(monkeypatch):
+    port = FakePort(
+        [
+            b'"c1":0.71}\n{"t":35090,"ev":"fps","fps":99,"heap":1}\n{"t":36039,"ev":"fi',
+            b'eld","p0":"720cESP-ROM:esp32s3-20210327\nrst:0x15 (USB_UART_CHIP_RESET),boot:0x8\n',
+            b'{"t":54,"ev":"boot","proj":"new"}\n',
+        ]
+    )
+    assert run_capture(monkeypatch, port) == [
+        "rst:0x15 (USB_UART_CHIP_RESET),boot:0x8",
+        '{"t":54,"ev":"boot","proj":"new"}',
+    ]
+
+
+def test_capture_keeps_everything_without_a_banner(monkeypatch):
+    port = FakePort([b'{"t":290,"ev":"boot"}\n'])
+    assert run_capture(monkeypatch, port) == ['{"t":290,"ev":"boot"}']
+
+
+def test_a_later_reset_stays_in_the_capture(monkeypatch):  # a crash mid-run must still show
+    port = FakePort([b"rst:0x1 (POWERON_RESET)\n", b'{"t":290,"ev":"boot"}\n'])
+    monkeypatch.setattr(serial_watch, "BANNER_WINDOW_S", -1.0)
+    assert run_capture(monkeypatch, port) == ["rst:0x1 (POWERON_RESET)", '{"t":290,"ev":"boot"}']

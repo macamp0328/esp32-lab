@@ -110,6 +110,9 @@ static void test_round_trip_subtracts_the_peers_hold() {
   TEST_ASSERT_EQUAL(2000 - 700 + 296, lab_link::rtt_us(pong, 2000));
   pong.hold_us = 5000;  // longer than the whole trip: junk
   TEST_ASSERT_EQUAL(0, lab_link::rtt_us(pong, 2000));
+  pong.ping_sent_us = 90000000;  // a ping this board sent before it rebooted (clock now ~10 ms)
+  pong.hold_us = 700;
+  TEST_ASSERT_EQUAL(0, lab_link::rtt_us(pong, 10000));
 }
 
 static void test_mac_tag_is_the_last_two_bytes() {

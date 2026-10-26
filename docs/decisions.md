@@ -3,6 +3,24 @@
 Newest first. Five lines each: date and title, what, instead of, why, revisit when.
 Read before changing anything an entry covers. A version bump is a new entry plus a green CI.
 
+## 2026-10-26 · On native USB, `lab_core` drops serial lines nobody reads instead of waiting
+- What: before `Serial.begin`, HWCDC boards (the S3) get a 4 KB TX buffer and a 0 ms TX timeout; `write_line` sends each line in one write, so a dropped line goes whole
+- Instead of: HWCDC's defaults (256 B, 100 ms, up to 20 retries a write)
+- Why: measured in p005: with the cable in and no host reading, each event cost up to 2 s and the S3s sent 1-4 radio packets per 5 s instead of ~110; any S3 project that logs more than a line every few seconds stalls once the watcher closes
+- Revisit when: a project must not lose a line while a host reads in bursts larger than 4 KB
+
+## 2026-10-26 · `shared/lab_link`: boards talk over ESP-NOW broadcast, no router, no master
+- What: framed broadcast packets on one channel (`LINK_CHANNEL`), another project's traffic dropped by a hash of `LAB_PROJECT`; a peer table with loss from sequence gaps, RSSI and ping/pong RTT; `radio` and `link` events; the receive callback only stamps and queues, `poll()` runs in loop()
+- Instead of: WiFi + UDP through the router (lab_net), the Arduino `ESP_NOW` peer classes, or unicast peers
+- Why: works anywhere the boards are, ~4 ms RTT and <1.5% loss on the dock; broadcast needs no pairing, so the same firmware runs on every unit; the raw IDF callback hands over RSSI per packet, which p005 uses as a sensor
+- Revisit when: a project needs encryption or more than 8 peers (`kMaxPeers`)
+
+## 2026-10-26 · p005-trio: one law at three tempos; the M5 carries commands but leads nothing
+- What: Kuramoto coupling (`dx/dt = ν + K Σ sin 2π(xj − x)`) on flash phase (K ±0.3, Miles flips the sign), on hue (K from the room: link disturbance + claps), and a loom that records both; identity by role and MAC, no master; the M5 only relays button presses and claps, S3s act on new commands only
+- Instead of: a master clock, scenes and a curator (rejected in planning as a playlist), hue springs (they cannot reach a triad from agreement, nor leave one)
+- Why: one rule read three ways is the piece; for three oscillators the only stable dissent is exactly a third of a turn, so unison/waltz and analogous/triad need no special cases
+- Revisit when: a fourth board joins (dissent becomes a quarter turn; `Trio` holds two others)
+
 ## 2026-10-26 · `--all` flashes and watches every plugged-in board; units told apart by USB serial
 - What: `ports.all_ports_for(project)` maps each port to the one supported board whose chip fits it (a tie goes to the board whose USB matches its chip); `just flash <p> --all` flashes them in turn, `just watch <p> --all` captures all at once into `.hil/last-run-<board>-<tag>.jsonl` (tag = end of the USB serial: the MAC on an S3) and asks each to name the others as `link` peers when the project has a link
 - Instead of: a serial-number table per unit in `boards/` or inventory, or `--port` on every call

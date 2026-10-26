@@ -151,10 +151,12 @@ class PeerTable {
   Peer peers_[kMaxPeers];
 };
 
+constexpr uint32_t kRttMaxUs = 1000000;  // longer: a stale pong (a ping from before a reboot)
+
 // Round trip of a pong answering this board's ping; 0 if the pong's numbers make no sense.
 inline uint32_t rtt_us(const Pong& pong, uint32_t now_us) {
   const uint32_t total = now_us - pong.ping_sent_us;
-  return total > pong.hold_us ? total - pong.hold_us : 0;
+  return total > pong.hold_us && total - pong.hold_us < kRttMaxUs ? total - pong.hold_us : 0;
 }
 
 }  // namespace lab_link

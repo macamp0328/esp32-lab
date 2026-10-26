@@ -6,6 +6,7 @@
 #include <FastLED.h>
 #include <esp_arduino_version.h>
 #include <esp_ota_ops.h>
+#include <string.h>
 
 #include "lab_board.h"
 
@@ -17,9 +18,13 @@
 namespace lab_core {
 
 namespace {
+// One write per line, so a line the port cannot take is dropped whole rather than cut.
 void write_line(const char* line) {
-  Serial.write(line);
-  Serial.write('\n');
+  char buf[kLineMax + 1];
+  const size_t n = strnlen(line, kLineMax);
+  memcpy(buf, line, n);
+  buf[n] = '\n';
+  Serial.write(reinterpret_cast<const uint8_t*>(buf), n + 1);
 }
 }  // namespace
 
@@ -40,6 +45,13 @@ void error(const char* code) {
 }
 
 void begin(const Setup& setup) {
+#if ARDUINO_USB_CDC_ON_BOOT && ARDUINO_USB_MODE
+  // Native USB (HWCDC, the S3): with the cable in but nobody reading the port, each write
+  // retries for up to 2 s (20 x its 100 ms timeout) and the loop crawls. Drop unread lines
+  // instead, with room to queue a burst while a host is reading.
+  Serial.setTxBufferSize(4096);
+  Serial.setTxTimeoutMs(0);
+#endif
   Serial.begin(115200);
   const uint32_t start = millis();
   while (!Serial && millis() - start < 2000) delay(10);

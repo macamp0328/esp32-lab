@@ -12,6 +12,7 @@ events, each must name every other board as a peer. Exit code is 1 if any board 
 from __future__ import annotations
 
 import argparse
+import re
 import sys
 import threading
 import time
@@ -21,6 +22,9 @@ import hil_assert
 import serial
 from labrepo import PROJECTS
 from ports import all_ports_for, node_tag, pick_port_for
+
+ROM_RESET = re.compile(r"rst:0x[0-9a-f]+ \(")  # the boot ROM's first line after a reset
+BANNER_WINDOW_S = 3.0  # it comes within this of our reset
 
 
 def reset(ser: serial.Serial) -> None:
@@ -41,6 +45,12 @@ def open_port(port: str, baud: int) -> serial.Serial:
 
 
 def capture(port: str, seconds: float, baud: int = 115200, do_reset: bool = True) -> list[str]:
+    """Lines read for `seconds`, each prefixed with seconds since the capture started.
+
+    With a reset, lines before the boot ROM's reset banner (`rst:0x..`) are dropped: they were
+    queued before it. A native-USB board (the S3) nobody reads keeps output for the next host,
+    and the reset cuts it mid-line.
+    """
     lines: list[str] = []
     buf = b""
     deadline = time.monotonic() + seconds
@@ -64,6 +74,13 @@ def capture(port: str, seconds: float, baud: int = 115200, do_reset: bool = True
             lines.append(f"{stamp:8.3f} {raw.decode(errors='replace').rstrip()}")
     if ser is not None:
         ser.close()
+    if do_reset:
+        banner = next(
+            (k for k, line in enumerate(lines) if float(line[:8]) < BANNER_WINDOW_S
+             and ROM_RESET.match(line[9:])),
+            None,
+        )  # fmt: skip
+        lines = lines[banner:] if banner is not None else lines
     return lines
 
 
