@@ -1,6 +1,6 @@
 # p005-trio
 
-**Status:** prototype  ·  **Last HIL check:** never
+**Status:** bench-verified  ·  **Last HIL check:** 2026-10-26 all three ok (steps 1-4, 6, 7; 5 to redo)
 
 Two S3 Minis and the M5StickC Plus (with matrix-8x8-01) as one piece: **one law, three tempos**.
 Same firmware on all three; they talk over ESP-NOW (`shared/lab_link`, no router), and no board
@@ -73,10 +73,15 @@ Measured 2026-10-26 with `just watch p005 --all --seconds 60`.
   (14 heard in 6 min) split them into an exact 120-degree triad within ~90 s.
 - The S3s run the same unwatched as watched since `lab_core` drops unread serial lines
   (docs/decisions.md, 2026-10-26).
+- Hand in the 3-inch gap between the S3s (HIL step 7): their link's RSSI left its ~2 dB calm
+  for 7-20 dB for the whole 16 s wave; CSI shape change only spiked (2-4x) on fast movement.
+  RSSI drives the edges.
+- Claps vs a mechanical keyboard beside the M5: claps -10 to -21 dBFS, key clicks -26 to -53
+  (`CLAP_MIN_DB` -23); before the gate the M5 took 585 "claps" in 20 min of typing.
 
 ## Open issues
-- [ ] HIL: the look of all of it (hil/checklist.md).
-- [ ] CSI or RSSI for the edges: one hand-wave capture (checklist step 7) decides.
-- [ ] Were the 14 claps of 2026-10-26 16:35-16:37 real? If speech or typing trips the onset
-  detector, raise its threshold before the mood runs a whole evening.
+- [ ] HIL step 5 again with the clap gate: five claps, no typing, the colors split and heal.
+- [ ] The S3 pixels' colors did not match their matrix corners while the matrix matched the logged
+  hues (teal, violet, orange): check the S3 onboard LED's color order (`BOARD_ONBOARD_RGB_ORDER`
+  GRB in boards/s3mini/board.h) with p000's red → green → blue sweep; a change there needs a yes.
 - [ ] First print: an evening's capture of the M5 through `tools/weave.py`, into `prints/`.

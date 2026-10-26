@@ -78,6 +78,7 @@ bool mic_ok = false;
 int16_t mic_block[MIC_BLOCK];
 lab_audio::Level audio;
 uint32_t last_clap_ms = 0;
+uint32_t quiet_onsets = 0;  // since the last `sync` event
 #endif
 
 lab::Pixel slot_color(int slot) {
@@ -169,13 +170,21 @@ void listen(uint32_t now_ms) {
   if (!mic_ok || !lab_board::mic_read(mic_block, MIC_BLOCK)) return;
   const lab::AudioFrame f = audio.push(mic_block, MIC_BLOCK, now_ms);
   if (!f.beat || now_ms < kMicSettleMs || now_ms - last_clap_ms < CLAP_GAP_MS) return;
+  if (audio.db() < CLAP_MIN_DB) {
+    ++quiet_onsets;  // a key click or a tap: sharp, but not loud enough for a clap
+    return;
+  }
   last_clap_ms = now_ms;
   ++claps;
   osc.fire();
   room.clap(kMood);
   weft.clap();
   send_beat();
-  announce("clap", "self");
+  lab_core::Event("clap")
+      .num("claps", claps)
+      .real("db", audio.db(), 1)
+      .real("level", f.level)
+      .emit();
 }
 #endif
 
@@ -294,8 +303,14 @@ void report(uint32_t now_us) {
       .num("spread_ms", lroundf(trio::spread(x, n) * osc.period_s * 1000))
       .real("min_gap", trio::min_gap(x, n), 3)
       .num("flashes", flashes)
+#if AUDIO_MODE == 2
+      .num("quiet_onsets", quiet_onsets)
+#endif
       .emit();
   flashes = 0;
+#if AUDIO_MODE == 2
+  quiet_onsets = 0;
+#endif
 }
 
 void sense_space(float dt_s) {
@@ -458,6 +473,7 @@ void loop() {
   float others[trio::Trio::kOthers];
   const int n = others_now(now_us, others);
   flashes += osc.step(dt, coupling(), others, n);
+  lab_board::status_led(osc.since_s() < kFlashS);  // the M5's red LED: its own flash
   sense_space(dt);
   feel(dt);
   if (frame_start - field_ms >= FIELD_LOG_MS) {

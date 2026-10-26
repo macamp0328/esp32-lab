@@ -47,15 +47,16 @@
 #define LINK_CHANNEL 1
 #define LINK_TX_DBM  8   // 2..20; low enough that a hand in the gap moves the RSSI
 #define LINK_BEAT_HZ 20  // beats per second from every board
-#define LINK_CSI     1   // channel state per link, logged beside RSSI in `field` (m0, m1)
+#define LINK_CSI     1   // channel state per link, logged in `field` (m0, m1); edges use RSSI
 
 // Beat: flash phase; natural period 1 s, spread +-BEAT_SPREAD by MAC; K > 0 unison, K < 0 waltz
 #define BEAT_PERIOD_MS 1000
-#define BEAT_SPREAD    0.01f  // waltz settles ~2.7 deg off even at K 0.3 (test_trio)
-#define BEAT_K         0.3f   // 1/s; unison and waltz both settle within 10 s
-#define BEAT_BOOT_MODE 0      // 0 unison, 1 waltz (the M5 decides; A hold flips it)
-#define FLASH_MS       140    // flash decay time constant
-#define CLAP_GAP_MS    300    // claps closer than this are one clap
+#define BEAT_SPREAD    0.01f   // waltz settles ~2.7 deg off even at K 0.3 (test_trio)
+#define BEAT_K         0.3f    // 1/s; unison and waltz both settle within 10 s
+#define BEAT_BOOT_MODE 0       // 0 unison, 1 waltz (the M5 decides; A hold flips it)
+#define FLASH_MS       140     // flash decay time constant
+#define CLAP_GAP_MS    300     // claps closer than this are one clap
+#define CLAP_MIN_DB    -23.0f  // dBFS; measured: claps -10..-21, key clicks -26..-53
 
 // Space: a link's disturbance (dB of baseline step plus scatter, above its own calm) maps to its
 // edge's glow from FIELD_FLOOR_DB (dark) over FIELD_SPAN_DB (full)

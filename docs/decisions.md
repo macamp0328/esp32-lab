@@ -3,6 +3,12 @@
 Newest first. Five lines each: date and title, what, instead of, why, revisit when.
 Read before changing anything an entry covers. A version bump is a new entry plus a green CI.
 
+## 2026-10-26 · p005's edges follow RSSI, not CSI; CSI stays on and logged
+- What: `LINK_CSI 1` keeps broadcasts at OFDM 6 Mb/s and logs each link's CSI shape change (`m0`, `m1`), but `trio::Link` (RSSI against its own calm) lights the edges
+- Instead of: CSI shape change driving the edges
+- Why: HIL step 7, a hand in the 3-inch gap between the S3s for 16 s: RSSI left its ~2 dB calm for 7-20 dB the whole time; CSI only spiked 2-4x on fast movement and fell back between (it sees motion, RSSI sees the hand)
+- Revisit when: the boards sit far enough apart that a hand no longer shadows the link
+
 ## 2026-10-26 · On native USB, `lab_core` drops serial lines nobody reads instead of waiting
 - What: before `Serial.begin`, HWCDC boards (the S3) get a 4 KB TX buffer and a 0 ms TX timeout; `write_line` sends each line in one write, so a dropped line goes whole
 - Instead of: HWCDC's defaults (256 B, 100 ms, up to 20 retries a write)
