@@ -1,20 +1,26 @@
-"""Capture serial from a board (host side): `serial_watch.py <project> [--seconds 30]`.
+"""Capture serial from a board (host side): `serial_watch.py <project> [--seconds 30] [--all]`.
 
 Resets the board, records every line for N seconds (reopening the port if USB re-enumerates),
 writes projects/<p>/.hil/last-run.log (raw, host-timestamped) and last-run.jsonl (JSON lines),
 then runs hil_assert on the capture. Exit code is hil_assert's.
+
+--all captures every plugged-in board of the project at once, one thread per port, into
+last-run-<board>-<tag>.{log,jsonl} (tag: end of the USB serial). When any capture has `link`
+events, each must name every other board as a peer. Exit code is 1 if any board fails.
 """
 
 from __future__ import annotations
 
 import argparse
 import sys
+import threading
 import time
+from pathlib import Path
 
 import hil_assert
 import serial
 from labrepo import PROJECTS
-from ports import pick_port_for
+from ports import all_ports_for, node_tag, pick_port_for
 
 
 def reset(ser: serial.Serial) -> None:
@@ -70,6 +76,42 @@ def reopen(port: str, baud: int, deadline: float) -> serial.Serial | None:
     return None
 
 
+def save(out: Path, stem: str, lines: list[str]) -> Path:
+    """Writes <stem>.log (raw, host-timestamped) and <stem>.jsonl; returns the .jsonl path."""
+    (out / f"{stem}.log").write_text("".join(f"{line}\n" for line in lines))
+    payloads = [line[9:] for line in lines]
+    jsonl = out / f"{stem}.jsonl"
+    jsonl.write_text("".join(f"{p}\n" for p in payloads if p.lstrip().startswith("{")))
+    return jsonl
+
+
+def watch_all(project: str, seconds: float, do_reset: bool, out: Path) -> int:
+    nodes = all_ports_for(project)
+    names = {port: f"last-run-{board}-{node_tag(port)}" for board, port in nodes}
+    print(f"watch: {len(nodes)} boards for {seconds:.0f} s → {out}/", flush=True)
+    for _, port in nodes:
+        print(f"  {names[port]}  {port}", flush=True)
+    captured: dict[str, list[str]] = {}
+
+    def run(port: str) -> None:
+        captured[port] = capture(port, seconds, do_reset=do_reset)
+
+    threads = [threading.Thread(target=run, args=(port,)) for _, port in nodes]
+    for t in threads:
+        t.start()
+    for t in threads:
+        t.join()
+    files = {port: save(out, names[port], captured.get(port, [])) for _, port in nodes}
+    mesh = len(nodes) > 1 and any('"ev":"link"' in f.read_text() for f in files.values())
+    failed = 0
+    for _, port in nodes:
+        print(f"{names[port]}: ", end="", flush=True)
+        argv = [str(files[port]), "--project", project, "--seconds", str(seconds)]
+        failed += hil_assert.main(argv + (["--peers", str(len(nodes) - 1)] if mesh else [])) != 0
+    print(f"watch: {len(nodes) - failed} of {len(nodes)} boards pass", flush=True)
+    return 1 if failed else 0
+
+
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(prog="just watch")
     ap.add_argument("project")
@@ -77,19 +119,19 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--seconds", type=float, default=30)
     ap.add_argument("--port")
     ap.add_argument("--no-reset", action="store_true")
+    ap.add_argument("--all", action="store_true", help="every plugged-in board, at once")
     args = ap.parse_args(argv)
 
-    port = args.port or pick_port_for(args.project, args.board)
     out = PROJECTS / args.project / ".hil"
     out.mkdir(exist_ok=True)
+    if args.all:
+        if args.board or args.port:
+            ap.error("--all watches every plugged-in board: drop board and --port")
+        return watch_all(args.project, args.seconds, not args.no_reset, out)
+    port = args.port or pick_port_for(args.project, args.board)
     print(f"watch: {port} for {args.seconds:.0f} s → {out}/last-run.jsonl", flush=True)
     lines = capture(port, args.seconds, do_reset=not args.no_reset)
-    (out / "last-run.log").write_text("".join(f"{line}\n" for line in lines))
-    payloads = [line[9:] for line in lines]
-    (out / "last-run.jsonl").write_text(
-        "".join(f"{p}\n" for p in payloads if p.lstrip().startswith("{"))
-    )
-    capture_file = str(out / "last-run.jsonl")
+    capture_file = str(save(out, "last-run", lines))
     return hil_assert.main(
         [capture_file, "--project", args.project, "--seconds", str(args.seconds)]
     )

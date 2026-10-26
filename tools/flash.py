@@ -1,8 +1,9 @@
-"""Flash a built project (host side): `just flash <p> [board] [--port P] [--ota [HOST]]`.
+"""Flash a built project (host side): `just flash <p> [board] [--port P] [--ota [HOST]] [--all]`.
 
 USB: writes .pio/build/<board>/firmware.factory.bin at 0x0 with esptool; `--chip` comes from
 the board's BOARD_CHIP, so flashing the wrong board fails instead of bricking the run.
 OTA: espota to <MDNS_NAME>.local with OTA_PASSWORD from include/secrets.h; falls back to USB.
+--all: every plugged-in board the project supports, over USB, one after another.
 Builds nothing: run `just build <p> <board>` first.
 """
 
@@ -26,7 +27,7 @@ from labrepo import (  # noqa: F401  (header_define: re-exported for callers and
     project_boards,
     read_ini,
 )
-from ports import candidates, pick_port_for
+from ports import all_ports_for, candidates, pick_port_for
 
 ESPOTA = ROOT / ".cache" / "espota.py"
 ESPOTA_IN_IMAGE = "/pio/packages/framework-arduinoespressif32/tools/espota.py"
@@ -121,8 +122,17 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("board", nargs="?")
     ap.add_argument("--port")
     ap.add_argument("--ota", nargs="?", const="", metavar="HOST", help="default <MDNS_NAME>.local")
+    ap.add_argument("--all", action="store_true", help="every plugged-in board, over USB")
     args = ap.parse_args(argv)
     supported = project_boards(args.project)
+
+    if args.all:
+        if args.board or args.port or args.ota is not None:
+            ap.error("--all flashes every plugged-in board over USB: drop board, --port, --ota")
+        nodes = all_ports_for(args.project)
+        failed = [port for board, port in nodes if flash_usb(args.project, board, port) != 0]
+        print(f"flash: {len(nodes) - len(failed)} of {len(nodes)} boards flashed", flush=True)
+        return 1 if failed else 0
 
     if args.ota is not None:
         board = choose_board(supported, args.board, None)

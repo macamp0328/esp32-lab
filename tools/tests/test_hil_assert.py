@@ -80,3 +80,22 @@ def test_empty_project_is_rejected(tmp_path):
     cap.write_text("\n".join([BOOT, LEDS, FPS]) + "\n")
     with pytest.raises(SystemExit):
         hil_assert.main([str(cap), "--project", ""])
+
+
+def link(peer, rx=40):
+    return f'{{"t":6400,"ev":"link","peer":"{peer}","rssi":-41,"rx":{rx},"loss":0.02}}'
+
+
+def test_peers_must_be_heard_on_the_link():
+    events, _ = hil_assert.parse([BOOT, LEDS, FPS, link("44a574"), link("48720c")])
+    fails, summary = hil_assert.check(events, project="p000-blink", peers=2)
+    assert fails == [] and "peers 44a574,48720c" in summary
+    events, _ = hil_assert.parse([BOOT, LEDS, FPS, link("44a574"), link("48720c", rx=0)])
+    fails, _ = hil_assert.check(events, project="p000-blink", peers=2)
+    assert fails == ["heard 1 peer(s) ['44a574'] on the link, expected >= 2"]
+
+
+def test_link_events_need_their_fields():
+    bad = '{"t":6400,"ev":"link","peer":"a","rssi":"loud","rx":3}'
+    fails = "\n".join(run([BOOT, LEDS, FPS, bad])[0])
+    assert "link event missing/non-numeric" in fails and "loss" in fails and "rssi" in fails

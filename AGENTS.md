@@ -29,8 +29,8 @@ engineer and a hobbyist at hardware: he solders well, he is not an EE. Full desi
 | `just check` (= `just lint`) / `just fmt` | clang-format, cppcheck, ruff, actionlint, repo rules | works |
 | `just template-check` | `just new` for every board into a scratch project, test + build, delete | works |
 | `just inventory` / `just status` | print+validate stock / refresh README table | works |
-| `just flash <p> [b] [--ota]` | USB (board auto-detected) or OTA with USB fallback | works |
-| `just watch <p>` | reset, 30 s serial to `.hil/last-run.jsonl`, then `hil_assert` | works |
+| `just flash <p> [b] [--ota] [--all]` | USB (board auto-detected) or OTA with USB fallback; `--all`: every plugged-in board | works |
+| `just watch <p> [b] [--all]` | reset, 30 s serial to `.hil/last-run.jsonl`, then `hil_assert`; `--all`: every board at once | works |
 | `just bench <p>` | reset, run the on-demand suite, write results/<board>.json and RESULTS.md | works once p003 exists |
 | `just add-board <n> --chip <c> --pio-board <id>` | board folder + lab_board.h branch + env | works |
 | `just sim <p>` | Wokwi scenario | exits 2: no Wokwi token yet |
@@ -40,7 +40,8 @@ automatically; inside the container (CI, devcontainer, `just shell`) they run di
 Flash and serial run on the host (`.venv`): USB does not cross Docker on macOS. Several boards
 plugged in: flash/watch/bench pick the port from the board's chip (native USB vs bridge); name
 the board when the project runs on more than one (`just watch p003 s3mini`); two of the same
-board need `--port` or `LAB_PORT`. esptool baud is each board.ini's `upload_speed`.
+board need `--port`/`LAB_PORT`, or `--all` (every unit, told apart by USB serial; captures go to
+`.hil/last-run-<board>-<tag>.jsonl`). esptool baud is each board.ini's `upload_speed`.
 Skills in `.claude/skills/`: new-project, add-board, flash-and-watch, hil-check.
 
 ## 4. Board rule

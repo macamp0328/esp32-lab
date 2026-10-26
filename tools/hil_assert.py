@@ -2,7 +2,9 @@
 
 Pass = every contract event carries its fields, exactly one `boot` (a second one means a crash
 or brown-out), `leds` within 2 s of it, `fps` at least every 7 s and >= --min-fps, no `err`, no
-panic in the raw log, and `boot` naming the expected project. One summary line; exit 0 = pass.
+panic in the raw log, and `boot` naming the expected project. With --peers N (boards on a radio
+link, `just watch --all`), `link` events must name at least N peers heard from. One summary line;
+exit 0 = pass.
 """
 
 from __future__ import annotations
@@ -42,8 +44,9 @@ REQUIRED = {
     "leds": ("n", "driver", "cap_ma"),
     "fps": ("fps", "heap"),
     "err": ("code",),
+    "link": ("peer", "rssi", "rx", "loss"),
 }
-NUMERIC = {"t", "fps", "heap", "n", "cap_ma"}
+NUMERIC = {"t", "fps", "heap", "n", "cap_ma", "rssi", "rx", "loss"}
 FPS_PERIOD_MS = 5000
 FPS_SLACK_MS = 2000
 
@@ -59,6 +62,7 @@ def check(
     min_fps: float = 30,
     leds_within_ms: int = 2000,
     seconds: float | None = None,
+    peers: int = 0,
 ) -> tuple[list[str], str]:
     """Returns (failures, summary). No failures means pass. `seconds` = capture length, if known."""
     fails: list[str] = []
@@ -104,6 +108,10 @@ def check(
         if len(fps) < expected:
             fails.append(f"only {len(fps)} fps events in {seconds:.0f} s (expected >= {expected})")
 
+    heard = sorted({str(e["peer"]) for e in after if e["ev"] == "link" and e["rx"] > 0})
+    if len(heard) < peers:
+        fails.append(f"heard {len(heard)} peer(s) {heard} on the link, expected >= {peers}")
+
     errs = [e for e in events if e["ev"] == "err"]
     fails += [f"err event: code={e['code']!r} at t={e['t']}" for e in errs]
     fails += [f"panic in raw log: {m!r}" for m in PANIC_MARKERS if m in raw_log]
@@ -113,6 +121,8 @@ def check(
         parts.append(f"leds n={leds['n']} {leds['driver']} +{leds['t'] - boot['t']}ms")
     if fps:
         parts.append(f"fps min {min(fps)} ({len(fps)} samples)")
+    if heard:
+        parts.append(f"peers {','.join(heard)}")
     parts.append(f"{len(errs)} err")
     return fails, " · ".join(parts)
 
@@ -123,6 +133,7 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--project")
     ap.add_argument("--min-fps", type=float, default=30)
     ap.add_argument("--seconds", type=float, help="capture length, to check the fps cadence")
+    ap.add_argument("--peers", type=int, default=0, help="link peers each board must hear")
     args = ap.parse_args(argv)
     if args.project == "":
         ap.error("--project is empty (did project resolution fail?)")
@@ -130,7 +141,9 @@ def main(argv: list[str] | None = None) -> int:
     events, malformed = parse(args.capture.read_text(errors="replace").splitlines())
     raw = args.capture.with_suffix(".log")
     raw_text = raw.read_text(errors="replace") if raw.is_file() else ""
-    fails, summary = check(events, raw_text, args.project, args.min_fps, seconds=args.seconds)
+    fails, summary = check(
+        events, raw_text, args.project, args.min_fps, seconds=args.seconds, peers=args.peers
+    )
     if malformed:
         fails.append(f"{malformed} malformed JSON line(s)")
     idf_errors = [ln for ln in raw_text.splitlines() if IDF_ERROR.search(ln)]

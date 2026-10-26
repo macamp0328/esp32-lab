@@ -3,6 +3,12 @@
 Newest first. Five lines each: date and title, what, instead of, why, revisit when.
 Read before changing anything an entry covers. A version bump is a new entry plus a green CI.
 
+## 2026-10-26 · `--all` flashes and watches every plugged-in board; units told apart by USB serial
+- What: `ports.all_ports_for(project)` maps each port to the one supported board whose chip fits it (a tie goes to the board whose USB matches its chip); `just flash <p> --all` flashes them in turn, `just watch <p> --all` captures all at once into `.hil/last-run-<board>-<tag>.jsonl` (tag = end of the USB serial: the MAC on an S3) and asks each to name the others as `link` peers when the project has a link
+- Instead of: a serial-number table per unit in `boards/` or inventory, or `--port` on every call
+- Why: two S3 Minis and the M5 now share the dock (the 2026-10-22 entry's revisit); every unit of a kind runs the same firmware, so a unit only needs a name in file names, and the USB serial is already that name
+- Revisit when: two units of one kind need different firmware (then pick by tag)
+
 ## 2026-10-23 · `AUDIO_MODE 2` reads the board's PDM mic before M3: level and onsets only
 - What: `lab_board::mic_begin/mic_read` (M5Unified `M5.Mic`, I2S0 in PDM mode) feed `lab_audio::Level`, which fills `AudioFrame.level` and `.beat` (adaptive noise floor, onset = sharp rise over the recent average); `lab_checks.h` allows 2 only with `BOARD_HAS_PDM_MIC`, still refuses 1
 - Instead of: keeping every mic out until M3's INMP441 on the S3

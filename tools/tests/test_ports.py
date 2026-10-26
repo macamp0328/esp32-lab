@@ -69,3 +69,43 @@ def test_pick_port_for_uses_the_projects_boards(monkeypatch):
         ports.pick_port_for("p003-bench")
     with pytest.raises(SystemExit, match="not in p002-matrix-demo"):
         ports.pick_port_for("p002-matrix-demo", "s3mini")
+
+
+def test_all_ports_maps_each_unit_to_its_board(monkeypatch):
+    plug(monkeypatch, M5, S3, S3_TOO)
+    assert ports.all_ports_for("p000-blink") == [
+        ("s3mini", S3[0]),
+        ("s3mini", S3_TOO[0]),
+        ("m5stickc-plus11", M5[0]),
+    ]
+    assert ports.all_ports_for("p002-matrix-demo") == [("m5stickc-plus11", M5[0])]  # S3s skipped
+
+
+def test_all_ports_prefers_the_natural_board_for_a_bridge(monkeypatch):
+    plug(monkeypatch, M5)  # an S3 could sit behind a bridge too, but the classic ESP32 must
+    assert ports.all_ports_for("p000-blink") == [("m5stickc-plus11", M5[0])]
+
+
+def test_all_ports_refuses_what_it_cannot_tell_apart(monkeypatch):
+    plug(monkeypatch, S3)
+    monkeypatch.setattr(ports, "project_boards", lambda p: ["s3mini", "xiao-s3"])
+    monkeypatch.setattr(ports, "board_chip", lambda b: "esp32s3")
+    with pytest.raises(SystemExit, match="could be any of"):
+        ports.all_ports_for("p999-x")
+    plug(monkeypatch, S3)
+    monkeypatch.setattr(ports, "project_boards", lambda p: ["m5stickc-plus11"])
+    monkeypatch.setattr(ports, "board_chip", lambda b: "esp32")
+    with pytest.raises(SystemExit, match="looks like a board"):
+        ports.all_ports_for("p999-x")
+
+
+def test_node_tag_is_the_end_of_the_usb_serial(monkeypatch):
+    class Port:
+        def __init__(self, device, serial):
+            self.device, self.serial_number = device, serial
+
+    found = [Port(S3[0], "D4:05:92:44:A5:74"), Port(M5[0], "914AF70348"), Port("/dev/x", None)]
+    monkeypatch.setattr(ports.list_ports, "comports", lambda: found)
+    assert ports.node_tag(S3[0]) == "a574"
+    assert ports.node_tag(M5[0]) == "0348"
+    assert ports.node_tag("/dev/x") == "x"
