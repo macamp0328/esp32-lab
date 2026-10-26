@@ -139,23 +139,33 @@ static void test_phase_bytes_round_trip() {
   m.beat.rate_mhz = 1000;
   m.at_us = 4294967000u;  // the clock wraps between its beat and now
   TEST_ASSERT_FLOAT_WITHIN(1e-3f, 0.1f, m.phase_at(199704u));  // 0.2 s later
+  m.at_us = 1000;  // stamped by the radio just after the loop read the clock
+  TEST_ASSERT_FLOAT_WITHIN(1e-4f, 0.9f, m.phase_at(900));
+}
+
+static void test_a_beat_stamped_after_now_is_not_ancient() {
+  trio::Trio t;
+  t.set_self(kMacHi, trio::kRoleS, false);
+  t.heard(kMacLo, beat(trio::kRoleS), 5000, -40);
+  t.age(4990, 2000000);  // the loop's clock read came 10 us before the stamp
+  TEST_ASSERT_EQUAL(1, t.count());
 }
 
 static void test_corners_go_by_role_and_mac() {
   trio::Trio t;
   t.set_self(kMacHi, trio::kRoleS, false);
   TEST_ASSERT_EQUAL(trio::kA, t.slot_self());  // alone, an S3 is a
-  t.heard(kMacM, beat(trio::kRoleM), 0);
-  t.heard(kMacLo, beat(trio::kRoleS), 0);
+  t.heard(kMacM, beat(trio::kRoleM), 0, -40);
+  t.heard(kMacLo, beat(trio::kRoleS), 0, -40);
   TEST_ASSERT_EQUAL(trio::kB, t.slot_self());
   TEST_ASSERT_EQUAL(trio::kM, t.slot_other(0));
   TEST_ASSERT_EQUAL(trio::kA, t.slot_other(1));
   TEST_ASSERT_NOT_NULL(t.m5());
-  TEST_ASSERT_NULL(t.heard(kMacHi, beat(trio::kRoleS), 0));  // a fourth board is ignored
+  TEST_ASSERT_NULL(t.heard(kMacHi, beat(trio::kRoleS), 0, -40));  // a fourth board is ignored
 
   trio::Trio swapped;
   swapped.set_self(kMacHi, trio::kRoleS, true);
-  swapped.heard(kMacLo, beat(trio::kRoleS), 0);
+  swapped.heard(kMacLo, beat(trio::kRoleS), 0, -40);
   TEST_ASSERT_EQUAL(trio::kA, swapped.slot_self());
   TEST_ASSERT_EQUAL(trio::kB, swapped.slot_other(0));
 
@@ -256,16 +266,78 @@ static void test_the_space_lights_present_corners_and_pulses() {
   TEST_ASSERT_GREATER_THAN(60, at(2, 4).b);
 }
 
+// RSSI with +-1 dB of packet noise; a hand in the gap drops it 8 dB and scatters it +-4 dB.
+static void test_a_link_stirs_for_a_hand_and_settles_after() {
+  trio::Link link;
+  uint32_t r = 12345;
+  auto noise = [&r](float amp) {
+    r = r * 1664525u + 1013904223u;
+    return amp * (2 * ((r >> 8) * (1.0f / 16777216.0f)) - 1);
+  };
+  for (int i = 0; i < 1200; ++i) link.push(-45 + noise(1), 0.05f);  // a quiet minute
+  TEST_ASSERT_LESS_THAN_FLOAT(0.05f, link.stir(1.5f, 6));
+  float peak = 0;
+  for (int i = 0; i < 60; ++i) {  // 3 s of a hand
+    link.push(-53 + noise(4), 0.05f);
+    peak = fmaxf(peak, link.stir(1.5f, 6));
+  }
+  TEST_ASSERT_GREATER_THAN_FLOAT(0.5f, peak);
+  for (int i = 0; i < 60; ++i) link.push(-45 + noise(1), 0.05f);  // 3 s after it left
+  TEST_ASSERT_LESS_THAN_FLOAT(0.1f, link.stir(1.5f, 6));
+}
+
+static void test_a_new_link_reports_nothing_until_warm() {
+  trio::Link link;
+  for (uint32_t i = 0; i + 1 < trio::Link::kWarmup; ++i) link.push(i % 2 ? -30 : -70, 0.05f);
+  TEST_ASSERT_FLOAT_WITHIN(1e-6f, 0.0f, link.stir(1.5f, 6));
+}
+
+static void test_edges_combine_own_links_and_what_the_others_hear() {
+  TEST_ASSERT_EQUAL(0, trio::edge_of(trio::kA, trio::kM));
+  TEST_ASSERT_EQUAL(1, trio::edge_of(trio::kB, trio::kA));
+  TEST_ASSERT_EQUAL(2, trio::edge_of(trio::kM, trio::kB));
+  trio::Trio t;  // the M5's view
+  t.set_self(kMacM, trio::kRoleM, false);
+  trio::Beat a = beat(trio::kRoleS), b = beat(trio::kRoleS);
+  a.heard[0] = {{kMacHi[4], kMacHi[5]}, 51};   // a hears b at 0.2
+  a.heard[1] = {{kMacM[4], kMacM[5]}, 255};    // and the M5 at 1.0
+  b.heard[0] = {{kMacLo[4], kMacLo[5]}, 153};  // b hears a at 0.6
+  for (int i = 0; i < 50; ++i) {
+    t.heard(kMacLo, a, i * 50000u, -40);
+    t.heard(kMacHi, b, i * 50000u, -40);
+  }
+  float e[3];
+  trio::edges(t, 1.5f, 6, e);
+  TEST_ASSERT_FLOAT_WITHIN(1e-3f, 1.0f, e[0]);  // m-a: a's report beats the M5's calm link
+  TEST_ASSERT_FLOAT_WITHIN(1e-3f, 0.6f, e[1]);  // a-b: the larger of the two directions
+  TEST_ASSERT_FLOAT_WITHIN(1e-3f, 0.0f, e[2]);  // b-m: calm both ways
+  trio::fill_heard(t, &a, 1.5f, 6);
+  TEST_ASSERT_TRUE(trio::tag_is(a.heard[0].tag, kMacLo));
+  TEST_ASSERT_EQUAL(0, a.heard[0].stir);
+}
+
+static void test_shown_values_rise_fast_and_fall_slowly() {
+  const float up = trio::follow(0, 1, 0.1f, 0.1f, 1.0f);
+  const float down = trio::follow(1, 0, 0.1f, 0.1f, 1.0f);
+  TEST_ASSERT_GREATER_THAN_FLOAT(0.6f, up);
+  TEST_ASSERT_GREATER_THAN_FLOAT(0.9f, down);
+}
+
 int main() {
   UNITY_BEGIN();
   RUN_TEST(test_wrap_order_spread_and_gap);
   RUN_TEST(test_an_oscillator_flashes_once_per_period_alone);
   RUN_TEST(test_phase_bytes_round_trip);
+  RUN_TEST(test_a_beat_stamped_after_now_is_not_ancient);
   RUN_TEST(test_corners_go_by_role_and_mac);
   RUN_TEST(test_s3s_follow_new_commands_only);
   RUN_TEST(test_positive_k_brings_unison_over_a_bad_link);
   RUN_TEST(test_negative_k_brings_an_even_waltz);
   RUN_TEST(test_a_clap_brings_unison_that_waltz_unfolds);
   RUN_TEST(test_the_space_lights_present_corners_and_pulses);
+  RUN_TEST(test_a_link_stirs_for_a_hand_and_settles_after);
+  RUN_TEST(test_a_new_link_reports_nothing_until_warm);
+  RUN_TEST(test_edges_combine_own_links_and_what_the_others_hear);
+  RUN_TEST(test_shown_values_rise_fast_and_fall_slowly);
   return UNITY_END();
 }

@@ -41,6 +41,7 @@ uint16_t cmd = 0;   // the M5's command count (mode flips, scatters)
 uint8_t claps = 0;  // the M5's clap count
 bool scattered = false;
 uint32_t flashes = 0;  // since the last `sync` event
+float stir[3] = {};    // each edge's disturbance as shown: rises fast, falls slowly
 
 #if AUDIO_MODE == 2
 bool mic_ok = false;
@@ -67,6 +68,7 @@ void send_beat() {
   b.claps = claps;
   b.phase = trio::to_u16(osc.phase);
   b.rate_mhz = static_cast<uint16_t>(osc.rate * 1000 + 0.5f);
+  trio::fill_heard(group, &b, FIELD_FLOOR_DB, FIELD_SPAN_DB);
   lab_link::send(trio::kBeatKind, &b, sizeof b);
 }
 
@@ -113,7 +115,7 @@ void hear(const lab_link::Rx& rx) {
   if (rx.head.kind != trio::kBeatKind || rx.len != sizeof(trio::Beat)) return;
   trio::Beat b;
   memcpy(&b, rx.body, sizeof b);
-  group.heard(rx.mac, b, rx.at_us);
+  group.heard(rx.mac, b, rx.at_us, rx.rssi);
   if (kRole != trio::kRoleS || b.role != trio::kRoleM) return;
   static trio::Follow follow;
   const bool flipped = follow.seen && static_cast<trio::Mode>(b.mode) != mode;
@@ -163,6 +165,7 @@ void render(uint32_t now_us) {
     v.since_s[s] = m.phase_at(now_us) / rate;
   }
   for (int s = 0; s < trio::kSlots; ++s) v.color[s] = slot_color(s);
+  for (int e = 0; e < 3; ++e) v.stir[e] = stir[e];
   trio::draw_space(leds, layout, v);
 #else
   leds[0] = trio::draw_body(slot_color(group.slot_self()), osc.since_s(), kFlashS, 0);
@@ -183,6 +186,32 @@ void report(uint32_t now_us) {
       .num("flashes", flashes)
       .emit();
   flashes = 0;
+}
+
+void sense_space(float dt_s) {
+  float raw[3];
+  trio::edges(group, FIELD_FLOOR_DB, FIELD_SPAN_DB, raw);
+  for (int e = 0; e < 3; ++e) stir[e] = trio::follow(stir[e], raw[e], dt_s, 0.1f, 1.0f);
+}
+
+// The three edges as shown, and the raw numbers of this board's own links (to tune the floor).
+void log_space() {
+  lab_core::Event ev("field");
+  ev.real("ma", stir[0]).real("ab", stir[1]).real("bm", stir[2]);
+  static const char* const kKeys[2][4] = {{"p0", "s0", "d0", "c0"}, {"p1", "s1", "d1", "c1"}};
+  int n = 0;
+  for (int i = 0; i < trio::Trio::kOthers; ++i) {
+    const trio::Member& m = group.other(i);
+    if (!m.present) continue;
+    char tag[5];
+    lab_link::mac_tag(m.mac, tag);
+    ev.str(kKeys[n][0], tag)
+        .real(kKeys[n][1], m.link.slow(), 1)
+        .real(kKeys[n][2], m.link.dev())
+        .real(kKeys[n][3], m.link.calm());
+    ++n;
+  }
+  ev.emit();
 }
 
 #if BOARD_HAS_TFT
@@ -243,14 +272,14 @@ void loop() {
   static uint32_t beat_us = 0;
   static uint32_t screen_ms = 0;
   static uint32_t buttons_ms = 0;
+  static uint32_t field_ms = 0;
   const uint32_t frame_start = millis();
-  const uint32_t now_us = micros();
-  const float dt = (now_us - last_us) * 1e-6f;
-  last_us = now_us;
-
   lab_link::handle(frame_start);
   lab_link::Rx rx;
   while (lab_link::poll(&rx)) hear(rx);
+  const uint32_t now_us = micros();  // after the drain: no packet is stamped later than now
+  const float dt = (now_us - last_us) * 1e-6f;
+  last_us = now_us;
   group.age(now_us, kMemberTimeoutUs);
 #if BOARD_HAS_TFT
   if (frame_start - buttons_ms >= kButtonsMs) {
@@ -265,6 +294,11 @@ void loop() {
   float others[trio::Trio::kOthers];
   const int n = others_now(now_us, others);
   flashes += osc.step(dt, coupling(), others, n);
+  sense_space(dt);
+  if (frame_start - field_ms >= FIELD_LOG_MS) {
+    field_ms = frame_start;
+    log_space();
+  }
   if (now_us - beat_us >= kBeatUs) {
     beat_us = now_us;
     send_beat();

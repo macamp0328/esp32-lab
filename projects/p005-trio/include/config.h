@@ -56,5 +56,11 @@
 #define FLASH_MS       140    // flash decay time constant
 #define CLAP_GAP_MS    300    // claps closer than this are one clap
 
+// Space: a link's disturbance (dB of baseline step plus scatter, above its own calm) maps to its
+// edge's glow from FIELD_FLOOR_DB (dark) over FIELD_SPAN_DB (full)
+#define FIELD_FLOOR_DB 1.5f
+#define FIELD_SPAN_DB  6.0f
+#define FIELD_LOG_MS   1000  // `field` events this often
+
 // Layout: which S3 the matrix draws bottom-left (0: the lower MAC)
 #define TRIO_SWAP_AB 0

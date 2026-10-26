@@ -28,6 +28,9 @@ PeerTable table;
 uint32_t last_ping_ms = 0;
 uint32_t tx_fail = 0;  // since the last emit()
 bool up = false;
+int8_t tx_quarter_dbm = 0;  // what begin() asked for, in esp_wifi's 0.25 dBm units
+bool tx_checked = false;
+constexpr uint32_t kTxCheckMs = 3000;
 
 uint32_t now_us() { return static_cast<uint32_t>(esp_timer_get_time()); }
 
@@ -67,11 +70,13 @@ void answer(const Rx& rx) {
 
 bool begin(const Config& config) {
   project = project_hash(config.project);
+  tx_quarter_dbm = static_cast<int8_t>(config.tx_dbm * 4);
+  WiFi.setSleep(false);  // Arduino re-applies its sleep setting when the station starts
   WiFi.mode(WIFI_STA);
   WiFi.disconnect();
   bool ok = esp_wifi_set_ps(WIFI_PS_NONE) == ESP_OK;
   ok = ok && esp_wifi_set_channel(config.channel, WIFI_SECOND_CHAN_NONE) == ESP_OK;
-  ok = ok && esp_wifi_set_max_tx_power(static_cast<int8_t>(config.tx_dbm * 4)) == ESP_OK;
+  ok = ok && esp_wifi_set_max_tx_power(tx_quarter_dbm) == ESP_OK;
   ok = ok && esp_wifi_get_mac(WIFI_IF_STA, mac) == ESP_OK;
   queue = xQueueCreate(kQueueDepth, sizeof(Rx));
   ok = ok && queue != nullptr && esp_now_init() == ESP_OK;
@@ -122,8 +127,27 @@ bool poll(Rx* out) {
   return false;
 }
 
+// The radio's TX power a few seconds in, put back if something reset it (reported either way).
+void check_tx_power() {
+  int8_t was = 0;
+  esp_wifi_get_max_tx_power(&was);
+  const bool drifted = abs(was - tx_quarter_dbm) > 4;  // chips round to their own steps
+  if (drifted) esp_wifi_set_max_tx_power(tx_quarter_dbm);
+  int8_t now = 0;
+  esp_wifi_get_max_tx_power(&now);
+  lab_core::Event("radio")
+      .real("tx_dbm_was", was / 4.0, 2)
+      .real("tx_dbm", now / 4.0, 2)
+      .flag("reapplied", drifted)
+      .emit();
+}
+
 void handle(uint32_t now_ms) {
   if (!up) return;
+  if (!tx_checked && now_ms >= kTxCheckMs) {
+    tx_checked = true;
+    check_tx_power();
+  }
   if (now_ms - last_ping_ms >= kPingMs) {
     last_ping_ms = now_ms;
     send_raw(kPing, nullptr, 0);
