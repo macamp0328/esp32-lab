@@ -18,6 +18,7 @@ struct Config {
   const char* project;  // LAB_PROJECT
   uint8_t channel;      // 1..13; every board of the project on the same one
   int8_t tx_dbm;        // 2..20
+  bool csi = false;     // channel state per peer (csi_motion); broadcasts move to OFDM 6 Mb/s
 };
 
 struct Rx {
@@ -48,6 +49,10 @@ void emit();
 
 const PeerTable& peers();
 const uint8_t* self_mac();
+
+// Mean change of the CSI shape (lab_link_proto.h) over the packets from mac since the last call;
+// false if none came (or csi is off).
+bool csi_motion(const uint8_t mac[6], float* motion);
 
 }  // namespace lab_link
 

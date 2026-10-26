@@ -121,6 +121,33 @@ static void test_mac_tag_is_the_last_two_bytes() {
   TEST_ASSERT_EQUAL_STRING("a574", tag);
 }
 
+// An LLTF buffer whose signal subcarriers all have amplitude `amp` (imag 0, real amp), with bin
+// `bump` doubled.
+static void lltf(int8_t* buf, int8_t amp, int bump) {
+  memset(buf, 0, 128);
+  for (int i = 0; i < 52; ++i) {
+    const int sc = i < 26 ? 1 + i : 38 + (i - 26);
+    buf[2 * sc + 1] = static_cast<int8_t>(i / lab_link::kCsiPerBin == bump ? 2 * amp : amp);
+  }
+}
+
+static void test_csi_shape_ignores_gain_and_sees_a_change() {
+  int8_t quiet[128], loud[128], moved[128];
+  lltf(quiet, 10, -1);
+  lltf(loud, 40, -1);  // the same channel, received 4x louder
+  lltf(moved, 10, 5);  // one band reshaped
+  float a[lab_link::kCsiBins], b[lab_link::kCsiBins], c[lab_link::kCsiBins];
+  TEST_ASSERT_TRUE(lab_link::csi_shape(quiet, 128, a));
+  TEST_ASSERT_TRUE(lab_link::csi_shape(loud, 128, b));
+  TEST_ASSERT_TRUE(lab_link::csi_shape(moved, 128, c));
+  TEST_ASSERT_FLOAT_WITHIN(1e-5f, 1.0f, a[0]);
+  TEST_ASSERT_FLOAT_WITHIN(1e-5f, 0.0f, lab_link::csi_change(a, b));
+  TEST_ASSERT_GREATER_THAN_FLOAT(0.1f, lab_link::csi_change(a, c));
+  int8_t silent[128] = {};
+  TEST_ASSERT_FALSE(lab_link::csi_shape(silent, 128, a));
+  TEST_ASSERT_FALSE(lab_link::csi_shape(quiet, 100, a));  // not a full LLTF
+}
+
 int main() {
   UNITY_BEGIN();
   RUN_TEST(test_packets_round_trip_and_other_projects_drop);
@@ -131,5 +158,6 @@ int main() {
   RUN_TEST(test_a_full_table_refuses_new_peers);
   RUN_TEST(test_round_trip_subtracts_the_peers_hold);
   RUN_TEST(test_mac_tag_is_the_last_two_bytes);
+  RUN_TEST(test_csi_shape_ignores_gain_and_sees_a_change);
   return UNITY_END();
 }

@@ -47,6 +47,7 @@
 #define LINK_CHANNEL 1
 #define LINK_TX_DBM  8   // 2..20; low enough that a hand in the gap moves the RSSI
 #define LINK_BEAT_HZ 20  // beats per second from every board
+#define LINK_CSI     1   // channel state per link, logged beside RSSI in `field` (m0, m1)
 
 // Beat: flash phase; natural period 1 s, spread +-BEAT_SPREAD by MAC; K > 0 unison, K < 0 waltz
 #define BEAT_PERIOD_MS 1000

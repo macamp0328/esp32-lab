@@ -32,6 +32,81 @@ int8_t tx_quarter_dbm = 0;  // what begin() asked for, in esp_wifi's 0.25 dBm un
 bool tx_checked = false;
 constexpr uint32_t kTxCheckMs = 3000;
 
+// CSI per peer: written by the WiFi task (on_csi), read by loop() (csi_motion) under csi_mux.
+struct CsiPeer {
+  uint8_t mac[6];
+  bool used;
+  bool has_prev;
+  float prev[kCsiBins];
+  float sum;
+  uint32_t n;
+};
+CsiPeer csi_peers[kMaxPeers] = {};
+portMUX_TYPE csi_mux = portMUX_INITIALIZER_UNLOCKED;
+// Who has sent us a packet of this project: only their CSI counts. WiFi task only.
+uint8_t known[kMaxPeers][6] = {};
+uint8_t known_n = 0;
+
+void remember(const uint8_t* src) {
+  for (uint8_t i = 0; i < known_n; ++i) {
+    if (memcmp(known[i], src, 6) == 0) return;
+  }
+  if (known_n < kMaxPeers) memcpy(known[known_n++], src, 6);
+}
+
+bool is_known(const uint8_t* src) {
+  for (uint8_t i = 0; i < known_n; ++i) {
+    if (memcmp(known[i], src, 6) == 0) return true;
+  }
+  return false;
+}
+
+// WiFi task: one packet's channel shape, compared with the previous from the same peer.
+void on_csi(void*, wifi_csi_info_t* info) {
+  if (info == nullptr || info->buf == nullptr || !is_known(info->mac)) return;
+  int8_t buf[128];
+  if (info->len < static_cast<int>(sizeof buf)) return;
+  memcpy(buf, info->buf, sizeof buf);
+  memset(buf, 0, 4);  // the first word is sometimes invalid (hardware); always drop it
+  float shape[kCsiBins];
+  if (!csi_shape(buf, sizeof buf, shape)) return;
+  portENTER_CRITICAL(&csi_mux);
+  CsiPeer* p = nullptr;
+  for (CsiPeer& c : csi_peers) {
+    if (c.used && memcmp(c.mac, info->mac, 6) == 0) p = &c;
+  }
+  for (CsiPeer& c : csi_peers) {
+    if (p == nullptr && !c.used) {
+      p = &c;
+      *p = CsiPeer{};
+      memcpy(p->mac, info->mac, 6);
+      p->used = true;
+    }
+  }
+  if (p != nullptr) {
+    if (p->has_prev) {
+      p->sum += csi_change(p->prev, shape);
+      ++p->n;
+    }
+    memcpy(p->prev, shape, sizeof shape);
+    p->has_prev = true;
+  }
+  portEXIT_CRITICAL(&csi_mux);
+}
+
+bool start_csi() {
+  esp_now_rate_config_t rate = {};
+  rate.phymode = WIFI_PHY_MODE_11G;  // OFDM, so every frame carries the LLTF that CSI reads
+  rate.rate = WIFI_PHY_RATE_6M;
+  wifi_csi_config_t cfg = {};
+  cfg.lltf_en = true;
+  cfg.ltf_merge_en = true;
+  cfg.channel_filter_en = false;  // keep neighbouring subcarriers independent
+  return esp_now_set_peer_rate_config(kBroadcast, &rate) == ESP_OK &&
+         esp_wifi_set_csi_config(&cfg) == ESP_OK &&
+         esp_wifi_set_csi_rx_cb(on_csi, nullptr) == ESP_OK && esp_wifi_set_csi(true) == ESP_OK;
+}
+
 uint32_t now_us() { return static_cast<uint32_t>(esp_timer_get_time()); }
 
 // Runs in the WiFi task (core 0): decode, stamp and queue only; poll() does the rest in loop().
@@ -41,6 +116,7 @@ void on_recv(const esp_now_recv_info_t* info, const uint8_t* data, int len) {
   size_t body_len = 0;
   if (queue == nullptr || len < 0) return;
   if (!decode(data, static_cast<size_t>(len), project, &rx.head, &body, &body_len)) return;
+  remember(info->src_addr);
   memcpy(rx.mac, info->src_addr, 6);
   rx.rssi = info->rx_ctrl ? static_cast<int8_t>(info->rx_ctrl->rssi) : 0;
   rx.at_us = now_us();
@@ -89,6 +165,7 @@ bool begin(const Config& config) {
     peer.encrypt = false;
     ok = esp_now_add_peer(&peer) == ESP_OK;
   }
+  const bool csi = ok && config.csi && start_csi();
   up = ok;
   char tag[5], full[18];
   mac_tag(mac, tag);
@@ -99,9 +176,11 @@ bool begin(const Config& config) {
       .str("tag", tag)
       .num("ch", config.channel)
       .num("tx_dbm", config.tx_dbm)
+      .flag("csi", csi)
       .flag("ok", ok)
       .emit();
   if (!ok) lab_core::error("link_init");
+  if (ok && config.csi && !csi) lab_core::error("link_csi");
   return ok;
 }
 
@@ -171,6 +250,20 @@ void emit() {
   }
   table.reset_counts();
   tx_fail = 0;
+}
+
+bool csi_motion(const uint8_t peer_mac[6], float* motion) {
+  bool got = false;
+  portENTER_CRITICAL(&csi_mux);
+  for (CsiPeer& c : csi_peers) {
+    if (!c.used || memcmp(c.mac, peer_mac, 6) != 0) continue;
+    got = c.n > 0;
+    *motion = got ? c.sum / c.n : 0;
+    c.sum = 0;
+    c.n = 0;
+  }
+  portEXIT_CRITICAL(&csi_mux);
+  return got;
 }
 
 const PeerTable& peers() { return table; }

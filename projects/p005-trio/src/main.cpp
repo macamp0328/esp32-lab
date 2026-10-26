@@ -345,7 +345,8 @@ void log_mood() {
 void log_space() {
   lab_core::Event ev("field");
   ev.real("ma", stir[0]).real("ab", stir[1]).real("bm", stir[2]);
-  static const char* const kKeys[2][4] = {{"p0", "s0", "d0", "c0"}, {"p1", "s1", "d1", "c1"}};
+  static const char* const kKeys[2][5] = {{"p0", "s0", "d0", "c0", "m0"},
+                                          {"p1", "s1", "d1", "c1", "m1"}};
   int n = 0;
   for (int i = 0; i < trio::Trio::kOthers; ++i) {
     const trio::Member& m = group.other(i);
@@ -356,6 +357,8 @@ void log_space() {
         .real(kKeys[n][1], m.link.slow(), 1)
         .real(kKeys[n][2], m.link.dev())
         .real(kKeys[n][3], m.link.calm());
+    float motion = 0;
+    if (lab_link::csi_motion(m.mac, &motion)) ev.real(kKeys[n][4], motion * 1000, 1);
     ++n;
   }
   ev.emit();
@@ -393,7 +396,7 @@ void setup() {
       .str("driver", lab_core::led_driver())
       .num("cap_ma", POWER_MAX_MA)
       .emit();
-  lab_link::begin({LAB_PROJECT, LINK_CHANNEL, LINK_TX_DBM});
+  lab_link::begin({LAB_PROJECT, LINK_CHANNEL, LINK_TX_DBM, LINK_CSI});
   const uint8_t* mac = lab_link::self_mac();
   group.set_self(mac, kRole, TRIO_SWAP_AB);
   // Natural period: each board's own, spread by its MAC, so the law has something to pull.

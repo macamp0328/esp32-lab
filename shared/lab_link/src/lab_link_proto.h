@@ -2,6 +2,7 @@
 // lab_link's pure parts: the packet header, the peer table (loss from sequence gaps, RSSI, RTT)
 // and the ping/pong bodies. Host-tested in shared/tests/test/test_link; the radio is lab_link.h.
 
+#include <math.h>
 #include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -150,6 +151,41 @@ class PeerTable {
 
   Peer peers_[kMaxPeers];
 };
+
+// CSI (channel state information): the radio's view of each OFDM subcarrier of a packet. A hand
+// or a body near the path reshapes it long before the total power (RSSI) moves.
+// LLTF on ESP32 and S3: 64 subcarriers as (imaginary, real) int8 pairs, subcarriers 0..31 then
+// -32..-1; 1..26 and -26..-1 carry signal (guards and DC are zero). Grouped into kCsiBins.
+constexpr int kCsiBins = 13;
+constexpr int kCsiPerBin = 4;
+
+// Amplitude per bin, normalized to mean 1 so the receiver's gain control (which rescales whole
+// packets) cancels out. False if buf is not a full LLTF or carries no signal.
+inline bool csi_shape(const int8_t* buf, int len, float out[kCsiBins]) {
+  if (buf == nullptr || len < 128) return false;
+  float total = 0;
+  for (int b = 0; b < kCsiBins; ++b) {
+    float sum = 0;
+    for (int k = 0; k < kCsiPerBin; ++k) {
+      const int i = b * kCsiPerBin + k;               // 0..51 over the signal subcarriers
+      const int sc = i < 26 ? 1 + i : 38 + (i - 26);  // positions 1..26, then 38..63
+      const float im = buf[2 * sc], re = buf[2 * sc + 1];
+      sum += sqrtf(im * im + re * re);
+    }
+    out[b] = sum;
+    total += sum;
+  }
+  if (total <= 0) return false;
+  for (int b = 0; b < kCsiBins; ++b) out[b] *= kCsiBins / total;
+  return true;
+}
+
+// How much the shape moved between two packets: mean absolute change per bin (0 = still).
+inline float csi_change(const float a[kCsiBins], const float b[kCsiBins]) {
+  float d = 0;
+  for (int i = 0; i < kCsiBins; ++i) d += fabsf(a[i] - b[i]);
+  return d / kCsiBins;
+}
 
 constexpr uint32_t kRttMaxUs = 1000000;  // longer: a stale pong (a ping from before a reboot)
 
