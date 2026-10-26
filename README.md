@@ -25,6 +25,7 @@ just new p003-desk-lamp --board s3mini
 | [p002-matrix-demo](projects/p002-matrix-demo/README.md) | m5stickc-plus11 | bench-verified | 2026-10-21 m5stickc-plus11 ok (sets 1 and 2) |
 | [p003-bench](projects/p003-bench/README.md) | m5stickc-plus11, s3mini | bench-verified | 2026-10-22 m5stickc-plus11 ok (showcase fps per LED count; A-hold starts the suite) |
 | [p004-sense](projects/p004-sense/README.md) | m5stickc-plus11 | bench-verified | 2026-10-23 m5stickc-plus11 ok (all six steps) |
+| [p005-trio](projects/p005-trio/README.md) | m5stickc-plus11, s3mini | prototype | never |
 <!-- status:end -->
 
 ## Layout

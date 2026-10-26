@@ -194,7 +194,8 @@ _check:
       cppcheck --language=c++ --std=c++17 --enable=warning,performance --inline-suppr --quiet \
         --suppress=missingIncludeSystem --suppress=missingInclude --suppress=unknownMacro \
         -DARDUINO=10812 -DFASTLED_RMT5=1 -Iboards -Ishared/lab_board/src \
-        -Ishared/lab_core/src -Ishared/lab_net/src -Ishared/lab_fx/src -Ishared/lab_audio/src \
+        -Ishared/lab_core/src -Ishared/lab_net/src -Ishared/lab_link/src -Ishared/lab_fx/src \
+        -Ishared/lab_audio/src \
         --template='{severity}: {file}:{line}: {message} [{id}]' "$@" 2>&1 || true
     }
     log=$(mktemp)
