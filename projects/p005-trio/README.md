@@ -66,8 +66,17 @@ Measured 2026-10-26 with `just watch p005 --all --seconds 60`.
 - The M5's own TX power barely changes what it radiates (docs/lessons.md); the S3s follow theirs.
 - Beat: unison locks within 5 s of boot, the three flashing within 1-5 ms of each other by each
   board's estimate (R 1.000); waltz settles a third of a turn apart in ~20 s (min gap 0.327-0.329).
-- Quiet room: link disturbance 0.4-2 dB, no edge lit.
+- Space: a quiet room reads 0.4-2 dB of RSSI disturbance, no edge lit. With `LINK_CSI 1` the
+  broadcasts go out at OFDM 6 Mb/s (no loss, same RTT); the CSI shape changes 0.010-0.019 per
+  packet in a quiet room, and RSSI at OFDM barely jitters at all (0-0.7 dB).
+- Mood: a quiet room brought three random hues within 24 degrees in a minute; a burst of claps
+  (14 heard in 6 min) split them into an exact 120-degree triad within ~90 s.
+- The S3s run the same unwatched as watched since `lab_core` drops unread serial lines
+  (docs/decisions.md, 2026-10-26).
 
 ## Open issues
 - [ ] HIL: the look of all of it (hil/checklist.md).
-- [ ] CSI instead of RSSI for the edges, if it feels a hand better.
+- [ ] CSI or RSSI for the edges: one hand-wave capture (checklist step 7) decides.
+- [ ] Were the 14 claps of 2026-10-26 16:35-16:37 real? If speech or typing trips the onset
+  detector, raise its threshold before the mood runs a whole evening.
+- [ ] First print: an evening's capture of the M5 through `tools/weave.py`, into `prints/`.
