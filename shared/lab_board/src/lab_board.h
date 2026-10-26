@@ -55,6 +55,10 @@ void status_clear();
 // Fills the board's display with one color if BOARD_HAS_TFT; no-op otherwise.
 void screen_fill(uint8_t r, uint8_t g, uint8_t b);
 
+// Draws n pixels down from (x, y) on the board's display (240x135, landscape) if BOARD_HAS_TFT;
+// no-op otherwise. One column a call: fast enough for a few columns per frame.
+void screen_column(int x, int y, const lab::Pixel* px, int n);
+
 // Draws the LEDs as a grid of squares (layout columns x rows, full brightness), right-aligned on
 // the board's display, if BOARD_HAS_TFT; no-op otherwise.
 void status_pixels(const lab::Pixel* px, const lab::Layout& layout);

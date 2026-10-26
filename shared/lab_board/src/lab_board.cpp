@@ -62,6 +62,18 @@ void screen_fill(uint8_t r, uint8_t g, uint8_t b) {
 #endif
 }
 
+void screen_column(int x, int y, const lab::Pixel* px, int n) {
+#if BOARD_HAS_TFT && defined(LAB_BOARD_M5STICKC_PLUS11)
+  M5.Display.startWrite();
+  for (int i = 0; i < n; ++i) {
+    M5.Display.writePixel(x, y + i, M5.Display.color565(px[i].r, px[i].g, px[i].b));
+  }
+  M5.Display.endWrite();
+#else
+  (void)x, (void)y, (void)px, (void)n;
+#endif
+}
+
 void status_pixels(const lab::Pixel* px, const lab::Layout& layout) {
 #if BOARD_HAS_TFT && defined(LAB_BOARD_M5STICKC_PLUS11)
   const int w = layout.width(), h = layout.height();

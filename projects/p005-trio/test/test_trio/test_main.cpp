@@ -4,6 +4,8 @@
 
 #include "draw.h"
 #include "law.h"
+#include "loom.h"
+#include "mood.h"
 #include "trio.h"
 
 void setUp() {}
@@ -323,6 +325,177 @@ static void test_shown_values_rise_fast_and_fall_slowly() {
   TEST_ASSERT_GREATER_THAN_FLOAT(0.9f, down);
 }
 
+// Three hues under MoodConfig's defaults (config.h's MOOD_* copy them), stepped together.
+struct Palette {
+  trio::MoodConfig c;
+  trio::Hue h[3];
+  trio::Room room;
+
+  explicit Palette(const float* start) {
+    const float seeds[3] = {0.1f, 0.55f, 0.9f};
+    for (int i = 0; i < 3; ++i) {
+      h[i].set_drift(seeds[i], c);
+      h[i].h = start[i];
+    }
+  }
+
+  void run(float seconds, float stir_now) {
+    const float dt = 0.05f;
+    for (float t = 0; t < seconds; t += dt) {
+      room.push(stir_now, dt, c);
+      const float k = trio::mood_k(room.value, c);
+      const float x[3] = {h[0].h, h[1].h, h[2].h};
+      for (int i = 0; i < 3; ++i) {
+        float o[2];
+        int n = 0;
+        for (int j = 0; j < 3; ++j) {
+          if (j != i) o[n++] = x[j];
+        }
+        h[i].step(dt, k, o, n);
+      }
+    }
+  }
+
+  float gap() const {
+    const float x[3] = {h[0].h, h[1].h, h[2].h};
+    return trio::min_gap(x, 3);
+  }
+  float spread() const {
+    const float x[3] = {h[0].h, h[1].h, h[2].h};
+    return trio::spread(x, 3);
+  }
+};
+
+static void test_the_room_sets_the_sign_of_the_mood() {
+  const trio::MoodConfig c;
+  TEST_ASSERT_FLOAT_WITHIN(1e-9f, c.k_calm, trio::mood_k(0, c));
+  TEST_ASSERT_FLOAT_WITHIN(1e-9f, -c.k_storm, trio::mood_k(1, c));
+  TEST_ASSERT_GREATER_THAN_FLOAT(0, trio::mood_k(c.calm_below, c));
+  TEST_ASSERT_LESS_THAN_FLOAT(0, trio::mood_k(c.stir_above, c));
+}
+
+static void test_a_quiet_room_brings_the_hues_together() {
+  const float start[3] = {0.05f, 0.4f, 0.8f};
+  Palette p(start);
+  p.run(600, 0.02f);
+  TEST_ASSERT_LESS_THAN_FLOAT(3 / 360.0f, p.spread());
+}
+
+// Five claps: a triad within three minutes, and agreement again within fifteen.
+static void test_five_claps_break_into_a_triad_that_heals() {
+  const float start[3] = {0.30f, 0.31f, 0.315f};
+  Palette p(start);
+  p.room.value = 0.02f;
+  for (int i = 0; i < 5; ++i) p.room.clap(p.c);
+  p.run(180, 0.02f);
+  TEST_ASSERT_GREATER_THAN_FLOAT(100 / 360.0f, p.gap());
+  p.run(720, 0.02f);
+  TEST_ASSERT_LESS_THAN_FLOAT(10 / 360.0f, p.spread());
+}
+
+static void test_a_lone_hue_circles_at_its_own_drift() {
+  const trio::MoodConfig c;
+  trio::Hue h;
+  h.set_drift(0.5f, c);  // the middle seed: exactly one lap per lap_s
+  for (int i = 0; i < 3600; ++i) h.step(1, c.k_calm, nullptr, 0);
+  TEST_ASSERT_FLOAT_WITHIN(1e-3f, 0.5f, h.h);
+}
+
+static void test_agreement_fans_out_and_a_triad_does_not() {
+  const float fan = 12.5f / 360;
+  TEST_ASSERT_FLOAT_WITHIN(1e-6f, 0.5f, trio::shown_hue(0.5f, trio::kM, 1, fan));
+  TEST_ASSERT_FLOAT_WITHIN(1e-6f, 0.5f - fan, trio::shown_hue(0.5f, trio::kA, 1, fan));
+  TEST_ASSERT_FLOAT_WITHIN(1e-6f, 0.5f + fan, trio::shown_hue(0.5f, trio::kB, 1, fan));
+  TEST_ASSERT_FLOAT_WITHIN(1e-6f, 0.5f, trio::shown_hue(0.5f, trio::kB, 0, fan));
+  TEST_ASSERT_FLOAT_WITHIN(1e-6f, 1 - fan, trio::shown_hue(0, trio::kA, 1, fan));  // wraps
+}
+
+static trio::Thread thread(uint8_t r, uint8_t e0, uint8_t claps) {
+  trio::Thread t = {{0, 85, 170}, r, {e0, 0, 0}, claps};
+  return t;
+}
+
+// Rows of a column in band m's color (either shade of the twill).
+static int m_rows(const trio::Thread& t, uint32_t index) {
+  lab::Pixel px[135];
+  trio::thread_column(t, index, px, 135);
+  const lab::Pixel m = lab::hsv(t.hue[0], 210, 255), dim = lab::scale(m, 0.78f);
+  int n = 0;
+  for (const lab::Pixel& p : px) n += (p.r == m.r && p.g == m.g) || (p.r == dim.r && p.g == dim.g);
+  return n;
+}
+
+static void test_threads_run_straight_while_the_beat_agrees() {
+  TEST_ASSERT_EQUAL(m_rows(thread(255, 0, 0), 10), m_rows(thread(255, 0, 0), 11));
+  const int even = m_rows(thread(0, 0, 0), 10), odd = m_rows(thread(0, 0, 0), 11);  // waltz
+  TEST_ASSERT_GREATER_THAN(20, abs(even - odd));  // the borders zig-zag thread to thread
+  TEST_ASSERT_NOT_EQUAL(m_rows(thread(255, 0, 0), 10), even);
+}
+
+static void test_a_disturbed_edge_frays_its_border_and_claps_tie_knots() {
+  lab::Pixel calm[135], frayed[135];
+  trio::thread_column(thread(255, 0, 0), 7, calm, 135);
+  trio::thread_column(thread(255, 255, 0), 7, frayed, 135);
+  int changed = 0, far = 0;
+  for (int y = 0; y < 135; ++y) {
+    const bool diff =
+        calm[y].r != frayed[y].r || calm[y].g != frayed[y].g || calm[y].b != frayed[y].b;
+    changed += diff;
+    far += diff && y > 80;  // the a|b border (row ~87) stays clean: only m-a was disturbed
+  }
+  TEST_ASSERT_GREATER_THAN(3, changed);
+  TEST_ASSERT_EQUAL(0, far);
+  int white = 0;
+  trio::thread_column(thread(255, 0, 2), 7, frayed, 135);
+  for (int y = 0; y < 135; ++y)
+    white += frayed[y].r == 255 && frayed[y].g == 255 && frayed[y].b == 255;
+  TEST_ASSERT_GREATER_OR_EQUAL(3, white);
+  white = 0;
+  for (int y = 0; y < 135; ++y) white += calm[y].r == 255 && calm[y].g == 255 && calm[y].b == 255;
+  TEST_ASSERT_EQUAL(0, white);
+}
+
+static void test_a_weft_averages_hues_round_the_wheel() {
+  trio::Weft w;
+  const bool all[3] = {true, true, false};
+  const float h1[3] = {0.95f, 0.5f, 0}, h2[3] = {0.05f, 0.5f, 0};
+  w.hues(h1, all);
+  w.hues(h2, all);
+  w.order(1);
+  w.order(0.5f);
+  const float e1[3] = {0.2f, 0, 0}, e2[3] = {0.9f, 0.1f, 0};
+  w.edges(e1);
+  w.edges(e2);
+  w.clap();
+  const trio::Thread t = w.finish();
+  TEST_ASSERT_TRUE(t.hue[0] < 3 || t.hue[0] > 252);  // 0, not 0.5
+  TEST_ASSERT_EQUAL(128, t.hue[1]);
+  TEST_ASSERT_EQUAL(191, t.r);
+  TEST_ASSERT_EQUAL(230, t.edge[0]);
+  TEST_ASSERT_EQUAL(1, t.claps);
+  const trio::Thread next = w.finish();  // a fresh weft keeps the last hues, not the claps
+  TEST_ASSERT_EQUAL(128, next.hue[1]);
+  TEST_ASSERT_EQUAL(0, next.claps);
+  TEST_ASSERT_EQUAL(0, next.edge[0]);
+}
+
+static void test_the_loom_overwrites_its_oldest_thread() {
+  static trio::Loom loom;
+  for (int i = 0; i < trio::Loom::kMax; ++i) TEST_ASSERT_EQUAL(i, loom.add(thread(0, 0, 0)));
+  TEST_ASSERT_EQUAL(0, loom.add(thread(9, 0, 0)));
+  TEST_ASSERT_EQUAL(trio::Loom::kMax + 1, loom.woven());
+  TEST_ASSERT_EQUAL(trio::Loom::kMax, loom.columns());
+  TEST_ASSERT_EQUAL(9, loom.at(0).r);
+}
+
+static void test_a_column_prints_as_rgb565_hex() {
+  lab::Pixel px[8];
+  for (int y = 0; y < 8; ++y) px[y] = y < 4 ? lab::Pixel(255, 0, 0) : lab::Pixel(0, 0, 255);
+  char hex[4 * 2 + 1];
+  trio::column_hex(px, 8, 2, hex);
+  TEST_ASSERT_EQUAL_STRING("f800001f", hex);
+}
+
 int main() {
   UNITY_BEGIN();
   RUN_TEST(test_wrap_order_spread_and_gap);
@@ -339,5 +512,15 @@ int main() {
   RUN_TEST(test_a_new_link_reports_nothing_until_warm);
   RUN_TEST(test_edges_combine_own_links_and_what_the_others_hear);
   RUN_TEST(test_shown_values_rise_fast_and_fall_slowly);
+  RUN_TEST(test_the_room_sets_the_sign_of_the_mood);
+  RUN_TEST(test_a_quiet_room_brings_the_hues_together);
+  RUN_TEST(test_five_claps_break_into_a_triad_that_heals);
+  RUN_TEST(test_a_lone_hue_circles_at_its_own_drift);
+  RUN_TEST(test_agreement_fans_out_and_a_triad_does_not);
+  RUN_TEST(test_threads_run_straight_while_the_beat_agrees);
+  RUN_TEST(test_a_disturbed_edge_frays_its_border_and_claps_tie_knots);
+  RUN_TEST(test_a_weft_averages_hues_round_the_wheel);
+  RUN_TEST(test_the_loom_overwrites_its_oldest_thread);
+  RUN_TEST(test_a_column_prints_as_rgb565_hex);
   return UNITY_END();
 }

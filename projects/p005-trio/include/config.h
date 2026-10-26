@@ -62,5 +62,25 @@
 #define FIELD_SPAN_DB  6.0f
 #define FIELD_LOG_MS   1000  // `field` events this often
 
+// Mood: the law on hue over minutes (lib/trio/mood.h; test_trio pins these). A room stirred above
+// MOOD_STIR_ABOVE (2 min average of edge disturbance, plus MOOD_CLAP_KICK per clap) pushes the
+// three to a triad; below MOOD_CALM_BELOW they agree. Five claps: a triad for ~2 min.
+#define MOOD_LAP_MIN    120      // the palette circles the wheel about this often
+#define MOOD_DETUNE     0.15f    // each board's own drift differs by up to this share
+#define MOOD_K_CALM     2.0e-3f  // 1/s
+#define MOOD_K_STORM    8.0e-3f  // 1/s
+#define MOOD_CALM_BELOW 0.12f
+#define MOOD_STIR_ABOVE 0.3f
+#define MOOD_ROOM_S     120
+#define MOOD_CLAP_KICK  0.12f
+#define MOOD_FAN_DEG    12.5f   // agreement shows as m, m-12.5 and m+12.5 degrees
+#define MOOD_GLOW       0.08f   // an S3's pixel between flashes, in its own hue
+#define MOOD_SAVE_MS    300000  // hue to NVS this often (a page erase about every 42 h)
+#define MOOD_LOG_MS     5000
+
+// Memory: the M5's TFT weaves one thread per LOOM_THREAD_S (2 for a quick look), 240 side by side
+#define LOOM_THREAD_S 60
+#define LOOM_SAMPLES  34  // `weave` event: the thread's column sampled down to this many
+
 // Layout: which S3 the matrix draws bottom-left (0: the lower MAC)
 #define TRIO_SWAP_AB 0

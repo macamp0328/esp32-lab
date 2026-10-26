@@ -8,16 +8,20 @@ boards:
     qty: 3
     source: Amazon B0CR2RH7PS
     date: 2026-10-20
-    projects: [p000-blink, p003-bench]
-    notes: headers shipped loose, not soldered yet; s3mini-01 bench-verified 2026-10-21 (p000)
+    projects: [p000-blink, p003-bench, p005-trio]
+    notes: >-
+      headers shipped loose, not soldered yet; s3mini-01 bench-verified 2026-10-21 (p000); two on
+      the dock since 2026-10-26 (p005), MACs d4:05:92:44:a5:74 and d4:05:92:48:72:0c (their USB
+      serial numbers; which is -01 not recorded)
   - id: m5stickc-01
     model: M5StickC Plus 1.1
     board: m5stickc-plus11
     revision: ESP32-PICO-D4, 4MB flash, SPM1423 PDM mic, 1.14in ST7789, AXP192
     qty: 1
     source: on hand
-    projects: [p000-blink, p002-matrix-demo, p003-bench, p004-sense]
-    notes: bench-verified 2026-10-21 (p000); its own USB-C cable looked charge-only
+    projects: [p000-blink, p002-matrix-demo, p003-bench, p004-sense, p005-trio]
+    notes: bench-verified 2026-10-21 (p000); its own USB-C cable looked charge-only; WiFi MAC
+      d4:d4:da:98:52:b8
 leds:
   - id: matrix-8x8-01
     model: BTF-LIGHTING WS2812B 8x8 flexible
@@ -25,7 +29,7 @@ leds:
     specs: 8x8 = 64 px, 80x80 mm, GRB order, 3-pin JST, 19 W max (~3.8 A full white)
     qty: 1
     source: Amazon B088BTSPYD
-    projects: [p002-matrix-demo, p003-bench, p004-sense]
+    projects: [p002-matrix-demo, p003-bench, p004-sense, p005-trio]
     notes: >-
       bought before 2020-12-23 (ASIN from Gmail "Buy it again"; the 2020 order emails do not
       name items, so no exact date); ASIN is the 8X8 64 Pixels option of a multi-size listing;

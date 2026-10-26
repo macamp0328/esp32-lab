@@ -35,6 +35,7 @@ struct Beat {
   uint8_t claps;      // the M5's clap count: a new value means fire now
   uint16_t phase;     // 0..65535 for 0..1
   uint16_t rate_mhz;  // phase speed, 1000 = once a second
+  uint16_t hue;       // 0..65535 for once round the wheel
   Heard heard[2];     // unused entries have stir 0 and tag 0
 };
 #pragma pack(pop)
