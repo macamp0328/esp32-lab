@@ -9,6 +9,9 @@
 #include "lab_link.h"
 #include "law.h"
 #include "trio.h"
+#if AUDIO_MODE == 2
+#include "lab_audio.h"
+#endif
 
 namespace {
 CRGB leds[NUM_LEDS];
@@ -27,15 +30,24 @@ constexpr uint32_t kFrameMs = 10;
 constexpr uint32_t kBeatUs = 1000000 / LINK_BEAT_HZ;
 constexpr uint32_t kMemberTimeoutUs = 2000000;
 constexpr uint32_t kScreenMs = 1000;
+constexpr uint32_t kButtonsMs = 20;      // M5.update reads the power chip over I2C (lessons)
+constexpr uint32_t kMicSettleMs = 1000;  // the mic's first blocks are its start-up transient
 constexpr float kFlashS = FLASH_MS * 1e-3f;
 
 trio::Trio group;
 trio::Osc osc;
-trio::Mode mode = trio::Mode::kUnison;
+trio::Mode mode = static_cast<trio::Mode>(BEAT_BOOT_MODE);
 uint16_t cmd = 0;   // the M5's command count (mode flips, scatters)
 uint8_t claps = 0;  // the M5's clap count
 bool scattered = false;
 uint32_t flashes = 0;  // since the last `sync` event
+
+#if AUDIO_MODE == 2
+bool mic_ok = false;
+int16_t mic_block[MIC_BLOCK];
+lab_audio::Level audio;
+uint32_t last_clap_ms = 0;
+#endif
 
 lab::Pixel slot_color(int slot) {
   static const uint8_t kHue[trio::kSlots] = {24, 128, 200};  // m amber, a teal, b violet
@@ -60,6 +72,43 @@ void send_beat() {
 
 void scatter() { osc.phase = (esp_random() >> 8) * (1.0f / 16777216.0f); }
 
+void announce(const char* what, const char* from) {
+  lab_core::Event(what)
+      .str("mode", mode_name())
+      .num("cmd", cmd)
+      .num("claps", claps)
+      .str("from", from)
+      .emit();
+}
+
+#if BOARD_HAS_TFT
+// The M5 carries Miles' presses to the others: A click scatters, A hold flips the beat's law.
+void press() {
+  const lab_board::Buttons b = lab_board::buttons();
+  if (!b.a_click && !b.a_hold) return;
+  ++cmd;
+  scattered = b.a_click;
+  if (b.a_hold) mode = mode == trio::Mode::kWaltz ? trio::Mode::kUnison : trio::Mode::kWaltz;
+  if (scattered) scatter();
+  send_beat();
+  announce(scattered ? "scatter" : "mode", "self");
+}
+#endif
+
+#if AUDIO_MODE == 2
+// A clap is a flash everyone sees: the M5 fires now and tells the others to.
+void listen(uint32_t now_ms) {
+  if (!mic_ok || !lab_board::mic_read(mic_block, MIC_BLOCK)) return;
+  const lab::AudioFrame f = audio.push(mic_block, MIC_BLOCK, now_ms);
+  if (!f.beat || now_ms < kMicSettleMs || now_ms - last_clap_ms < CLAP_GAP_MS) return;
+  last_clap_ms = now_ms;
+  ++claps;
+  osc.fire();
+  send_beat();
+  announce("clap", "self");
+}
+#endif
+
 void hear(const lab_link::Rx& rx) {
   if (rx.head.kind != trio::kBeatKind || rx.len != sizeof(trio::Beat)) return;
   trio::Beat b;
@@ -67,10 +116,21 @@ void hear(const lab_link::Rx& rx) {
   group.heard(rx.mac, b, rx.at_us);
   if (kRole != trio::kRoleS || b.role != trio::kRoleM) return;
   static trio::Follow follow;
+  const bool flipped = follow.seen && static_cast<trio::Mode>(b.mode) != mode;
   const trio::Follow::Act act = follow.update(b);
   mode = static_cast<trio::Mode>(b.mode);
-  if (act.scatter) scatter();
-  if (act.fire) osc.fire();
+  cmd = b.cmd;
+  claps = b.claps;
+  if (act.scatter) {
+    scatter();
+    announce("scatter", "m");
+  } else if (flipped) {
+    announce("mode", "m");
+  }
+  if (act.fire) {
+    osc.fire();
+    announce("clap", "m");
+  }
 }
 
 // The others' phases now, carried forward from their last beats.
@@ -170,6 +230,10 @@ void setup() {
       .num("period_ms", lroundf(osc.period_s * 1000))
       .real("k", BEAT_K)
       .emit();
+#if AUDIO_MODE == 2
+  mic_ok = lab_board::mic_begin(MIC_RATE_HZ);
+  if (!mic_ok) lab_core::error("mic_begin");
+#endif
 }
 
 void loop() {
@@ -178,6 +242,7 @@ void loop() {
   static uint32_t last_us = micros();
   static uint32_t beat_us = 0;
   static uint32_t screen_ms = 0;
+  static uint32_t buttons_ms = 0;
   const uint32_t frame_start = millis();
   const uint32_t now_us = micros();
   const float dt = (now_us - last_us) * 1e-6f;
@@ -187,6 +252,15 @@ void loop() {
   lab_link::Rx rx;
   while (lab_link::poll(&rx)) hear(rx);
   group.age(now_us, kMemberTimeoutUs);
+#if BOARD_HAS_TFT
+  if (frame_start - buttons_ms >= kButtonsMs) {
+    buttons_ms = frame_start;
+    press();
+  }
+#endif
+#if AUDIO_MODE == 2
+  listen(frame_start);
+#endif
 
   float others[trio::Trio::kOthers];
   const int n = others_now(now_us, others);

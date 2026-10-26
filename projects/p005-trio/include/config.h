@@ -51,8 +51,10 @@
 // Beat: flash phase; natural period 1 s, spread +-BEAT_SPREAD by MAC; K > 0 unison, K < 0 waltz
 #define BEAT_PERIOD_MS 1000
 #define BEAT_SPREAD    0.01f  // waltz settles ~2.7 deg off even at K 0.3 (test_trio)
-#define BEAT_K         0.0f   // 1/s; phase 1 runs uncoupled
+#define BEAT_K         0.3f   // 1/s; unison and waltz both settle within 10 s
+#define BEAT_BOOT_MODE 0      // 0 unison, 1 waltz (the M5 decides; A hold flips it)
 #define FLASH_MS       140    // flash decay time constant
+#define CLAP_GAP_MS    300    // claps closer than this are one clap
 
 // Layout: which S3 the matrix draws bottom-left (0: the lower MAC)
 #define TRIO_SWAP_AB 0
