@@ -66,6 +66,16 @@ def test_fps_must_keep_coming_every_5_s():
     assert any("only 1 fps events in 30 s" in f for f in fails)
 
 
+def test_a_long_capture_allows_windows_slightly_over_5_s():
+    # measured on the M5 over 3 h: 2157 windows of ~5005 ms, one fewer than 5000 ms would give
+    lines = [BOOT, LEDS] + [
+        f'{{"t":{1250 + 5443 + 5005 * k},"ev":"fps","fps":97,"heap":1}}' for k in range(2157)
+    ]
+    events, _ = hil_assert.parse(lines)
+    fails, _ = hil_assert.check(events, project="p000-blink", seconds=10800)
+    assert fails == []
+
+
 def test_missing_or_bad_fields_fail_instead_of_crashing():
     bare_boot = '{"t":1,"ev":"boot","proj":"p000-blink"}'
     no_t = '{"ev":"leds","n":1,"driver":"RMT","cap_ma":500}'

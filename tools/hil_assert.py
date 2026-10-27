@@ -49,6 +49,7 @@ REQUIRED = {
 NUMERIC = {"t", "fps", "heap", "n", "cap_ma", "rssi", "rx", "loss"}
 FPS_PERIOD_MS = 5000
 FPS_SLACK_MS = 2000
+FPS_DRIFT_MS = 50  # a window ends on the first frame past 5 s, so long captures fall behind
 
 
 def _is_number(v: object) -> bool:
@@ -104,7 +105,7 @@ def check(
         if max(gaps) > limit:
             fails.append(f"{max(gaps)} ms without an fps event (contract: every 5 s)")
     if seconds is not None:
-        expected = max(1, int((seconds * 1000 - limit) // FPS_PERIOD_MS))
+        expected = max(1, int((seconds * 1000 - limit) // (FPS_PERIOD_MS + FPS_DRIFT_MS)))
         if len(fps) < expected:
             fails.append(f"only {len(fps)} fps events in {seconds:.0f} s (expected >= {expected})")
 

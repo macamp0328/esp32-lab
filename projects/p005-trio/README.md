@@ -86,5 +86,6 @@ Measured 2026-10-26 with `just watch p005 --all --seconds 60`.
 - [x] The S3 pixels' colors did not match their matrix corners → the S3's onboard LED is RGB, not
   GRB (boards/s3mini/board.h, 2026-10-27).
 - [ ] After ~19 h unwatched, S3 720c kept flashing but the M5 heard nothing from it until it was
-  reset (docs/lessons.md): catch it with a long M5-only capture.
+  reset (docs/lessons.md). A 3 h M5-only capture (2026-10-27, S3 uptime 0.4-3.4 h) heard both
+  S3s in every 5 s window (rx min 92, median 106): try an overnight one.
 - [ ] First print: an evening's capture of the M5 through `tools/weave.py`, into `prints/`.
