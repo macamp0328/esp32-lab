@@ -10,7 +10,7 @@
 
 #define BOARD_LED_PIN           4    // default data pin for external strips
 #define BOARD_ONBOARD_RGB       21   // onboard WS2812, if present
-#define BOARD_ONBOARD_RGB_ORDER GRB  // color order of that LED (HIL ok)
+#define BOARD_ONBOARD_RGB_ORDER RGB  // color order of that LED (GRB swapped red and green)
 #define BOARD_I2S_WS            7
 #define BOARD_I2S_SD            8
 #define BOARD_I2S_CLK           6

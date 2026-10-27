@@ -1,6 +1,6 @@
 # p005-trio
 
-**Status:** bench-verified  ·  **Last HIL check:** 2026-10-26 all three ok (steps 1-4, 6, 7; 5 to redo)
+**Status:** bench-verified  ·  **Last HIL check:** 2026-10-27 S3 pixels match their corners (RGB fix); step 5 to redo
 
 Two S3 Minis and the M5StickC Plus (with matrix-8x8-01) as one piece: **one law, three tempos**.
 Same firmware on all three; they talk over ESP-NOW (`shared/lab_link`, no router), and no board
@@ -30,7 +30,8 @@ each edge glows with its radio link's disturbance, so a hand in the gap lights i
 | A click / A hold | scatter the phases / flip the beat's K | | |
 | B click | TFT: loom ↔ diagram (link numbers) | | |
 
-Hues persist in NVS (every 5 min), so the palette picks up where it left off.
+Hues persist in NVS (every 5 min), so the palette picks up where it left off after a reset or
+power cut; a USB flash starts them over (the factory image blanks NVS).
 
 ## Wiring
 Nothing new: the S3s show their onboard pixel; the M5 has the p002/p004 matrix on Grove (white
@@ -81,7 +82,9 @@ Measured 2026-10-26 with `just watch p005 --all --seconds 60`.
 
 ## Open issues
 - [ ] HIL step 5 again with the clap gate: five claps, no typing, the colors split and heal.
-- [ ] The S3 pixels' colors did not match their matrix corners while the matrix matched the logged
-  hues (teal, violet, orange): check the S3 onboard LED's color order (`BOARD_ONBOARD_RGB_ORDER`
-  GRB in boards/s3mini/board.h) with p000's red → green → blue sweep; a change there needs a yes.
+  While they are split, ask whether the left S3 matches the bottom-left corner (`TRIO_SWAP_AB`).
+- [x] The S3 pixels' colors did not match their matrix corners → the S3's onboard LED is RGB, not
+  GRB (boards/s3mini/board.h, 2026-10-27).
+- [ ] After ~19 h unwatched, S3 720c kept flashing but the M5 heard nothing from it until it was
+  reset (docs/lessons.md): catch it with a long M5-only capture.
 - [ ] First print: an evening's capture of the M5 through `tools/weave.py`, into `prints/`.
