@@ -20,17 +20,52 @@ boards:
     qty: 1
     source: on hand
     projects: [p000-blink, p002-matrix-demo, p003-bench, p004-sense, p005-trio]
-    notes: bench-verified 2026-10-21 (p000); its own USB-C cable looked charge-only; WiFi MAC
-      d4:d4:da:98:52:b8
+    notes: >-
+      bench-verified 2026-10-21 (p000); its own USB-C cable looked charge-only; WiFi MAC
+      d4:d4:da:98:52:b8; M5Stack order M5-30998 (2023-09-02) lists two, second unit unconfirmed
+  - id: atom-lite-01
+    model: M5Stack ATOM Lite
+    revision: ESP32-PICO-D4, 4MB flash
+    specs: >-
+      one SK6812 RGB LED on G27, button G39, IR LED G12, Grove G26/G32, USB-C; no mic, no display
+    qty: 1
+    source: on hand
+    notes: >-
+      seen 2026-11-06; an ESP32 with no boards/ folder yet (`just add-board` before a project uses
+      it)
   - id: teensy32-01
     model: PJRC Teensy 3.2 (with pins)
-    revision: MK20DX256, 3.3 V logic, 5 V tolerant pins
+    revision: MK20DX256VLH7, 3.3 V logic, 5 V tolerant pins
     qty: 1
     source: Amazon B015QUPO5Y
     date: 2020-04-28
     notes: >-
-      from Amazon order history (2026-11-06 sweep), not yet seen on the bench; no boards/
-      folder (not an ESP32); bought as an LED driver with octows2811-01
+      seen 2026-11-06, soldered onto octows2811-01; no boards/ folder (not an ESP32); bought as
+      an LED driver
+  - id: nodemcu-01..03
+    model: HiLetgo NodeMCU ESP8266 dev board
+    revision: ESP-12E (ESP8266), CP2102 USB bridge, 3.3 V logic
+    qty: 3
+    source: Amazon B081CSJV2V (3-pack)
+    date: 2020-04-28
+    notes: >-
+      seen 2026-11-06, all three; two PCB layouts (one back reads NodeMCU Amica); ESP8266, not
+      ESP32, so no boards/ folder
+  - id: uno-01
+    model: Arduino Uno R3
+    revision: ATmega328P-PU (DIP), 16 MHz, 5 V logic
+    qty: 1
+    source: on hand
+    notes: >-
+      seen 2026-11-06; the easy host for the Uno shields (shield-ws2812-8x5-01,
+      tft-shield-24-01)
+  - id: digispark-01
+    model: CJMCU Digispark-style ATtiny85 USB board
+    revision: ATtiny85-20SU, 78L05 regulator, micro-USB, 5 V logic
+    specs: P0-P5, 5V/GND/VIN pads; 8 KB flash
+    qty: 1
+    source: on hand
+    notes: seen 2026-11-06; bootloader not checked
 leds:
   - id: matrix-8x8-01
     model: BTF-LIGHTING WS2812B 8x8 flexible
@@ -89,28 +124,43 @@ leds:
     notes: >-
       from order history, not yet seen; full white is far past 2000 mA, so keep POWER_MAX_MA
       capped or add the README power table
-  - id: stick-8-01..10
+  - id: panel-ws2812-3x8-01
+    model: 3x8 panel of WS2812 1x8 sticks
+    specs: 3 rows x 8 = 24 px, 5 V, clockless
+    qty: 1
+    source: Amazon B081BBF4R3 (3 sticks, likely)
+    date: 2020-04-28
+    notes: >-
+      seen 2026-11-06; three 1x8 sticks soldered edge to edge, jumpered between rows, a 3-wire
+      lead under red heat shrink off one end; chain order (serpentine or not) and wire colors
+      not measured
+  - id: stick-8-01..07
     model: WS2812 5050 1x8 driver board
     specs: 8 px each, 5 V, clockless
-    qty: 10
-    source: Amazon B081BBF4R3 (two 5-packs)
+    qty: 7
+    source: Amazon B081BBF4R3 (two 5-packs, 10 sticks)
     date: 2020-04-28
-    notes: from order history (5-packs ordered 2020-04-28 and 2020-12-06), not yet seen
+    notes: >-
+      5-packs ordered 2020-04-28 and 2020-12-06; 3 of the 10 are probably panel-ws2812-3x8-01;
+      these 7 not yet seen
   - id: ring-apa102-20-01
     model: SparkFun LuMini LED Ring, 1 in, 20 px (PID 14967)
     revision: APA102-2020, 5 V
-    specs: 20 px; clocked SPI chip (data + clock), not clockless/RMT
+    specs: 20 px; clocked SPI chip (data + clock), not clockless/RMT; pads G, 5V, DI, CI, CO, DO
     qty: 1
     source: Amazon B07P5PHSJX
     date: 2020-04-28
-    notes: from order history, not yet seen; needs two BOARD_SAFE_PINS (data and clock)
+    notes: seen 2026-11-06, bare (no wires); needs two BOARD_SAFE_PINS (data and clock)
   - id: shield-ws2812-8x5-01
-    model: Keyestudio 40 RGB 8x5 WS2812 matrix shield
-    specs: 8x5 = 40 px, 5 V, Arduino Uno shield footprint
+    model: Keyestudio 2812 Shield (40 WS2812 LEDs)
+    specs: 8x5 = 40 px, 5 V, Arduino Uno shield footprint, reset button
     qty: 1
     source: Amazon B07TYCT8J8
     date: 2020-04-28
-    notes: from order history, not yet seen; Uno footprint, so jumper wires to an ESP32
+    notes: >-
+      seen 2026-11-06; silkscreen numbers LED1-LED8 down the column by the digital header, then
+      LED9-16 down the next, same direction each column (progressive, not serpentine; from the
+      silkscreen, not measured); data pin not traced; fits uno-01, or jumper wires to an ESP32
 power:
   - id: psu-5v-5a-01
     model: ALITOVE 5 V 5 A AC adapter
@@ -156,5 +206,16 @@ parts:
     source: Amazon B07HBPGNDN
     date: 2020-05-18
     notes: >-
-      from order history, not yet seen; built for teensy32-01, but its 74HCT245 is a 3.3 V to
-      5 V level shifter for LED data
+      seen 2026-11-06 with teensy32-01 soldered on; pins 0 1 23 22 19 18 17 broken out, +5V /
+      GND / SYNC pads; its 74HCT245 is a 3.3 V to 5 V level shifter for LED data
+  - id: tft-shield-24-01
+    model: 2.4 in TFT LCD shield (red, Arduino Uno footprint)
+    revision: >-
+      8-bit parallel (LCD_D0-D7, RST, CS, RS, WR, RD), two 74HC245 buffers, AMS1117 3.3 V
+      regulator, microSD slot (SD_SS/DI/DO/SCK)
+    specs: 2.4 in, 240x320 typical, resistive touch; controller IC not identified
+    qty: 1
+    source: on hand
+    notes: >-
+      seen 2026-11-06; not LED gear; the parallel bus takes about 13 GPIOs, so uno-01 is its easy
+      host
