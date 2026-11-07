@@ -376,3 +376,11 @@ tools:
     qty: 1
     source: on hand
     notes: seen 2026-11-06; brand not marked on the visible side
+  - id: printer-a1mini-01
+    model: Bambu Lab A1 mini 3D printer
+    specs: 180x180x180 mm build volume; Bambu textured PEI plate fitted
+    qty: 1
+    source: on hand
+    notes: >-
+      seen 2026-11-06; read as the mini from its single-column cantilever frame; printed yellow
+      top handle and purge bin; for LED frames, diffusers and enclosures
