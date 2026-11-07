@@ -103,8 +103,9 @@ leds:
     source: Amazon B01HXBXZ6E
     date: 2016-08-02
     notes: >-
-      from order history, not yet seen; read the reel label for RGBW vs RGB: RGBW needs
-      LED_RGBW, which stays 0 until M3
+      seen 2026-11-06, most likely this strip (white PCB, about 30/m, 3M tape, red/green/white
+      JST SM lead), spliced into a test harness; RGBW vs RGB still unread: a yellow phosphor
+      quarter on each LED means RGBW, which needs LED_RGBW (stays 0 until M3)
   - id: stick-8-rainbow-01
     model: Rainbow Stick for Arduino, 1x8 WS2812B
     specs: 8 px, 5 V, clockless
@@ -120,8 +121,9 @@ leds:
     source: Amazon B00G1A8QV8
     date: 2016-08-03
     notes: >-
-      from order history, not yet seen; needs two BOARD_SAFE_PINS (data and clock) and
-      FastLED's WS2801 driver
+      seen 2026-11-06, tangled and spliced into a test harness; 4-wire cable (red, blue, green,
+      white); pixel count not checked (ordered 50); needs two BOARD_SAFE_PINS (data and clock)
+      and FastLED's WS2801 driver
   - id: strip-ws2812b-144-01
     model: Aclorol WS2812B strip, 1 m, 144 px
     revision: WS2812B 5050, 5 V
@@ -150,7 +152,8 @@ leds:
     date: 2020-04-28
     notes: >-
       5-packs ordered 2020-04-28 and 2020-12-06; 3 of the 10 are probably panel-ws2812-3x8-01;
-      these 7 not yet seen
+      2 of these 7 seen 2026-11-06, wired into the test harness (one on a 3-pin Dupont plug);
+      5 not yet seen
   - id: ring-apa102-20-01
     model: SparkFun LuMini LED Ring, 1 in, 20 px (PID 14967)
     revision: APA102-2020, 5 V
