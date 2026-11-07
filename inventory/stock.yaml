@@ -109,10 +109,10 @@ leds:
   - id: stick-8-rainbow-01
     model: Rainbow Stick for Arduino, 1x8 WS2812B
     specs: 8 px, 5 V, clockless
-    qty: 1
+    qty: 0
     source: Amazon B014CSWMD8
     date: 2016-08-02
-    notes: from order history, not yet seen
+    notes: not found in the 2026-11-06 box sweep, location unknown; set qty back if it turns up
   - id: string-ws2801-50-01
     model: hkbayi 12 mm WS2801 pixel string, 50 px
     revision: WS2801, 5 V, IP66 bullet pixels
@@ -128,12 +128,12 @@ leds:
     model: Aclorol WS2812B strip, 1 m, 144 px
     revision: WS2812B 5050, 5 V
     specs: 1 m (3.3 ft), 144 px/m, ~8.6 A full white (60 mA/px)
-    qty: 1
+    qty: 0
     source: Amazon B07BKTKMH5
     date: 2020-04-28
     notes: >-
-      from order history, not yet seen; full white is far past 2000 mA, so keep POWER_MAX_MA
-      capped or add the README power table
+      not found in the 2026-11-06 box sweep, location unknown; set qty back if it turns up; full
+      white is far past 2000 mA, so keep POWER_MAX_MA capped or add the README power table
   - id: panel-ws2812-3x8-01
     model: 3x8 panel of WS2812 1x8 sticks
     specs: 3 rows x 8 = 24 px, 5 V, clockless
@@ -144,16 +144,16 @@ leds:
       seen 2026-11-06; three 1x8 sticks soldered edge to edge, jumpered between rows, a 3-wire
       lead under red heat shrink off one end; chain order (serpentine or not) and wire colors
       not measured
-  - id: stick-8-01..07
+  - id: stick-8-01..02
     model: WS2812 5050 1x8 driver board
     specs: 8 px each, 5 V, clockless
-    qty: 7
+    qty: 2
     source: Amazon B081BBF4R3 (two 5-packs, 10 sticks)
     date: 2020-04-28
     notes: >-
       5-packs ordered 2020-04-28 and 2020-12-06; 3 of the 10 are probably panel-ws2812-3x8-01;
-      2 of these 7 seen 2026-11-06, wired into the test harness (one on a 3-pin Dupont plug);
-      5 not yet seen
+      these 2 seen 2026-11-06, wired into the test harness (one on a 3-pin Dupont plug); per
+      Miles the photos caught every stick, so the other 5 are gone
   - id: ring-apa102-20-01
     model: SparkFun LuMini LED Ring, 1 in, 20 px (PID 14967)
     revision: APA102-2020, 5 V
@@ -180,22 +180,27 @@ power:
     source: Amazon B078RT3ZPS
     date: 2020-04-28
     notes: >-
-      from order history, not yet seen; any project drawing over 2000 mA from it needs the
-      README power table naming it and a fuse
+      on hand per Miles 2026-11-06, well used and in unknown shape: measure its output under
+      load (multimeter-01) before trusting it; any project drawing over 2000 mA from it needs
+      the README power table naming it and a fuse
   - id: psu-5v-2a-01
     model: ZOZO 5 V 2 A switching adapter
     specs: 5 V 2 A (10 W)
     qty: 1
     source: Amazon B01ALGGK2O
     date: 2016-08-03
-    notes: from order history, not yet seen; plug size not recorded
+    notes: >-
+      on hand per Miles 2026-11-06, well used and in unknown shape: measure its output under
+      load before trusting it; plug size not recorded
   - id: buck-5v-3a-01
     model: DROK micro buck converter, 12 V to 5 V
     specs: 6.3-22 V in, 5 V 3 A (15 W) out
     qty: 1
     source: Amazon B00C63TLCC
     date: 2016-08-21
-    notes: from order history, not yet seen; bought to run 5 V LEDs from a 12 V battery
+    notes: >-
+      on hand per Miles 2026-11-06, well used and in unknown shape: measure its 5 V under load
+      before trusting it; bought to run 5 V LEDs from a 12 V battery
 parts:
   - id: cap-1000uf-01..10
     model: uxcell 1000 uF 10 V radial electrolytic capacitor
