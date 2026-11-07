@@ -199,17 +199,21 @@ power:
 parts:
   - id: cap-1000uf-01..10
     model: uxcell 1000 uF 10 V radial electrolytic capacitor
-    specs: 1000 uF, 10 V, 105 C
+    specs: 1000 uF, 10 V, 105 C, 8x11 mm
     qty: 10
     source: Amazon B0087ZB39C
-    notes: from order history (Aug 2016), not yet seen; the cap across a strip's 5 V input
+    notes: >-
+      ordered Aug 2016; seen 2026-11-06 in its labelled bag, count left not checked; the cap
+      across a strip's 5 V input
   - id: jst-sm-3pin-01..20
     model: ALITOVE 3-pin JST SM pigtail pairs, 15 cm, 20 AWG
     specs: male + female pairs for WS2812B/SK6812 strips
     qty: 20
     source: Amazon B071H5XCN5
     date: 2020-12-06
-    notes: from order history, not yet seen
+    notes: >-
+      seen 2026-11-06: a bundle of red/green/black 3-wire pigtails, plugs and sockets; count not
+      checked
   - id: octows2811-01
     model: PJRC OctoWS2811 adaptor for Teensy 3.2
     revision: 74HCT245 buffer, 8 outputs on two RJ45 jacks
@@ -241,3 +245,70 @@ parts:
     notes: >-
       seen 2026-11-06; partly built: stacking headers, both buttons, SMD resistors and LEDs
       fitted; VR1 10K pot, C1 470 uF cap and T1 78M05 regulator not fitted
+  - id: mosfet-dual-01..02
+    model: NOYITO dual MOS transistor driver module (400 W, 15 A)
+    specs: >-
+      two MOSFETs in parallel, TRIG/PWM + GND input, screw terminals for supply and load; listed
+      DC 5-36 V, 15 A
+    qty: 2
+    source: Amazon B07D1W6VFS (pack of 2)
+    notes: >-
+      ordered Mar 2021; one seen 2026-11-06 out of its bag; a low-side switch for plain DC loads
+      (a strip's power rail, non-addressable LEDs), never on a data line
+  - id: dupont-kit-01
+    model: Hilitchi 2.54 mm pitch connector assortment kit (Dupont)
+    specs: >-
+      485 pcs per box: housings 1P x30, 2P x30, 3P x20, 4P x15, 5P x20, 6P x20, 7P x20; 160
+      female and 160 male crimp pins; 10 single-row 40-pin headers
+    qty: 1
+    source: Amazon B012EOO9Q0 (listed as 425 pcs)
+    date: 2023-12-21
+    notes: seen 2026-11-06; partly used, not counted; crimp with crimper-icrimp-01
+  - id: header-female-dual-01
+    model: Antrader dual-row female header socket strips, 2.54 mm
+    specs: 20 strips per pack
+    qty: 1
+    source: Amazon B07D48WZTR
+    notes: ordered Dec 2021; seen 2026-11-06, one strip loose, count left not checked
+  - id: ic-74hc125-01
+    model: Motorola MC74HC125AN quad 3-state buffer, DIP-14 (bag)
+    revision: date code 9146
+    qty: 1
+    source: on hand
+    notes: >-
+      seen 2026-11-06, about 10 in the bag, not counted; not a 3.3 V to 5 V LED-data shifter: on
+      a 5 V supply an HC input wants about 3.5 V for a high, more than an ESP32 drives; the
+      74HCT125 or 74AHCT125 is the part for that
+tools:
+  - id: soldering-station-01
+    model: Aoyue 469 variable power soldering station, 60 W
+    specs: 110 V
+    qty: 1
+    source: Amazon B00MCVCHJM
+    notes: ordered Aug 2015; seen 2026-11-06
+  - id: multimeter-01
+    model: AstroAI DM6000AR true-RMS multimeter, 6000 counts
+    specs: V, A (10 A fused jack), uA/mA, ohm, continuity, diode, capacitance, Hz/duty, temp, hFE
+    qty: 1
+    source: Amazon B071JL6LLL
+    notes: >-
+      ordered Feb 2025; seen 2026-11-06; the 10 A jack measures a strip's real draw against
+      POWER_MAX_MA
+  - id: crimper-icrimp-01
+    model: iCrimp SN-2549 ratcheting crimper
+    specs: 0.08-1 mm2 (AWG 28-18); Dupont, JST SM/PH/XH-size pins
+    qty: 1
+    source: Amazon B01N4L8QMW
+    date: 2023-12-21
+    notes: seen 2026-11-06
+  - id: stripper-stripmaster-01
+    model: IDEAL Stripmaster wire stripper
+    qty: 1
+    source: on hand
+    notes: seen 2026-11-06; gauge range of its blades not read
+  - id: stripper-auto-01
+    model: self-adjusting wire stripper, cutter and terminal crimper (yellow/black)
+    specs: crimps insulated terminals 22-10 AWG and non-insulated 22-10 AWG; wire cutter
+    qty: 1
+    source: on hand
+    notes: seen 2026-11-06; brand not marked on the visible side
