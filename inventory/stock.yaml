@@ -279,6 +279,65 @@ parts:
       seen 2026-11-06, about 10 in the bag, not counted; not a 3.3 V to 5 V LED-data shifter: on
       a 5 V supply an HC input wants about 3.5 V for a high, more than an ESP32 drives; the
       74HCT125 or 74AHCT125 is the part for that
+  - id: wire-silicone-kit-01
+    model: silicone hook-up wire kit, UL 3132 stranded
+    specs: tinned stranded copper, silicone insulation; red, black, white, blue, green, yellow
+    qty: 1
+    source: on hand
+    notes: seen 2026-11-06; six spools in one box; gauge not on the side photographed
+  - id: wire-annunciator-20-2-01
+    model: 20 AWG 2-conductor solid copper annunciator wire, red/white, 100 ft spool
+    revision: 16 mil insulation, RoHS, label dated 07/13/13, UPC 0 32886 85616 7
+    qty: 1
+    source: on hand
+    notes: >-
+      seen 2026-11-06, length left not measured; solid core: breadboard jumpers and short 5 V
+      runs, not leads that flex
+  - id: heatshrink-kit-01
+    model: heat-shrink tubing assortment, red and black
+    specs: several diameters, boxed
+    qty: 1
+    source: on hand
+    notes: seen 2026-11-06; partly used, not counted
+  - id: terminals-crimp-kit-01
+    model: insulated crimp terminal assortment
+    specs: >-
+      red 22-16 AWG, blue 16-14 AWG, yellow 12-10 AWG; rings, forks, butt splices, bullets,
+      quick-disconnects
+    qty: 1
+    source: on hand
+    notes: >-
+      seen 2026-11-06; mostly blue and yellow left, only a few red (the size for LED power
+      leads); crimp with stripper-auto-01
+  - id: ttap-kit-01
+    model: TICONN T-tap splice connector kit, 240 pcs
+    specs: >-
+      40 T-taps + 40 male spades each in red (22-18 AWG), blue (16-14 AWG), yellow (12 AWG)
+    qty: 1
+    source: Amazon B07MLPBPW5
+    notes: ordered Mar 2021; seen 2026-11-06; for power wiring only, solder LED data lines
+  - id: switches-tact-kit-01
+    model: Hilitchi tactile switch assortment, 250 pcs
+    specs: 6x6 mm and 12x12 mm, 20 heights, 4-pin through-hole
+    qty: 1
+    source: Amazon (FNSKU X001EH8FPL)
+    notes: seen 2026-11-06; partly used, not counted
+  - id: standoffs-m25-kit-01
+    model: DANA FRED brass standoff kit, 160 pcs
+    specs: >-
+      10 each: M2.5 male-female 6, 10, 15, 20 mm (+6 mm thread), M2.5 female-female 6, 10, 15,
+      20 mm; 40 M2x4 screws, 40 M2 nuts (as labelled)
+    qty: 1
+    source: on hand
+    notes: >-
+      seen 2026-11-06; the label says M2 screws and nuts beside M2.5 standoffs, so check the
+      thread before relying on them
+  - id: cable-clips-01
+    model: Monoprice circle cable clips with steel nails, 10 mm
+    specs: 100 per pack
+    qty: 1
+    source: Monoprice (PID on the torn label starts 58)
+    notes: seen 2026-11-06; for pinning strip leads and cable runs to wood
 tools:
   - id: soldering-station-01
     model: Aoyue 469 variable power soldering station, 60 W
