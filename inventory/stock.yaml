@@ -13,16 +13,17 @@ boards:
       headers shipped loose, not soldered yet; s3mini-01 bench-verified 2026-10-21 (p000); two on
       the dock since 2026-10-26 (p005), MACs d4:05:92:44:a5:74 and d4:05:92:48:72:0c (their USB
       serial numbers; which is -01 not recorded)
-  - id: m5stickc-01
+  - id: m5stickc-01..02
     model: M5StickC Plus 1.1
     board: m5stickc-plus11
     revision: ESP32-PICO-D4, 4MB flash, SPM1423 PDM mic, 1.14in ST7789, AXP192
-    qty: 1
-    source: on hand
+    qty: 2
+    source: M5Stack order M5-30998 (two units)
+    date: 2023-09-02
     projects: [p000-blink, p002-matrix-demo, p003-bench, p004-sense, p005-trio]
     notes: >-
-      bench-verified 2026-10-21 (p000); its own USB-C cable looked charge-only; WiFi MAC
-      d4:d4:da:98:52:b8; M5Stack order M5-30998 (2023-09-02) lists two, second unit unconfirmed
+      -01 is the dock unit: bench-verified 2026-10-21 (p000), WiFi MAC d4:d4:da:98:52:b8, its
+      own USB-C cable looked charge-only; -02 confirmed 2026-11-06, never flashed in this lab
   - id: atom-lite-01
     model: M5Stack ATOM Lite
     revision: ESP32-PICO-D4, 4MB flash
@@ -51,21 +52,21 @@ boards:
     notes: >-
       seen 2026-11-06, all three; two PCB layouts (one back reads NodeMCU Amica); ESP8266, not
       ESP32, so no boards/ folder
-  - id: uno-01
+  - id: uno-01..02
     model: Arduino Uno R3
     revision: ATmega328P-PU (DIP), 16 MHz, 5 V logic
-    qty: 1
+    qty: 2
     source: on hand
     notes: >-
-      seen 2026-11-06; the easy host for the Uno shields (shield-ws2812-8x5-01,
-      tft-shield-24-01)
-  - id: digispark-01
+      one seen 2026-11-06, count of two from Miles; the easy host for the Uno shields
+      (shield-ws2812-8x5-01, tft-shield-24-01, protoshield-uno-01)
+  - id: digispark-01..03
     model: CJMCU Digispark-style ATtiny85 USB board
     revision: ATtiny85-20SU, 78L05 regulator, micro-USB, 5 V logic
     specs: P0-P5, 5V/GND/VIN pads; 8 KB flash
-    qty: 1
+    qty: 3
     source: on hand
-    notes: seen 2026-11-06; bootloader not checked
+    notes: one seen 2026-11-06, count of three from Miles; bootloader not checked
 leds:
   - id: matrix-8x8-01
     model: BTF-LIGHTING WS2812B 8x8 flexible
@@ -87,6 +88,13 @@ leds:
     notes: >-
       one box, contents unknown; inventory before M3; probably holds some of the strips below
       that came from Amazon order history (2026-11-06 sweep)
+  - id: led-offcuts-01
+    model: short LED strip sections (offcuts, mixed)
+    qty: 1
+    source: on hand
+    notes: >-
+      a few small pieces, per Miles 2026-11-06; disposable test material: fine to cut, solder or
+      burn out; not counted piece by piece
   - id: strip-sk6812-30-01
     model: ALITOVE SK6812 strip, 1 m, 30 px
     revision: SK6812 5050, 5 V, RGBW or RGB (variant not recorded)
@@ -160,7 +168,7 @@ leds:
     notes: >-
       seen 2026-11-06; silkscreen numbers LED1-LED8 down the column by the digital header, then
       LED9-16 down the next, same direction each column (progressive, not serpentine; from the
-      silkscreen, not measured); data pin not traced; fits uno-01, or jumper wires to an ESP32
+      silkscreen, not measured); data pin not traced; fits an Uno, or jumper wires to an ESP32
 power:
   - id: psu-5v-5a-01
     model: ALITOVE 5 V 5 A AC adapter
@@ -217,5 +225,16 @@ parts:
     qty: 1
     source: on hand
     notes: >-
-      seen 2026-11-06; not LED gear; the parallel bus takes about 13 GPIOs, so uno-01 is its easy
-      host
+      seen 2026-11-06; not LED gear; the parallel bus takes about 13 GPIOs, so an Uno
+      (uno-01..02) is its easy host
+  - id: protoshield-uno-01
+    model: Arduino Uno prototype shield (blue, "Shield_V5", 12.05.22)
+    revision: >-
+      Nokia 5110 and LCM1602 header footprints, RESET and Test buttons, L13 and Test LEDs,
+      SPI / I2C / UART / RS232 breakouts, proto grid
+    specs: Uno footprint, stacking headers
+    qty: 1
+    source: on hand
+    notes: >-
+      seen 2026-11-06; partly built: stacking headers, both buttons, SMD resistors and LEDs
+      fitted; VR1 10K pot, C1 470 uF cap and T1 78M05 regulator not fitted
