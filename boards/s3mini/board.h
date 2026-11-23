@@ -9,6 +9,7 @@
 #define BOARD_PSRAM_MB 2  // not BOARD_HAS_PSRAM: Arduino-ESP32 reserves that macro
 
 #define BOARD_LED_PIN           4    // default data pin for external strips
+#define BOARD_LED_CLOCK_PIN     5    // clock for LEDs with a clock wire (APA102), beside the data
 #define BOARD_ONBOARD_RGB       21   // onboard WS2812, if present
 #define BOARD_ONBOARD_RGB_ORDER RGB  // color order of that LED (GRB swapped red and green)
 #define BOARD_I2S_WS            7

@@ -33,3 +33,7 @@
 #error "MATRIX_W * MATRIX_H must equal NUM_LEDS"
 #endif
 static_assert(lab_board::led_pin_ok(LED_DATA_PIN), "LED_DATA_PIN is not in BOARD_SAFE_PINS");
+#ifdef LED_CLOCK_PIN
+static_assert(lab_board::pin_is_safe(LED_CLOCK_PIN), "LED_CLOCK_PIN is not in BOARD_SAFE_PINS");
+static_assert(LED_CLOCK_PIN != LED_DATA_PIN, "LED_CLOCK_PIN and LED_DATA_PIN are the same pin");
+#endif

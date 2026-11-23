@@ -3,6 +3,7 @@
 
 #include "config.h"
 #include "lab_checks.h"
+#include "lab_clocked.h"
 #include "lab_core.h"
 #include "lab_fx.h"
 
@@ -13,6 +14,10 @@
 #define LAB_NET_ON 1
 #else
 #define LAB_NET_ON 0
+#endif
+
+#if defined(LED_CLOCK_PIN) && !defined(LED_RATE_MHZ)
+#define LED_RATE_MHZ 4
 #endif
 
 namespace {
@@ -30,12 +35,19 @@ void setup() {
   lab_board::begin();
   lab_board::status_text(LAB_PROJECT);
   lab_board::status_text(LAB_FW);
+#ifdef LED_CLOCK_PIN
+  lab_core::add_clocked_leds<LED_TYPE, LED_DATA_PIN, LED_CLOCK_PIN, LED_ORDER,
+                             DATA_RATE_MHZ(LED_RATE_MHZ)>(leds, NUM_LEDS);
+  constexpr const char* kDriver = "SPI";
+#else
   FastLED.addLeds<LED_TYPE, LED_DATA_PIN, LED_ORDER>(leds, NUM_LEDS);
+  const char* kDriver = lab_core::led_driver();
+#endif
   FastLED.setBrightness(64);
   lab_core::Event("leds")
       .num("n", NUM_LEDS)
       .num("pin", LED_DATA_PIN)
-      .str("driver", lab_core::led_driver())
+      .str("driver", kDriver)
       .num("cap_ma", POWER_MAX_MA)
       .emit();
 #if LAB_NET_ON

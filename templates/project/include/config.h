@@ -5,11 +5,13 @@
 #define LAB_PROJECT "{{PROJECT}}"
 
 // LEDs (pins default from the board; override only when wired differently)
-#define LED_TYPE          WS2812B
-#define LED_ORDER         GRB
-#define LED_RGBW          0
-#define NUM_LEDS          8
-#define LED_DATA_PIN      BOARD_LED_PIN
+#define LED_TYPE     WS2812B
+#define LED_ORDER    GRB
+#define LED_RGBW     0
+#define NUM_LEDS     8
+#define LED_DATA_PIN BOARD_LED_PIN
+// Clocked LEDs (APA102 and kin) also set LED_CLOCK_PIN (BOARD_LED_CLOCK_PIN), LED_TYPE APA102,
+// LED_ORDER BGR, and LED_RATE_MHZ (SPI clock, default 4). Undefined: clockless LEDs over RMT.
 #define MATRIX_W          0  // 0 when not a matrix
 #define MATRIX_H          0
 #define MATRIX_SERPENTINE 0

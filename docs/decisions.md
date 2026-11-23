@@ -3,6 +3,18 @@
 Newest first. Five lines each: date and title, what, instead of, why, revisit when.
 Read before changing anything an entry covers. A version bump is a new entry plus a green CI.
 
+## 2026-11-22 · Clocked LEDs go through `lab_core::add_clocked_leds`, not `FastLED.addLeds<APA102, ...>`
+- What: `shared/lab_core/src/lab_clocked.h` builds FastLED's own SPI controller for the chip and registers it; the template's `LED_CLOCK_PIN` branch and p006 call it
+- Instead of: `addLeds<CHIP, DATA, CLOCK, ...>` (FastLED 3.10.7's default on the S3: the LCD peripheral), or building all of FastLED with `FASTLED_SPI_USES_CHANNEL_API=0`
+- Why: the LCD driver cannot make 1 MHz (each frame blocked ~2 s, fps 0) and drives GPIO 0 and 21 besides the two named pins, against the safe-pins rule; hardware SPI gives fps 76 at 1 MHz (p006 on 720c, rung 4)
+- Revisit when: a FastLED bump changes the default driver, or a project needs several clocked strips in parallel
+
+## 2026-11-22 · s3mini: GPIO 5 is `BOARD_LED_CLOCK_PIN`
+- What: `boards/s3mini/board.h` names GPIO 5 as the clock for LEDs with a clock wire (APA102 and kin); data stays on GPIO 4 (`BOARD_LED_PIN`)
+- Instead of: a project picking its own clock pin, or GPIO 6-8 (taken by I2S)
+- Why: p006 (LuMini ring) is the first project with clocked LEDs; 5 is in `BOARD_SAFE_PINS`, unused by any project, and next to the data pin (Miles ok, 2026-11-22). The template reads `LED_CLOCK_PIN` (clocked LEDs, driver `SPI`); p006 sets WiFi on for NTP time (Miles ok)
+- Revisit when: a wired ring shows GPIO 5 misbehaving (safe pins are still from the datasheet), or a second board needs the name
+
 ## 2026-10-26 · p005's edges follow RSSI, not CSI; CSI stays on and logged
 - What: `LINK_CSI 1` keeps broadcasts at OFDM 6 Mb/s and logs each link's CSI shape change (`m0`, `m1`), but `trio::Link` (RSSI against its own calm) lights the edges
 - Instead of: CSI shape change driving the edges
