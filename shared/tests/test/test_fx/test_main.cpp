@@ -59,6 +59,12 @@ static const Named kEffects[] = {
     {"lightning", lab_fx::lightning},
     {"pong", lab_fx::pong},
     {"pacman", lab_fx::pacman},
+    {"glow", lab_fx::glow},
+    {"breathe", lab_fx::breathe},
+    {"ember", lab_fx::ember},
+    {"orbit", lab_fx::orbit},
+    {"tide", lab_fx::tide},
+    {"drift", lab_fx::drift},
 };
 
 static void test_hsv_primaries_and_gray() {
@@ -179,6 +185,141 @@ static void test_every_effect_is_deterministic_in_bounds_and_lit() {
       }
       TEST_ASSERT_TRUE_MESSAGE(any, fx.name);
     }
+  }
+}
+
+static void test_glow_stays_warm_and_drifts_gently() {
+  const uint16_t sizes[] = {20};
+  const Layout l = Layout::rings(sizes);
+  Pixel px[20], next[20];
+  for (uint32_t t = 0; t < 6 * 60 * 1000; t += 7013) {
+    lab_fx::glow(px, l, {}, t);
+    lab_fx::glow(next, l, {}, t + 20);
+    for (int i = 0; i < 20; ++i) {
+      TEST_ASSERT_TRUE(px[i].r >= 200 && px[i].r >= px[i].g && px[i].g > px[i].b);
+      TEST_ASSERT_INT_WITHIN(2, px[i].r, next[i].r);
+      TEST_ASSERT_INT_WITHIN(2, px[i].g, next[i].g);
+      TEST_ASSERT_INT_WITHIN(2, px[i].b, next[i].b);
+    }
+  }
+  Pixel amber[20], rose[20];
+  lab_fx::glow(amber, l, {}, 0);
+  lab_fx::glow(rose, l, {}, 2 * 60 * 1000);
+  TEST_ASSERT_TRUE(amber[0].g > rose[0].g + 20);  // the hue really moves over the period
+}
+
+static Layout ring20() {
+  static const uint16_t sizes[] = {20};
+  return Layout::rings(sizes);
+}
+
+static int brightest(const Pixel* px, int n) {
+  int best = 0;
+  for (int i = 1; i < n; ++i) {
+    if (value(px[i]) > value(px[best])) best = i;
+  }
+  return best;
+}
+
+// No channel of any LED moves more than `step` between frames `dt_ms` apart, all through `span_ms`.
+static void assert_gentle(lab_fx::Fn fn, uint32_t span_ms, uint32_t dt_ms, int step) {
+  const Layout l = ring20();
+  Pixel a[20], b[20];
+  for (uint32_t t = 0; t < span_ms; t += 977) {
+    fn(a, l, {}, t);
+    fn(b, l, {}, t + dt_ms);
+    for (int i = 0; i < 20; ++i) {
+      TEST_ASSERT_INT_WITHIN(step, a[i].r, b[i].r);
+      TEST_ASSERT_INT_WITHIN(step, a[i].g, b[i].g);
+      TEST_ASSERT_INT_WITHIN(step, a[i].b, b[i].b);
+    }
+  }
+}
+
+static void test_calm_effects_change_gently() {
+  assert_gentle(lab_fx::breathe, 16000, 20, 3);
+  assert_gentle(lab_fx::ember, 30000, 20, 6);
+  assert_gentle(lab_fx::orbit, 15000, 20, 12);
+  assert_gentle(lab_fx::tide, 60000, 20, 8);
+  assert_gentle(lab_fx::drift, 60000, 20, 6);
+}
+
+static void test_breathe_is_one_color_rising_and_falling() {
+  const Layout l = ring20();
+  Pixel low[20], high[20], back[20];
+  lab_fx::breathe(low, l, {}, 0);
+  lab_fx::breathe(high, l, {}, 4000);
+  lab_fx::breathe(back, l, {}, 8000);
+  for (int i = 0; i < 20; ++i) {
+    assert_pixel(low[0], low[i]);
+    assert_pixel(high[0], high[i]);
+    assert_pixel(low[i], back[i]);
+  }
+  TEST_ASSERT_EQUAL_UINT8(255, high[0].r);
+  TEST_ASSERT_INT_WITHIN(2, 89, low[0].r);  // a third of full, not dark
+}
+
+static void test_ember_stays_red_to_orange_and_uneven() {
+  const Layout l = ring20();
+  Pixel px[20];
+  for (uint32_t t = 0; t < 60000; t += 3001) {
+    lab_fx::ember(px, l, {}, t);
+    uint8_t lo = 255, hi = 0;
+    for (const Pixel& c : px) {
+      TEST_ASSERT_TRUE(c.r >= 70 && c.r > c.g && c.g > c.b);
+      lo = c.r < lo ? c.r : lo;
+      hi = c.r > hi ? c.r : hi;
+    }
+    TEST_ASSERT_TRUE(hi > lo + 20);  // patches, not a flat color
+  }
+}
+
+static void test_orbit_head_turns_once_every_15_s_with_a_dark_far_side() {
+  const Layout l = ring20();
+  Pixel px[20];
+  for (uint32_t q = 0; q < 4; ++q) {
+    lab_fx::orbit(px, l, {}, q * 3750);
+    const int head = brightest(px, 20);
+    TEST_ASSERT_EQUAL_INT(static_cast<int>(q * 5), head);
+    TEST_ASSERT_TRUE(value(px[(head + 10) % 20]) < 10);
+    TEST_ASSERT_TRUE(value(px[(head + 19) % 20]) > value(px[(head + 1) % 20]));  // tail behind
+  }
+}
+
+static int peaks(const Pixel* px, int n) {
+  int count = 0;
+  for (int i = 0; i < n; ++i) {
+    const uint8_t v = value(px[i]);
+    if (v > 120 && v >= value(px[(i + n - 1) % n]) && v > value(px[(i + 1) % n])) ++count;
+  }
+  return count;
+}
+
+static void test_tide_has_two_lights_that_meet() {
+  const Layout l = ring20();
+  Pixel px[20];
+  lab_fx::tide(px, l, {}, 0);  // opposite sides
+  TEST_ASSERT_EQUAL_INT(2, peaks(px, 20));
+  int met = 0;
+  for (uint32_t t = 0; t < 30000; t += 100) {
+    lab_fx::tide(px, l, {}, t);
+    if (peaks(px, 20) == 1) ++met;
+  }
+  TEST_ASSERT_TRUE(met > 0);  // they pass through each other within 30 s
+  for (const Pixel& c : px) TEST_ASSERT_TRUE(lit(c));
+}
+
+static void test_drift_is_a_rainbow_turning_once_a_minute() {
+  const Layout l = ring20();
+  Pixel now[20], quarter[20], minute[20];
+  lab_fx::drift(now, l, {}, 1000);
+  lab_fx::drift(quarter, l, {}, 16000);
+  lab_fx::drift(minute, l, {}, 61000);
+  for (int i = 0; i < 20; ++i) {
+    assert_pixel(now[i], minute[i]);
+    TEST_ASSERT_INT_WITHIN(3, now[(i + 5) % 20].r, quarter[i].r);
+    TEST_ASSERT_INT_WITHIN(3, now[(i + 5) % 20].g, quarter[i].g);
+    TEST_ASSERT_INT_WITHIN(3, now[(i + 5) % 20].b, quarter[i].b);
   }
 }
 
@@ -598,6 +739,13 @@ int main() {
   RUN_TEST(test_helix_shows_both_strands_and_turns);
   RUN_TEST(test_lightning_bolt_grows_downward);
   RUN_TEST(test_pong_paddles_always_meet_the_ball);
+  RUN_TEST(test_glow_stays_warm_and_drifts_gently);
+  RUN_TEST(test_calm_effects_change_gently);
+  RUN_TEST(test_breathe_is_one_color_rising_and_falling);
+  RUN_TEST(test_ember_stays_red_to_orange_and_uneven);
+  RUN_TEST(test_orbit_head_turns_once_every_15_s_with_a_dark_far_side);
+  RUN_TEST(test_tide_has_two_lights_that_meet);
+  RUN_TEST(test_drift_is_a_rainbow_turning_once_a_minute);
   RUN_TEST(test_pacman_eats_dots_then_chases_the_blue_ghost);
   return UNITY_END();
 }

@@ -606,4 +606,100 @@ inline void pacman(lab::Pixel* px, const lab::Layout& layout, const lab::AudioFr
   }
 }
 
+// A lamp's soft warm glow: amber, rose and honey crossfade over six minutes, each LED breathing
+// up to 12 % on its own slow noise. Nothing changes fast enough to catch the eye.
+inline void glow(lab::Pixel* px, const lab::Layout& layout, const lab::AudioFrame&, uint32_t t_ms) {
+  static const lab::Pixel kWarm[] = {lab::Pixel(255, 140, 50), lab::Pixel(255, 95, 70),
+                                     lab::Pixel(255, 170, 80)};
+  constexpr uint32_t kHues = 3, kPeriodMs = 6 * 60 * 1000;
+  const float u = (t_ms % kPeriodMs) * (static_cast<float>(kHues) / kPeriodMs);
+  const uint32_t k = static_cast<uint32_t>(u) % kHues;
+  const lab::Pixel base = lab::blend(kWarm[k], kWarm[(k + 1) % kHues], lab::smooth(u - k));
+  const float s = t_ms * 0.001f;
+  for (uint16_t i = 0; i < layout.size(); ++i) {
+    const lab::Point p = layout.position(i);
+    const float breathe = 0.88f + 0.12f * lab::noise(2 * p.x, 2 * p.y, 0.1f * s);
+    px[i] = lab::scale(base, breathe);
+  }
+}
+
+// Calm effects for rings (on a strip, "round the ring" means along it). Each changes slowly enough
+// to sit in the background: nothing faster than a slow breath.
+
+namespace detail {
+
+// Distance between two positions on a loop (0..1 per turn): 0..0.5.
+inline float loop_dist(float a, float b) {
+  const float d = lab::frac(a - b);
+  return d < 0.5f ? d : 1 - d;
+}
+
+}  // namespace detail
+
+// Warm amber, the whole ring breathing in and out once every 8 s; never below a third.
+inline void breathe(lab::Pixel* px, const lab::Layout& layout, const lab::AudioFrame&,
+                    uint32_t t_ms) {
+  constexpr uint32_t kPeriodMs = 8000;
+  const float u = static_cast<float>(t_ms % kPeriodMs) / kPeriodMs;
+  const float k = 0.35f + 0.65f * (0.5f - 0.5f * cosf(lab::kTau * u));
+  const lab::Pixel c = lab::scale(lab::Pixel(255, 130, 40), k);
+  for (uint16_t i = 0; i < layout.size(); ++i) px[i] = c;
+}
+
+// Coals: every LED smoulders deep red to orange on its own slow noise, hot patches wandering.
+inline void ember(lab::Pixel* px, const lab::Layout& layout, const lab::AudioFrame&,
+                  uint32_t t_ms) {
+  const float s = t_ms * 0.001f;
+  for (uint16_t i = 0; i < layout.size(); ++i) {
+    const lab::Point p = layout.position(i);
+    const float slow = lab::noise(3 * p.x, 3 * p.y, 0.15f * s);
+    const float quick = lab::noise(9 * p.x + 7, 9 * p.y, 0.6f * s);
+    const float h = lab::clamp01(0.65f * slow + 0.35f * quick);
+    const lab::Pixel coal = lab::blend(lab::Pixel(70, 4, 0), lab::Pixel(255, 60, 0), h * 1.4f);
+    px[i] = lab::blend(coal, lab::Pixel(255, 140, 30), (h - 0.6f) * 2.5f);
+  }
+}
+
+// One soft warm light circling the ring every 15 s, a long tail fading to deep orange behind it.
+inline void orbit(lab::Pixel* px, const lab::Layout& layout, const lab::AudioFrame&,
+                  uint32_t t_ms) {
+  constexpr uint32_t kTurnMs = 15000;
+  const float head = static_cast<float>(t_ms % kTurnMs) / kTurnMs;
+  for (uint16_t i = 0; i < layout.size(); ++i) {
+    const float behind = lab::frac(head - layout.angle(i));  // 0 at the head, then along the tail
+    const float ahead = 1 - behind;
+    const float k = ahead < 0.06f ? 1 - ahead / 0.06f : expf(-behind / 0.14f);
+    const lab::Pixel c =
+        lab::blend(lab::Pixel(255, 150, 60), lab::Pixel(255, 50, 5), lab::clamp01(behind * 4));
+    px[i] = lab::scale(c, k);
+  }
+}
+
+// Two soft lights, amber and rose, circling opposite ways at their own slow speeds: they meet,
+// pass through each other and part about every 23 s. A faint warm floor keeps the ring alive.
+inline void tide(lab::Pixel* px, const lab::Layout& layout, const lab::AudioFrame&, uint32_t t_ms) {
+  const float a = lab::frac(t_ms / 40000.0f);
+  const float b = lab::frac(0.5f - t_ms / 55000.0f);
+  constexpr float kTwoSigma2 = 2 * 0.075f * 0.075f;
+  for (uint16_t i = 0; i < layout.size(); ++i) {
+    const float x = layout.angle(i);
+    const float da = detail::loop_dist(x, a), db = detail::loop_dist(x, b);
+    lab::Pixel c = lab::Pixel(24, 8, 2);
+    detail::lighten(c, lab::scale(lab::Pixel(255, 140, 40), expf(-da * da / kTwoSigma2)));
+    detail::lighten(c, lab::scale(lab::Pixel(255, 60, 90), expf(-db * db / kTwoSigma2)));
+    px[i] = c;
+  }
+}
+
+// A soft rainbow laid round the ring, turning once a minute.
+inline void drift(lab::Pixel* px, const lab::Layout& layout, const lab::AudioFrame&,
+                  uint32_t t_ms) {
+  constexpr uint32_t kTurnMs = 60000;
+  const float turn = static_cast<float>(t_ms % kTurnMs) / kTurnMs;
+  for (uint16_t i = 0; i < layout.size(); ++i) {
+    const float u = lab::frac(layout.angle(i) + turn);
+    px[i] = lab::hsv(static_cast<uint8_t>(u * 256), 200, 255);
+  }
+}
+
 }  // namespace lab_fx
