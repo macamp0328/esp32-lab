@@ -1,0 +1,165 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 760" width="1000" height="760" font-family="Helvetica, Arial, sans-serif" font-size="14">
+  <style>
+    .box { fill: #f6f7f9; stroke: #333; stroke-width: 1.5; }
+    .opt { fill: #fbfbfb; stroke: #777; stroke-width: 1.5; stroke-dasharray: 6 4; }
+    .zone { fill: none; stroke: #9aa3ad; stroke-width: 1.5; stroke-dasharray: 8 6; }
+    .title { font-size: 19px; font-weight: bold; }
+    .h { font-size: 15px; font-weight: bold; }
+    .small { font-size: 12px; fill: #444; }
+    .zl { font-size: 12px; fill: #6b7580; font-style: italic; }
+    .note { font-size: 13px; fill: #222; }
+    .pin { font-size: 13px; }
+    .w { fill: none; stroke-width: 4; stroke-linecap: round; stroke-linejoin: round; }
+    .t { fill: none; stroke: #222; stroke-width: 2; stroke-linejoin: round; }
+    .lbl { font-size: 12px; fill: #333; }
+  </style>
+  <rect width="1000" height="760" fill="#ffffff"/>
+
+  <text x="20" y="32" class="title">p006 crystal ball · phase 2 alternative: Feather ESP32-S3 (sketch)</text>
+  <text x="20" y="54" class="small">A dot means joined. Dashed boxes are optional. DATA, CLOCK, SWITCH, PIR are roles; Feather pin numbers come at `just add-board`.</text>
+
+  <!-- zones -->
+  <rect x="10" y="78" width="195" height="320" rx="8" class="zone"/>
+  <text x="20" y="96" class="zl">on the shelf, behind the pot</text>
+  <rect x="300" y="78" width="690" height="530" rx="8" class="zone"/>
+  <text x="310" y="96" class="zl">inside the pot</text>
+
+  <!-- battery side -->
+  <rect x="25" y="110" width="175" height="75" rx="6" class="box"/>
+  <text x="112" y="133" text-anchor="middle" class="h">18650 holder</text>
+  <text x="112" y="151" text-anchor="middle" class="small">1–2 cells, in parallel</text>
+  <text x="112" y="167" text-anchor="middle" class="small">Miles's spares</text>
+  <text x="70" y="181" text-anchor="middle" class="small">−</text>
+  <text x="150" y="181" text-anchor="middle" class="small">+</text>
+
+  <rect x="25" y="225" width="175" height="70" rx="6" class="opt"/>
+  <text x="112" y="250" text-anchor="middle" class="pin">1S protection board</text>
+  <text x="112" y="267" text-anchor="middle" class="small">only if the cells are</text>
+  <text x="112" y="282" text-anchor="middle" class="small">unprotected</text>
+
+  <polyline points="70,185 70,225" class="w" stroke="#222"/>
+  <polyline points="150,185 150,225" class="w" stroke="#d62828"/>
+  <polyline points="150,295 150,330 320,330" class="w" stroke="#d62828"/>
+  <polyline points="70,295 70,345 320,345" class="w" stroke="#222"/>
+  <text x="20" y="372" class="small">lead runs under the pot and</text>
+  <text x="20" y="387" class="small">up through the drain hole</text>
+
+  <!-- Feather -->
+  <rect x="320" y="110" width="230" height="290" rx="8" class="box"/>
+  <text x="334" y="134" class="h">Feather ESP32-S3</text>
+  <text x="334" y="152" class="small">Adafruit #5477</text>
+  <text x="334" y="216" class="small">• Li-ion charger</text>
+  <text x="334" y="233" class="small">• MAX17048: battery %</text>
+  <text x="334" y="250" class="small">• USB-C: flash, slow charge</text>
+  <text x="330" y="342" class="pin">BAT jack</text>
+  <text x="330" y="358" class="small">(JST-PH, red = +)</text>
+  <text x="540" y="155" text-anchor="end" class="pin">BAT</text>
+  <text x="540" y="185" text-anchor="end" class="pin">SWITCH pin</text>
+  <text x="540" y="295" text-anchor="end" class="pin">DATA pin</text>
+  <text x="540" y="335" text-anchor="end" class="pin">CLOCK pin</text>
+  <text x="540" y="270" text-anchor="end" class="pin">GND</text>
+  <text x="380" y="392" text-anchor="middle" class="pin">3V3</text>
+  <text x="440" y="392" text-anchor="middle" class="pin">PIR pin</text>
+  <text x="500" y="392" text-anchor="middle" class="pin">GND</text>
+
+  <!-- ring switch block -->
+  <rect x="600" y="120" width="160" height="80" rx="6" class="opt"/>
+  <text x="680" y="148" text-anchor="middle" class="h">Ring switch</text>
+  <text x="680" y="166" text-anchor="middle" class="small">detail below</text>
+  <text x="680" y="182" text-anchor="middle" class="small">fit if dark draw &gt; ~5 mA</text>
+
+  <!-- ring -->
+  <rect x="820" y="120" width="160" height="240" rx="8" class="box"/>
+  <text x="830" y="155" class="pin">5V</text>
+  <text x="830" y="270" class="pin">G</text>
+  <text x="830" y="295" class="pin">DI</text>
+  <text x="830" y="335" class="pin">CI</text>
+  <text x="905" y="200" text-anchor="middle" class="h">LuMini ring</text>
+  <text x="905" y="218" text-anchor="middle" class="small">20 × APA102</text>
+  <text x="905" y="234" text-anchor="middle" class="small">under the hook,</text>
+  <text x="905" y="250" text-anchor="middle" class="small">pointing up</text>
+
+  <!-- ring wires -->
+  <polyline points="550,150 600,150" class="w" stroke="#d62828"/>
+  <polyline points="760,150 820,150" class="w" stroke="#d62828"/>
+  <text x="790" y="143" text-anchor="middle" class="lbl">red</text>
+  <polyline points="550,180 600,180" class="w" stroke="#1f5fbf"/>
+  <text x="575" y="208" text-anchor="middle" class="lbl">blue</text>
+  <polyline points="550,265 820,265" class="w" stroke="#222"/>
+  <polyline points="720,200 720,265" class="w" stroke="#222"/>
+  <circle cx="720" cy="265" r="6" fill="#222"/>
+  <text x="640" y="258" text-anchor="middle" class="lbl">black · ground</text>
+  <polyline points="550,290 820,290" class="w" stroke="#2a9d3a"/>
+  <text x="640" y="283" text-anchor="middle" class="lbl">green · data</text>
+  <polyline points="550,330 820,330" fill="none" stroke="#7a6000" stroke-width="6" stroke-linecap="round"/>
+  <polyline points="550,330 820,330" fill="none" stroke="#f2c200" stroke-width="3.5" stroke-linecap="round"/>
+  <text x="640" y="323" text-anchor="middle" class="lbl">yellow · clock</text>
+
+  <!-- PIR -->
+  <rect x="340" y="440" width="200" height="80" rx="6" class="opt"/>
+  <text x="380" y="458" text-anchor="middle" class="small">VCC</text>
+  <text x="440" y="458" text-anchor="middle" class="small">OUT</text>
+  <text x="500" y="458" text-anchor="middle" class="small">GND</text>
+  <text x="440" y="482" text-anchor="middle" class="pin">PIR (AM312) · option A</text>
+  <text x="440" y="500" text-anchor="middle" class="small">looks out a hole in the pot wall</text>
+  <polyline points="380,400 380,440" class="w" stroke="#d62828"/>
+  <polyline points="440,400 440,440" fill="none" stroke="#555" stroke-width="6" stroke-linecap="round"/>
+  <polyline points="440,400 440,440" fill="none" stroke="#ffffff" stroke-width="3.5" stroke-linecap="round"/>
+  <polyline points="500,400 500,440" class="w" stroke="#222"/>
+
+  <rect x="340" y="540" width="200" height="52" rx="6" class="opt"/>
+  <text x="440" y="561" text-anchor="middle" class="pin">Option B: ecobee occupancy</text>
+  <text x="440" y="579" text-anchor="middle" class="small">via Home Assistant, WiFi only</text>
+
+  <!-- switch detail -->
+  <text x="600" y="402" class="h">Ring switch detail (high-side)</text>
+  <polyline points="640,428 790,428" class="t"/>
+  <text x="612" y="433" class="pin">BAT</text>
+  <path d="M660,428 v8 l6,4 l-12,8 l12,8 l-12,8 l12,8 l-6,4" class="t"/>
+  <text x="672" y="455" class="small">R1 100k</text>
+  <polyline points="660,476 720,476" class="t"/>
+  <circle cx="660" cy="476" r="4" fill="#222"/>
+  <rect x="720" y="446" width="120" height="58" rx="5" class="box"/>
+  <text x="780" y="470" text-anchor="middle" class="pin">Q1 P-FET</text>
+  <text x="780" y="488" text-anchor="middle" class="small">AO3401A or similar</text>
+  <polyline points="760,428 760,446" class="t"/>
+  <circle cx="760" cy="428" r="4" fill="#222"/>
+  <text x="766" y="442" class="small">S</text>
+  <text x="726" y="468" class="small">G</text>
+  <text x="828" y="468" class="small">D</text>
+  <polyline points="840,476 930,476" class="t"/>
+  <text x="886" y="468" text-anchor="middle" class="small">→ ring 5V</text>
+
+  <polyline points="660,476 660,516" class="t"/>
+  <rect x="625" y="516" width="100" height="54" rx="5" class="box"/>
+  <text x="675" y="539" text-anchor="middle" class="pin">Q2 N-FET</text>
+  <text x="675" y="556" text-anchor="middle" class="small">BSS138 / 2N7000</text>
+  <text x="667" y="511" class="small">D</text>
+  <text x="629" y="540" class="small">G</text>
+  <text x="666" y="566" class="small">S</text>
+  <polyline points="660,570 660,586" class="t"/>
+  <polyline points="648,586 672,586" class="t"/>
+  <polyline points="653,591 667,591" class="t"/>
+  <polyline points="657,596 663,596" class="t"/>
+
+  <polyline points="560,545 625,545" class="t"/>
+  <text x="560" y="538" class="small">SWITCH</text>
+  <circle cx="602" cy="545" r="4" fill="#222"/>
+  <path d="M602,545 v6 l6,4 l-12,8 l12,8 l-12,8 l6,4 v2" class="t"/>
+  <text x="548" y="600" class="small">R3 100k</text>
+  <polyline points="590,585 614,585" class="t"/>
+  <polyline points="595,590 609,590" class="t"/>
+  <polyline points="599,595 605,595" class="t"/>
+
+  <text x="748" y="540" class="small">SWITCH high → Q2 on → Q1 on → ring lit.</text>
+  <text x="748" y="556" class="small">SWITCH low or asleep: R3 holds Q2 off,</text>
+  <text x="748" y="572" class="small">R1 holds Q1 off → ring dark, ~0 mA.</text>
+
+  <!-- notes -->
+  <text x="20" y="640" class="h">Notes</text>
+  <text x="20" y="662" class="note">• No switch fitted: BAT goes straight to the ring's 5V pad; the ring's dark draw then runs all day (measure it in phase 1b).</text>
+  <text x="20" y="682" class="note">• JST-PH polarity differs between vendors: check red goes to + at the Feather's BAT jack before plugging in.</text>
+  <text x="20" y="702" class="note">• The PIR pin must be able to wake the S3 from deep sleep (an RTC GPIO); picked with the Feather's board.h.</text>
+  <text x="20" y="722" class="note">• Charging: pull the cells into a standalone charger, or plug USB-C into the Feather (slow).</text>
+  <text x="20" y="742" class="note">• Ring runs straight off the cell (3.0–4.2 V): no level shifter, no boost converter.</text>
+</svg>

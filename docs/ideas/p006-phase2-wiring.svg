@@ -1,0 +1,175 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 830" width="1000" height="830" font-family="Helvetica, Arial, sans-serif" font-size="14">
+  <style>
+    .box { fill: #f6f7f9; stroke: #333; stroke-width: 1.5; }
+    .opt { fill: #fbfbfb; stroke: #777; stroke-width: 1.5; stroke-dasharray: 6 4; }
+    .zone { fill: none; stroke: #9aa3ad; stroke-width: 1.5; stroke-dasharray: 8 6; }
+    .title { font-size: 19px; font-weight: bold; }
+    .h { font-size: 15px; font-weight: bold; }
+    .h2 { font-size: 14px; font-weight: bold; }
+    .small { font-size: 12px; fill: #444; }
+    .warn { font-size: 12px; fill: #b00020; font-weight: bold; }
+    .zl { font-size: 12px; fill: #6b7580; font-style: italic; }
+    .note { font-size: 13px; fill: #222; }
+    .pin { font-size: 13px; }
+    .w { fill: none; stroke-width: 4; stroke-linecap: round; stroke-linejoin: round; }
+    .t { fill: none; stroke: #222; stroke-width: 2; stroke-linejoin: round; }
+    .lbl { font-size: 12px; fill: #333; }
+  </style>
+  <rect width="1000" height="830" fill="#ffffff"/>
+
+  <text x="20" y="32" class="title">p006 crystal ball · phase 2 battery build on the s3mini (sketch, nothing bought yet)</text>
+  <text x="20" y="54" class="small">A dot means joined. Dashed boxes are optional. * = pin needs a BOARD_* name in boards/s3mini/board.h first (stop-and-ask).</text>
+
+  <!-- zones -->
+  <rect x="10" y="78" width="195" height="362" rx="8" class="zone"/>
+  <text x="20" y="96" class="zl">on the shelf, behind the pot</text>
+  <rect x="300" y="78" width="690" height="600" rx="8" class="zone"/>
+  <text x="310" y="96" class="zl">inside the pot</text>
+
+  <!-- battery side -->
+  <rect x="25" y="110" width="175" height="70" rx="6" class="box"/>
+  <text x="112" y="133" text-anchor="middle" class="h">18650 holder</text>
+  <text x="112" y="151" text-anchor="middle" class="small">1–2 cells, in parallel</text>
+  <text x="112" y="167" text-anchor="middle" class="small">Miles's spares</text>
+
+  <rect x="25" y="220" width="175" height="100" rx="6" class="box"/>
+  <text x="70" y="238" text-anchor="middle" class="small">B−</text>
+  <text x="150" y="238" text-anchor="middle" class="small">B+</text>
+  <text x="112" y="262" text-anchor="middle" class="h2">TP4056 module</text>
+  <text x="112" y="279" text-anchor="middle" class="small">charger + protection</text>
+  <text x="112" y="295" text-anchor="middle" class="small">USB-C: charge here</text>
+  <text x="70" y="314" text-anchor="middle" class="small">OUT−</text>
+  <text x="150" y="314" text-anchor="middle" class="small">OUT+</text>
+
+  <polyline points="70,180 70,220" class="w" stroke="#222"/>
+  <polyline points="150,180 150,220" class="w" stroke="#d62828"/>
+  <polyline points="150,320 150,360 380,360" class="w" stroke="#d62828"/>
+  <polyline points="70,320 70,385 380,385" class="w" stroke="#222"/>
+  <rect x="240" y="346" width="40" height="52" rx="4" fill="#e9ecef" stroke="#333" stroke-width="1.5"/>
+  <text x="260" y="340" text-anchor="middle" class="small">2-pin plug</text>
+  <text x="20" y="414" class="small">lead runs under the pot and</text>
+  <text x="20" y="429" class="small">up through the drain hole</text>
+
+  <!-- s3mini -->
+  <rect x="380" y="150" width="230" height="270" rx="8" class="box"/>
+  <rect x="372" y="222" width="14" height="26" rx="3" fill="#b00020"/>
+  <text x="394" y="175" class="h">s3mini</text>
+  <text x="394" y="192" class="small">Waveshare ESP32-S3-Zero</text>
+  <text x="394" y="232" class="warn">USB-C: never plug in</text>
+  <text x="394" y="247" class="warn">with the battery connected</text>
+  <text x="390" y="365" class="pin">5V</text>
+  <text x="390" y="390" class="pin">GND</text>
+  <text x="600" y="217" text-anchor="end" class="pin">SWITCH pin *</text>
+  <text x="600" y="265" text-anchor="end" class="pin">GND</text>
+  <text x="600" y="305" text-anchor="end" class="pin">GPIO 4 (data)</text>
+  <text x="600" y="345" text-anchor="end" class="pin">GPIO 5 (clock)</text>
+  <text x="600" y="385" text-anchor="end" class="pin">ADC pin *</text>
+  <text x="394" y="410" class="small">ME6217 regulator: 5V pin → 3.3 V</text>
+
+  <!-- + bus up to the switch -->
+  <polyline points="340,360 340,115 650,115" class="w" stroke="#d62828"/>
+  <circle cx="340" cy="360" r="6" fill="#d62828"/>
+  <text x="352" y="135" class="lbl">red · BAT+</text>
+
+  <!-- ring switch -->
+  <rect x="650" y="95" width="140" height="70" rx="6" class="opt"/>
+  <text x="720" y="120" text-anchor="middle" class="h2">Ring switch</text>
+  <text x="720" y="138" text-anchor="middle" class="small">optional</text>
+  <text x="720" y="154" text-anchor="middle" class="small">detail below</text>
+  <polyline points="790,115 810,115 810,180 830,180" class="w" stroke="#d62828"/>
+  <polyline points="610,212 630,212 630,150 650,150" class="w" stroke="#1f5fbf"/>
+  <text x="638" y="206" class="lbl">blue</text>
+  <polyline points="750,165 750,260" class="w" stroke="#222"/>
+  <circle cx="750" cy="260" r="6" fill="#222"/>
+
+  <!-- ring -->
+  <rect x="830" y="150" width="150" height="230" rx="8" class="box"/>
+  <text x="840" y="185" class="pin">5V</text>
+  <text x="840" y="265" class="pin">G</text>
+  <text x="840" y="305" class="pin">DI</text>
+  <text x="840" y="345" class="pin">CI</text>
+  <text x="912" y="215" text-anchor="middle" class="h">LuMini ring</text>
+  <text x="912" y="233" text-anchor="middle" class="small">20 × APA102</text>
+  <text x="912" y="249" text-anchor="middle" class="small">under the hook</text>
+
+  <polyline points="610,260 830,260" class="w" stroke="#222"/>
+  <text x="690" y="253" text-anchor="middle" class="lbl">black · ground</text>
+  <polyline points="610,300 830,300" class="w" stroke="#2a9d3a"/>
+  <text x="690" y="293" text-anchor="middle" class="lbl">green · data</text>
+  <polyline points="610,340 830,340" fill="none" stroke="#7a6000" stroke-width="6" stroke-linecap="round"/>
+  <polyline points="610,340 830,340" fill="none" stroke="#f2c200" stroke-width="3.5" stroke-linecap="round"/>
+  <text x="690" y="333" text-anchor="middle" class="lbl">yellow · clock</text>
+  <polyline points="610,380 640,380" class="t"/>
+  <text x="646" y="384" class="small">→ battery sense (below)</text>
+
+  <!-- battery sense detail -->
+  <text x="320" y="470" class="h2">Battery sense</text>
+  <text x="330" y="492" class="small">BAT+ (red)</text>
+  <polyline points="340,498 340,506" class="t"/>
+  <path d="M340,506 v8 l6,4 l-12,8 l12,8 l-12,8 l12,8 l-6,4" class="t"/>
+  <text x="352" y="532" class="small">R4 100k</text>
+  <circle cx="340" cy="554" r="4" fill="#222"/>
+  <polyline points="340,554 430,554" class="t"/>
+  <text x="436" y="558" class="small">ADC pin *</text>
+  <path d="M340,554 v8 l6,4 l-12,8 l12,8 l-12,8 l12,8 l-6,4" class="t"/>
+  <text x="352" y="580" class="small">R5 100k</text>
+  <polyline points="328,602 352,602" class="t"/>
+  <polyline points="333,607 347,607" class="t"/>
+  <polyline points="337,612 343,612" class="t"/>
+  <text x="320" y="638" class="small">~20 µA all the time; the ADC</text>
+  <text x="320" y="653" class="small">reads half the cell voltage</text>
+
+  <!-- presence options -->
+  <rect x="540" y="460" width="200" height="72" rx="6" class="opt"/>
+  <text x="640" y="482" text-anchor="middle" class="pin">PIR (AM312) · option A</text>
+  <text x="640" y="500" text-anchor="middle" class="small">VCC 3V3 · OUT PIR pin * · GND</text>
+  <text x="640" y="518" text-anchor="middle" class="small">looks out a hole in the pot wall</text>
+  <rect x="540" y="548" width="200" height="52" rx="6" class="opt"/>
+  <text x="640" y="569" text-anchor="middle" class="pin">Option B: ecobee occupancy</text>
+  <text x="640" y="587" text-anchor="middle" class="small">via Home Assistant, WiFi only</text>
+
+  <!-- ring switch detail -->
+  <text x="770" y="470" class="h2">Ring switch detail</text>
+  <text x="772" y="497" class="small">BAT+</text>
+  <polyline points="806,492 930,492" class="t"/>
+  <path d="M822,492 v8 l6,4 l-12,8 l12,8 l-12,8 l12,8 l-6,4" class="t"/>
+  <text x="810" y="522" text-anchor="end" class="small">R1 100k</text>
+  <circle cx="822" cy="540" r="4" fill="#222"/>
+  <polyline points="822,540 860,540" class="t"/>
+  <rect x="860" y="515" width="80" height="50" rx="5" class="box"/>
+  <text x="900" y="537" text-anchor="middle" class="pin">Q1 P-FET</text>
+  <text x="900" y="553" text-anchor="middle" class="small">AO3401A</text>
+  <polyline points="890,492 890,515" class="t"/>
+  <circle cx="890" cy="492" r="4" fill="#222"/>
+  <text x="895" y="508" class="small">S</text>
+  <text x="846" y="535" class="small">G</text>
+  <polyline points="925,565 925,592" class="t"/>
+  <text x="931" y="580" class="small">D</text>
+  <text x="925" y="607" text-anchor="middle" class="small">ring 5V</text>
+
+  <polyline points="822,540 822,590" class="t"/>
+  <rect x="790" y="590" width="70" height="45" rx="5" class="box"/>
+  <text x="825" y="609" text-anchor="middle" class="pin">Q2 N-FET</text>
+  <text x="825" y="626" text-anchor="middle" class="small">BSS138</text>
+  <polyline points="822,635 822,648" class="t"/>
+  <polyline points="810,648 834,648" class="t"/>
+  <polyline points="815,653 829,653" class="t"/>
+  <polyline points="819,658 825,658" class="t"/>
+  <polyline points="756,612 790,612" class="t"/>
+  <text x="756" y="606" class="small">EN</text>
+  <circle cx="776" cy="612" r="4" fill="#222"/>
+  <path d="M776,612 v6 l6,4 l-12,8 l12,8 l-12,8 l6,4" class="t"/>
+  <polyline points="764,650 788,650" class="t"/>
+  <polyline points="769,655 783,655" class="t"/>
+  <polyline points="773,660 779,660" class="t"/>
+  <text x="770" y="672" text-anchor="end" class="small">R3 100k</text>
+
+  <!-- notes -->
+  <text x="20" y="706" class="h">Notes</text>
+  <text x="20" y="728" class="warn">• Never plug USB into the s3mini while the battery is connected: treat its 5V pin as the USB power line, no diode.</text>
+  <text x="20" y="744" class="note">   Flash it over WiFi (OTA) once it is in the pot, or unplug the 2-pin plug first.</text>
+  <text x="20" y="764" class="note">• No ring switch: BAT+ goes straight to the ring's 5V pad. Fit the switch only if phase 1b measures a dark draw above ~5 mA.</text>
+  <text x="20" y="784" class="note">• Ring switch: EN high → Q2 on → Q1 on → ring lit. EN low, or the board asleep: R3 and R1 hold both off → ~0 mA.</text>
+  <text x="20" y="804" class="note">• The firmware sleeps for good near 3.5 V on the cell. If WiFi resets the board on a low cell, add 100–470 µF across 5V/GND.</text>
+  <text x="20" y="824" class="note">• Pin picks: ADC on GPIO 1–10 (ADC1); the PIR pin must be an RTC GPIO so it can wake the S3. Ring runs straight off the cell.</text>
+</svg>
