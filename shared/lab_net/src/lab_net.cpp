@@ -91,6 +91,8 @@ void handle() {
 
 bool connected() { return state == State::kUp; }
 
+int rssi() { return connected() ? WiFi.RSSI() : 0; }
+
 }  // namespace lab_net
 
 #endif  // ARDUINO

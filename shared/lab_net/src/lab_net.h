@@ -18,5 +18,6 @@ struct Config {
 void begin(const Config& config);
 void handle();
 bool connected();
+int rssi();  // dBm, 0 when not connected
 
 }  // namespace lab_net
