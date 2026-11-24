@@ -1,7 +1,7 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 830" width="1000" height="830" font-family="Helvetica, Arial, sans-serif" font-size="14">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1250" width="1000" height="1250" font-family="Helvetica, Arial, sans-serif" font-size="14">
   <style>
     .box { fill: #f6f7f9; stroke: #333; stroke-width: 1.5; }
-    .opt { fill: #fbfbfb; stroke: #777; stroke-width: 1.5; stroke-dasharray: 6 4; }
+    .opt { fill: none; stroke: #777; stroke-width: 1.5; stroke-dasharray: 6 4; }
     .zone { fill: none; stroke: #9aa3ad; stroke-width: 1.5; stroke-dasharray: 8 6; }
     .title { font-size: 19px; font-weight: bold; }
     .h { font-size: 15px; font-weight: bold; }
@@ -15,161 +15,254 @@
     .t { fill: none; stroke: #222; stroke-width: 2; stroke-linejoin: round; }
     .lbl { font-size: 12px; fill: #333; }
   </style>
-  <rect width="1000" height="830" fill="#ffffff"/>
+  <rect width="1000" height="1250" fill="#ffffff"/>
 
-  <text x="20" y="32" class="title">p006 crystal ball · phase 2 battery build on the s3mini (sketch, nothing bought yet)</text>
-  <text x="20" y="54" class="small">A dot means joined. Dashed boxes are optional. * = pin needs a BOARD_* name in boards/s3mini/board.h first (stop-and-ask).</text>
+  <text x="20" y="32" class="title">p006 crystal ball · phase 2, layout B (proposal 2026-11-24, nothing bought yet)</text>
+  <text x="20" y="54" class="small">A dot means joined. Bars = ground (black). * = proposed pin: it needs a BOARD_* name in boards/s3mini/board.h first (stop-and-ask).</text>
 
   <!-- zones -->
-  <rect x="10" y="78" width="195" height="362" rx="8" class="zone"/>
-  <text x="20" y="96" class="zl">on the shelf, behind the pot</text>
-  <rect x="300" y="78" width="690" height="600" rx="8" class="zone"/>
-  <text x="310" y="96" class="zl">inside the pot</text>
+  <rect x="10" y="70" width="690" height="414" rx="8" class="zone"/>
+  <text x="20" y="476" class="zl">printed box on the shelf, behind the pot · ~90 × 50 × 30 mm · a lid over the cell</text>
+  <rect x="830" y="70" width="160" height="414" rx="8" class="zone"/>
+  <text x="840" y="90" class="zl">inside the pot</text>
 
-  <!-- battery side -->
-  <rect x="25" y="110" width="175" height="70" rx="6" class="box"/>
-  <text x="112" y="133" text-anchor="middle" class="h">18650 holder</text>
-  <text x="112" y="151" text-anchor="middle" class="small">1–2 cells, in parallel</text>
-  <text x="112" y="167" text-anchor="middle" class="small">Miles's spares</text>
+  <!-- holder -->
+  <rect x="25" y="96" width="220" height="104" rx="6" class="box"/>
+  <text x="135" y="118" text-anchor="middle" class="h">Holder · 1 cell, open</text>
+  <rect x="34" y="128" width="202" height="32" rx="10" fill="#e9ecef" stroke="#333" stroke-width="1.2"/>
+  <text x="40" y="149" class="pin">−</text>
+  <text x="226" y="149" class="pin">+</text>
+  <text x="135" y="149" text-anchor="middle" class="small">18650, protected, ~70 mm</text>
+  <text x="138" y="180" text-anchor="middle" class="small">no switch: cell out = off;</text>
+  <text x="138" y="195" text-anchor="middle" class="small">back in opens the OTA window</text>
+  <polyline points="42,160 42,212" class="w" stroke="#222"/>
+  <polyline points="30,212 54,212" class="t"/>
+  <polyline points="35,217 49,217" class="t"/>
+  <polyline points="39,222 45,222" class="t"/>
 
-  <rect x="25" y="220" width="175" height="100" rx="6" class="box"/>
-  <text x="70" y="238" text-anchor="middle" class="small">B−</text>
-  <text x="150" y="238" text-anchor="middle" class="small">B+</text>
-  <text x="112" y="262" text-anchor="middle" class="h2">TP4056 module</text>
-  <text x="112" y="279" text-anchor="middle" class="small">charger + protection</text>
-  <text x="112" y="295" text-anchor="middle" class="small">USB-C: charge here</text>
-  <text x="70" y="314" text-anchor="middle" class="small">OUT−</text>
-  <text x="150" y="314" text-anchor="middle" class="small">OUT+</text>
+  <!-- perfboard outline -->
+  <rect x="272" y="104" width="408" height="346" rx="6" class="opt"/>
+  <text x="280" y="444" class="zl">perfboard</text>
 
-  <polyline points="70,180 70,220" class="w" stroke="#222"/>
-  <polyline points="150,180 150,220" class="w" stroke="#d62828"/>
-  <polyline points="150,320 150,360 380,360" class="w" stroke="#d62828"/>
-  <polyline points="70,320 70,385 380,385" class="w" stroke="#222"/>
-  <rect x="240" y="346" width="40" height="52" rx="4" fill="#e9ecef" stroke="#333" stroke-width="1.5"/>
-  <text x="260" y="340" text-anchor="middle" class="small">2-pin plug</text>
-  <text x="20" y="414" class="small">lead runs under the pot and</text>
-  <text x="20" y="429" class="small">up through the drain hole</text>
+  <!-- Q3 -->
+  <polyline points="236,144 290,144" class="w" stroke="#d62828"/>
+  <rect x="290" y="114" width="160" height="60" rx="5" class="box"/>
+  <text x="370" y="138" text-anchor="middle" class="h2">Q3 · reverse guard</text>
+  <text x="370" y="156" text-anchor="middle" class="small">AO3401A</text>
+  <polyline points="310,174 310,184" class="t"/>
+  <polyline points="298,184 322,184" class="t"/>
+  <polyline points="303,189 317,189" class="t"/>
+  <polyline points="307,194 313,194" class="t"/>
+  <polyline points="420,174 420,210" class="w" stroke="#d62828"/>
 
-  <!-- s3mini -->
-  <rect x="380" y="150" width="230" height="270" rx="8" class="box"/>
-  <rect x="372" y="222" width="14" height="26" rx="3" fill="#b00020"/>
-  <text x="394" y="175" class="h">s3mini</text>
-  <text x="394" y="192" class="small">Waveshare ESP32-S3-Zero</text>
-  <text x="394" y="232" class="warn">USB-C: never plug in</text>
-  <text x="394" y="247" class="warn">with the battery connected</text>
-  <text x="390" y="365" class="pin">5V</text>
-  <text x="390" y="390" class="pin">GND</text>
-  <text x="600" y="217" text-anchor="end" class="pin">SWITCH pin *</text>
-  <text x="600" y="265" text-anchor="end" class="pin">GND</text>
-  <text x="600" y="305" text-anchor="end" class="pin">GPIO 4 (data)</text>
-  <text x="600" y="345" text-anchor="end" class="pin">GPIO 5 (clock)</text>
-  <text x="600" y="385" text-anchor="end" class="pin">ADC pin *</text>
-  <text x="394" y="410" class="small">ME6217 regulator: 5V pin → 3.3 V</text>
+  <!-- + bus -->
+  <polyline points="245,244 262,244 262,210 560,210 560,226" class="w" stroke="#d62828"/>
+  <circle cx="420" cy="210" r="6" fill="#d62828"/>
+  <circle cx="335" cy="210" r="6" fill="#d62828"/>
+  <text x="440" y="203" class="lbl">+ bus, after Q3</text>
 
-  <!-- + bus up to the switch -->
-  <polyline points="340,360 340,115 650,115" class="w" stroke="#d62828"/>
-  <circle cx="340" cy="360" r="6" fill="#d62828"/>
-  <text x="352" y="135" class="lbl">red · BAT+</text>
+  <!-- cell sense -->
+  <polyline points="335,210 335,226" class="w" stroke="#d62828"/>
+  <rect x="280" y="226" width="110" height="50" rx="5" class="box"/>
+  <text x="335" y="246" text-anchor="middle" class="h2">Cell sense</text>
+  <text x="335" y="263" text-anchor="middle" class="small">R4, R5, 100 nF</text>
+  <polyline points="280,264 245,264" fill="none" stroke="#555" stroke-width="6" stroke-linecap="round"/>
+  <polyline points="280,264 245,264" fill="none" stroke="#ffffff" stroke-width="3.5" stroke-linecap="round"/>
+  <polyline points="335,276 335,284" class="t"/>
+  <polyline points="323,284 347,284" class="t"/>
+  <polyline points="328,289 342,289" class="t"/>
+  <polyline points="332,294 338,294" class="t"/>
 
   <!-- ring switch -->
-  <rect x="650" y="95" width="140" height="70" rx="6" class="opt"/>
-  <text x="720" y="120" text-anchor="middle" class="h2">Ring switch</text>
-  <text x="720" y="138" text-anchor="middle" class="small">optional</text>
-  <text x="720" y="154" text-anchor="middle" class="small">detail below</text>
-  <polyline points="790,115 810,115 810,180 830,180" class="w" stroke="#d62828"/>
-  <polyline points="610,212 630,212 630,150 650,150" class="w" stroke="#1f5fbf"/>
-  <text x="638" y="206" class="lbl">blue</text>
-  <polyline points="750,165 750,260" class="w" stroke="#222"/>
-  <circle cx="750" cy="260" r="6" fill="#222"/>
+  <rect x="440" y="226" width="150" height="64" rx="5" class="box"/>
+  <text x="515" y="248" text-anchor="middle" class="h2">Ring switch</text>
+  <text x="515" y="265" text-anchor="middle" class="small">Q1, Q2, R1, R3</text>
+  <text x="515" y="281" text-anchor="middle" class="small">if 1b says so</text>
+  <polyline points="245,310 470,310 470,290" class="w" stroke="#1f5fbf"/>
+  <polyline points="570,290 570,298" class="t"/>
+  <polyline points="558,298 582,298" class="t"/>
+  <polyline points="563,303 577,303" class="t"/>
+  <polyline points="567,308 573,308" class="t"/>
+  <polyline points="590,258 605,258 605,330 615,330" class="w" stroke="#d62828"/>
+
+  <!-- 4-pin plug -->
+  <text x="612" y="306" class="small">4-pin plug</text>
+  <rect x="615" y="316" width="44" height="118" rx="4" fill="#e9ecef" stroke="#333" stroke-width="1.5"/>
+
+  <!-- s3mini -->
+  <rect x="25" y="234" width="220" height="228" rx="8" class="box"/>
+  <rect x="17" y="400" width="12" height="26" rx="3" fill="#b00020"/>
+  <text x="237" y="248" text-anchor="end" class="pin">5V</text>
+  <text x="237" y="268" text-anchor="end" class="pin">GPIO 1 *</text>
+  <text x="237" y="314" text-anchor="end" class="pin">GPIO 2 *</text>
+  <text x="237" y="364" text-anchor="end" class="pin">GND</text>
+  <text x="237" y="394" text-anchor="end" class="pin">GPIO 4</text>
+  <text x="237" y="424" text-anchor="end" class="pin">GPIO 5</text>
+  <text x="37" y="340" class="h">s3mini 720c</text>
+  <text x="37" y="357" class="small">ESP32-S3-Zero</text>
+  <text x="37" y="420" class="warn">USB-C: cell out first</text>
+  <text x="37" y="438" class="small">its port opens into the</text>
+  <text x="37" y="452" class="small">cell's slot</text>
+
+  <!-- s3mini to plug -->
+  <polyline points="245,360 615,360" class="w" stroke="#222"/>
+  <polyline points="245,390 615,390" class="w" stroke="#2a9d3a"/>
+  <polyline points="245,420 615,420" fill="none" stroke="#7a6000" stroke-width="6" stroke-linecap="round"/>
+  <polyline points="245,420 615,420" fill="none" stroke="#f2c200" stroke-width="3.5" stroke-linecap="round"/>
+
+  <!-- cable -->
+  <polyline points="659,330 850,330" class="w" stroke="#d62828"/>
+  <polyline points="659,360 850,360" class="w" stroke="#222"/>
+  <polyline points="659,390 850,390" class="w" stroke="#2a9d3a"/>
+  <polyline points="659,420 850,420" fill="none" stroke="#7a6000" stroke-width="6" stroke-linecap="round"/>
+  <polyline points="659,420 850,420" fill="none" stroke="#f2c200" stroke-width="3.5" stroke-linecap="round"/>
+  <text x="765" y="280" text-anchor="middle" class="small">4-wire cable,</text>
+  <text x="765" y="296" text-anchor="middle" class="small">~30–40 cm</text>
+  <text x="765" y="323" text-anchor="middle" class="lbl">red · ring +</text>
+  <text x="765" y="353" text-anchor="middle" class="lbl">black · ground</text>
+  <text x="765" y="383" text-anchor="middle" class="lbl">green · data</text>
+  <text x="765" y="413" text-anchor="middle" class="lbl">yellow · clock</text>
+  <text x="765" y="444" text-anchor="middle" class="small">under the pot on</text>
+  <text x="765" y="458" text-anchor="middle" class="small">felt feet, up the</text>
+  <text x="765" y="472" text-anchor="middle" class="small">drain hole</text>
 
   <!-- ring -->
-  <rect x="830" y="150" width="150" height="230" rx="8" class="box"/>
-  <text x="840" y="185" class="pin">5V</text>
-  <text x="840" y="265" class="pin">G</text>
-  <text x="840" y="305" class="pin">DI</text>
-  <text x="840" y="345" class="pin">CI</text>
-  <text x="912" y="215" text-anchor="middle" class="h">LuMini ring</text>
-  <text x="912" y="233" text-anchor="middle" class="small">20 × APA102</text>
-  <text x="912" y="249" text-anchor="middle" class="small">under the hook</text>
+  <text x="910" y="118" text-anchor="middle" class="small">only the ring, on a</text>
+  <text x="910" y="134" text-anchor="middle" class="small">post in a printed</text>
+  <text x="910" y="150" text-anchor="middle" class="small">drain-hole plug,</text>
+  <text x="910" y="166" text-anchor="middle" class="small">just under the hook</text>
+  <rect x="850" y="236" width="130" height="210" rx="8" class="box"/>
+  <text x="922" y="262" text-anchor="middle" class="h">LuMini ring</text>
+  <text x="922" y="280" text-anchor="middle" class="small">20 × APA102</text>
+  <text x="922" y="296" text-anchor="middle" class="small">CO, DO bare</text>
+  <text x="858" y="334" class="pin">5V</text>
+  <text x="858" y="364" class="pin">G</text>
+  <text x="858" y="394" class="pin">DI</text>
+  <text x="858" y="424" class="pin">CI</text>
 
-  <polyline points="610,260 830,260" class="w" stroke="#222"/>
-  <text x="690" y="253" text-anchor="middle" class="lbl">black · ground</text>
-  <polyline points="610,300 830,300" class="w" stroke="#2a9d3a"/>
-  <text x="690" y="293" text-anchor="middle" class="lbl">green · data</text>
-  <polyline points="610,340 830,340" fill="none" stroke="#7a6000" stroke-width="6" stroke-linecap="round"/>
-  <polyline points="610,340 830,340" fill="none" stroke="#f2c200" stroke-width="3.5" stroke-linecap="round"/>
-  <text x="690" y="333" text-anchor="middle" class="lbl">yellow · clock</text>
-  <polyline points="610,380 640,380" class="t"/>
-  <text x="646" y="384" class="small">→ battery sense (below)</text>
+  <!-- details -->
+  <line x1="20" y1="502" x2="980" y2="502" stroke="#ccc" stroke-width="1"/>
+  <text x="20" y="526" class="h">On the perfboard</text>
 
-  <!-- battery sense detail -->
-  <text x="320" y="470" class="h2">Battery sense</text>
-  <text x="330" y="492" class="small">BAT+ (red)</text>
-  <polyline points="340,498 340,506" class="t"/>
-  <path d="M340,506 v8 l6,4 l-12,8 l12,8 l-12,8 l12,8 l-6,4" class="t"/>
-  <text x="352" y="532" class="small">R4 100k</text>
-  <circle cx="340" cy="554" r="4" fill="#222"/>
-  <polyline points="340,554 430,554" class="t"/>
-  <text x="436" y="558" class="small">ADC pin *</text>
-  <path d="M340,554 v8 l6,4 l-12,8 l12,8 l-12,8 l12,8 l-6,4" class="t"/>
-  <text x="352" y="580" class="small">R5 100k</text>
-  <polyline points="328,602 352,602" class="t"/>
-  <polyline points="333,607 347,607" class="t"/>
-  <polyline points="337,612 343,612" class="t"/>
-  <text x="320" y="638" class="small">~20 µA all the time; the ADC</text>
-  <text x="320" y="653" class="small">reads half the cell voltage</text>
+  <!-- detail: ring switch -->
+  <text x="20" y="550" class="h2">Ring switch (Q1, Q2)</text>
+  <text x="52" y="577" class="small">+ bus</text>
+  <polyline points="86,572 170,572" class="t"/>
+  <path d="M102,572 v8 l6,4 l-12,8 l12,8 l-12,8 l12,8 l-6,4" class="t"/>
+  <text x="90" y="602" text-anchor="end" class="small">R1 100k</text>
+  <circle cx="102" cy="620" r="4" fill="#222"/>
+  <polyline points="102,620 140,620" class="t"/>
+  <rect x="140" y="595" width="80" height="50" rx="5" class="box"/>
+  <text x="180" y="617" text-anchor="middle" class="pin">Q1 P-FET</text>
+  <text x="180" y="633" text-anchor="middle" class="small">AO3401A</text>
+  <polyline points="170,572 170,595" class="t"/>
+  <circle cx="170" cy="572" r="4" fill="#222"/>
+  <text x="175" y="588" class="small">S</text>
+  <text x="126" y="615" class="small">G</text>
+  <polyline points="205,645 205,672" class="t"/>
+  <text x="211" y="660" class="small">D</text>
+  <text x="205" y="687" text-anchor="middle" class="small">plug, red</text>
+  <polyline points="102,620 102,670" class="t"/>
+  <rect x="70" y="670" width="70" height="45" rx="5" class="box"/>
+  <text x="105" y="689" text-anchor="middle" class="pin">Q2 N-FET</text>
+  <text x="105" y="706" text-anchor="middle" class="small">2N7000</text>
+  <polyline points="102,715 102,728" class="t"/>
+  <polyline points="90,728 114,728" class="t"/>
+  <polyline points="95,733 109,733" class="t"/>
+  <polyline points="99,738 105,738" class="t"/>
+  <polyline points="20,692 70,692" class="t"/>
+  <text x="14" y="685" class="small">GPIO 2 *</text>
+  <circle cx="56" cy="692" r="4" fill="#222"/>
+  <path d="M56,692 v6 l6,4 l-12,8 l12,8 l-12,8 l6,4" class="t"/>
+  <polyline points="44,730 68,730" class="t"/>
+  <polyline points="49,735 63,735" class="t"/>
+  <polyline points="53,740 59,740" class="t"/>
+  <text x="14" y="758" class="small">R3 100k</text>
+  <text x="150" y="758" class="small">GPIO 2 high → Q2 on → Q1 on → ring lit</text>
+  <text x="150" y="774" class="small">low or asleep: R3, R1 hold both off, ~0 mA</text>
 
-  <!-- presence options -->
-  <rect x="540" y="460" width="200" height="72" rx="6" class="opt"/>
-  <text x="640" y="482" text-anchor="middle" class="pin">PIR (AM312) · option A</text>
-  <text x="640" y="500" text-anchor="middle" class="small">VCC 3V3 · OUT PIR pin * · GND</text>
-  <text x="640" y="518" text-anchor="middle" class="small">looks out a hole in the pot wall</text>
-  <rect x="540" y="548" width="200" height="52" rx="6" class="opt"/>
-  <text x="640" y="569" text-anchor="middle" class="pin">Option B: ecobee occupancy</text>
-  <text x="640" y="587" text-anchor="middle" class="small">via Home Assistant, WiFi only</text>
+  <!-- detail: reverse guard -->
+  <text x="420" y="550" class="h2">Reverse guard (Q3)</text>
+  <text x="420" y="592" class="small">cell +</text>
+  <polyline points="420,600 470,600" class="t"/>
+  <rect x="470" y="578" width="80" height="44" rx="5" class="box"/>
+  <text x="510" y="597" text-anchor="middle" class="pin">Q3 P-FET</text>
+  <text x="510" y="613" text-anchor="middle" class="small">AO3401A</text>
+  <polyline points="550,600 600,600" class="t"/>
+  <text x="600" y="592" text-anchor="end" class="small">+ bus</text>
+  <text x="458" y="616" class="small">D</text>
+  <text x="556" y="616" class="small">S</text>
+  <polyline points="510,622 510,646" class="t"/>
+  <text x="516" y="638" class="small">G</text>
+  <polyline points="498,646 522,646" class="t"/>
+  <polyline points="503,651 517,651" class="t"/>
+  <polyline points="507,656 513,656" class="t"/>
+  <text x="420" y="684" class="small">Cell in the right way: Q3 on,</text>
+  <text x="420" y="700" class="small">~0.05 Ω, a few mV lost.</text>
+  <text x="420" y="716" class="small">Backwards: Q3 off, the board</text>
+  <text x="420" y="732" class="small">and the ring see nothing.</text>
 
-  <!-- ring switch detail -->
-  <text x="770" y="470" class="h2">Ring switch detail</text>
-  <text x="772" y="497" class="small">BAT+</text>
-  <polyline points="806,492 930,492" class="t"/>
-  <path d="M822,492 v8 l6,4 l-12,8 l12,8 l-12,8 l12,8 l-6,4" class="t"/>
-  <text x="810" y="522" text-anchor="end" class="small">R1 100k</text>
-  <circle cx="822" cy="540" r="4" fill="#222"/>
-  <polyline points="822,540 860,540" class="t"/>
-  <rect x="860" y="515" width="80" height="50" rx="5" class="box"/>
-  <text x="900" y="537" text-anchor="middle" class="pin">Q1 P-FET</text>
-  <text x="900" y="553" text-anchor="middle" class="small">AO3401A</text>
-  <polyline points="890,492 890,515" class="t"/>
-  <circle cx="890" cy="492" r="4" fill="#222"/>
-  <text x="895" y="508" class="small">S</text>
-  <text x="846" y="535" class="small">G</text>
-  <polyline points="925,565 925,592" class="t"/>
-  <text x="931" y="580" class="small">D</text>
-  <text x="925" y="607" text-anchor="middle" class="small">ring 5V</text>
+  <!-- detail: cell sense -->
+  <text x="640" y="550" class="h2">Cell sense (R4, R5)</text>
+  <text x="630" y="574" class="small">+ bus</text>
+  <polyline points="640,580 640,588" class="t"/>
+  <path d="M640,588 v8 l6,4 l-12,8 l12,8 l-12,8 l12,8 l-6,4" class="t"/>
+  <text x="652" y="614" class="small">R4 100k</text>
+  <circle cx="640" cy="636" r="4" fill="#222"/>
+  <polyline points="640,636 780,636" class="t"/>
+  <text x="786" y="640" class="small">GPIO 1 *</text>
+  <path d="M640,636 v8 l6,4 l-12,8 l12,8 l-12,8 l12,8 l-6,4" class="t"/>
+  <text x="652" y="662" class="small">R5 100k</text>
+  <polyline points="628,684 652,684" class="t"/>
+  <polyline points="633,689 647,689" class="t"/>
+  <polyline points="637,694 643,694" class="t"/>
+  <circle cx="730" cy="636" r="4" fill="#222"/>
+  <polyline points="730,636 730,656" class="t"/>
+  <line x1="718" y1="656" x2="742" y2="656" stroke="#222" stroke-width="2.5"/>
+  <line x1="718" y1="662" x2="742" y2="662" stroke="#222" stroke-width="2.5"/>
+  <polyline points="730,662 730,684" class="t"/>
+  <polyline points="718,684 742,684" class="t"/>
+  <polyline points="723,689 737,689" class="t"/>
+  <polyline points="727,694 733,694" class="t"/>
+  <text x="748" y="664" class="small">100 nF</text>
+  <text x="630" y="722" class="small">~20 µA, always on. GPIO 1 reads</text>
+  <text x="630" y="738" class="small">half the cell's voltage; the 100 nF</text>
+  <text x="630" y="754" class="small">steadies the reading.</text>
 
-  <polyline points="822,540 822,590" class="t"/>
-  <rect x="790" y="590" width="70" height="45" rx="5" class="box"/>
-  <text x="825" y="609" text-anchor="middle" class="pin">Q2 N-FET</text>
-  <text x="825" y="626" text-anchor="middle" class="small">BSS138</text>
-  <polyline points="822,635 822,648" class="t"/>
-  <polyline points="810,648 834,648" class="t"/>
-  <polyline points="815,653 829,653" class="t"/>
-  <polyline points="819,658 825,658" class="t"/>
-  <polyline points="756,612 790,612" class="t"/>
-  <text x="756" y="606" class="small">EN</text>
-  <circle cx="776" cy="612" r="4" fill="#222"/>
-  <path d="M776,612 v6 l6,4 l-12,8 l12,8 l-12,8 l6,4" class="t"/>
-  <polyline points="764,650 788,650" class="t"/>
-  <polyline points="769,655 783,655" class="t"/>
-  <polyline points="773,660 779,660" class="t"/>
-  <text x="770" y="672" text-anchor="end" class="small">R3 100k</text>
+  <!-- low-cell protection -->
+  <line x1="20" y1="782" x2="980" y2="782" stroke="#ccc" stroke-width="1"/>
+  <text x="20" y="806" class="h">Not running the cell too low</text>
+  <text x="20" y="830" class="note">1 · Firmware, reading GPIO 1: at ~3.65 V, dim red pulses in the evening instead of the glow: swap the cell.</text>
+  <text x="36" y="848" class="small">At ~3.5 V: ring off, and the S3 sleeps until the cell comes out (~1 mA left).</text>
+  <text x="20" y="872" class="note">2 · Ring switch: makes that "off" real; without it a dark ring keeps drawing (~14 mA by the datasheet).</text>
+  <text x="20" y="896" class="note">3 · The cell's own protection, ~2.5 V: cuts the cell off; a backstop, not the plan.</text>
+  <text x="20" y="916" class="small">Take the cell out when the orb is put away.</text>
+
+  <!-- buy list -->
+  <line x1="20" y1="934" x2="980" y2="934" stroke="#ccc" stroke-width="1"/>
+  <text x="20" y="958" class="h">Buy</text>
+  <text x="58" y="958" class="small">(none of these are in stock.yaml)</text>
+  <text x="20" y="982" class="note">1 · 18650 holder: 1 cell, open, wire leads or PCB pins</text>
+  <text x="520" y="982" class="small">fits protected ~70 mm cells; 1 cell only (2-slot is often series)</text>
+  <text x="20" y="1004" class="note">2 · AO3401A P-FET (SOT-23) ×5, SOT-23 to DIP adapter boards</text>
+  <text x="520" y="1004" class="small">Q3 reverse guard, Q1 ring switch; adapters for hand soldering</text>
+  <text x="20" y="1026" class="note">3 · 2N7000 N-FET (TO-92) ×5</text>
+  <text x="520" y="1026" class="small">Q2; it only sinks ~40 µA, so the 3.3 V pin drives it fine</text>
+  <text x="20" y="1048" class="note">4 · Resistor kit, 1/4 W metal film, with 100k</text>
+  <text x="520" y="1048" class="small">R1, R3 (switch) and R4, R5 (cell sense)</text>
+  <text x="20" y="1070" class="note">5 · Ceramic capacitor kit with 100 nF</text>
+  <text x="520" y="1070" class="small">across R5: a steady cell reading</text>
+  <text x="20" y="1092" class="note">6 · Perfboard, ~2 × 8 cm</text>
+  <text x="520" y="1092" class="small">Q3, the switch, the divider and the 4-pin plug</text>
+  <text x="20" y="1114" class="note">7 · Adhesive felt: pads and a thin sheet</text>
+  <text x="520" y="1114" class="small">feet lift the pot over the cable; a ring on the rim under the glass</text>
+  <text x="20" y="1136" class="note">8 · Filament, PLA or PETG, if none is on hand</text>
+  <text x="520" y="1136" class="small">the box, and the drain-hole plug with the ring's post</text>
+  <text x="20" y="1160" class="small">Maybe: 74AHCT125 (if the data flickers on a full cell) · AM312 PIR (presence) · a capacitor ≤220 µF (if WiFi resets on a low cell)</text>
+  <text x="20" y="1178" class="small">On hand: cells and 18650 chargers · silicone wire: red, black, green, yellow for the cable, white and blue in the box ·</text>
+  <text x="20" y="1193" class="small">Dupont kit (the 4-pin plug) · heat-shrink · multimeter · A1 mini</text>
 
   <!-- notes -->
-  <text x="20" y="706" class="h">Notes</text>
-  <text x="20" y="728" class="warn">• Never plug USB into the s3mini while the battery is connected: treat its 5V pin as the USB power line, no diode.</text>
-  <text x="20" y="744" class="note">   Flash it over WiFi (OTA) once it is in the pot, or unplug the 2-pin plug first.</text>
-  <text x="20" y="764" class="note">• No ring switch: BAT+ goes straight to the ring's 5V pad. Fit the switch only if phase 1b measures a dark draw above ~5 mA.</text>
-  <text x="20" y="784" class="note">• Ring switch: EN high → Q2 on → Q1 on → ring lit. EN low, or the board asleep: R3 and R1 hold both off → ~0 mA.</text>
-  <text x="20" y="804" class="note">• The firmware sleeps for good near 3.5 V on the cell. If WiFi resets the board on a low cell, add 100–470 µF across 5V/GND.</text>
-  <text x="20" y="824" class="note">• Pin picks: ADC on GPIO 1–10 (ADC1); the PIR pin must be an RTC GPIO so it can wake the S3. Ring runs straight off the cell.</text>
+  <text x="20" y="1218" class="warn">• USB into the s3mini only with the cell out: its 5V pin is the USB power line, no diode. Updates go over WiFi.</text>
+  <text x="20" y="1236" class="small">• * GPIO 1 and 2: safe pins, ADC1 and RTC-capable, on the same header as data and clock. Ring off: the firmware holds DI and CI low.</text>
 </svg>

@@ -11,7 +11,7 @@ Collecting facts for now; the goal comes later.
 | Outlet nearby | none, so battery only | Miles 2026-11-06 |
 | Mood | soothing background light, not a light show | Miles 2026-11-06 |
 | When it glows | when people are probably around | Miles 2026-11-06 |
-| Charging | USB-C; no charging pad | Miles 2026-11-06 |
+| Charging | **cell out, into Miles's 18650 charger**; no charging in place, no TP4056 | Miles 2026-11-23 (was USB-C, 2026-11-06) |
 | Charge interval wanted | ? (a week was assumed) | Miles |
 | Hours a day people are in the living room | ? (sets battery size) | Miles |
 | Living room lit in the evening? | ? (a light sensor could gate the glow) | Miles |
@@ -43,11 +43,11 @@ Collecting facts for now; the goal comes later.
 | Prototype board | s3mini on laptop USB | decided 2026-11-06 |
 | Battery | **18650 Li-ion, Miles's spare cells** (1, or 2 in parallel), one-cell supply | Miles 2026-11-09 |
 | Battery location | outside the pot on the shelf, cable under the pot and up through the drain hole (one 18650 would also fit inside) | leaning outside |
-| 18650s on hand | ? count, brand/mAh on the wrap, protected or not, age/source; not in stock.yaml yet | Miles |
-| 18650 charger on hand? | ? | Miles |
-| 18650 holder | ? (buy: 1- or 2-cell, parallel, with cover and leads) | buy |
+| 18650s on hand | **protected, ~70 mm**; count, brand/mAh on the wrap, age/source ?; not in stock.yaml yet | Miles 2026-11-23 |
+| 18650 charger on hand? | yes, more than one | Miles 2026-11-23 |
+| 18650 holder | buy: 1 cell, open (no switch: cell out = off), fits 70 mm protected cells, in a printed box behind the pot | 2026-11-24 |
 | Battery, inside | 2000 mAh pouch or one 18650 fits; the 4400 mAh pack leaves no room under the hook | derived 2026-11-09 |
-| Final board | s3mini (on hand), cell on its 5V pin via a TP4056 module; Feather ESP32-S3 is the alternative | Miles 2026-11-09 |
+| Final board | s3mini (on hand), in the printed box, cell on its 5V pin through Q3, a reverse guard (no TP4056 since 2026-11-23); Feather ESP32-S3 is the alternative | Miles 2026-11-09 |
 | Ring supply | straight off the 18650 (3.0–4.2 V); no level shifter, no boost. **Below the datasheet's 5.0 V typical / 5.5 V max** (it prints no minimum), so dim or off-color is possible: the prototype decides | follows 2026-11-09; datasheet read 2026-11-22 |
 | Presence sensor | PIR, or ecobee occupancy via Home Assistant (candidates) | not decided |
 | ecobee sensor in the living room? | ? (a SmartSensor, or the thermostat itself) | Miles |
@@ -57,6 +57,8 @@ Collecting facts for now; the goal comes later.
 | Ring height under the orb | ? | prototype |
 
 ## What the plan still needs (2026-11-09)
+Current list, with the buys: the project README, "Still needed for phase 2" (layout B, 2026-11-24).
+
 **Decisions (Miles):**
 1. The goal, in one line. Draft: "a soft glow in the orb whenever someone is in the living room,
    about a week per charge, with nothing visible but the orb and pot."
@@ -250,20 +252,26 @@ The s3mini matches Waveshare's **ESP32-S3-Zero** (same ESP32-S3FH4R2, RGB LED on
 - No fuel gauge: a 2-resistor divider (2 × 100k, ~20 µA) from cell + to an ADC pin
   (GPIO 1–10 are ADC1) reads the voltage. No resistors on hand: buy an assortment.
 
-Diagram: [p006-phase2-wiring.svg](p006-phase2-wiring.svg) (redrawn 2026-11-09 for the s3mini).
+Diagram: [p006-phase2-wiring.svg](p006-phase2-wiring.svg) (redrawn 2026-11-24 for layout B: the
+cell, s3mini and perfboard in one printed box behind the pot, Q3 reverse guard, a 4-wire cable to
+the ring; cell sense and ring switch on proposed GPIO 1 and 2 *).
 
-Recommended wiring (fewest parts):
-1. 18650 holder (1, or 2 in parallel) → **TP4056 USB-C charger module with protection**
-   (the common one with a DW01 chip, ~$1) on **B+ / B−**. It is the protection board the spare
-   cells probably need, and it adds a charge port behind the pot. Pulling the cells into a
-   charger still works too.
-2. Module **OUT+ / OUT−** → 2-wire lead with a 2-pin plug → under the pot, up the drain hole.
-3. Inside the pot, **+** (red) splits to the s3mini **5V** pin and the ring **5V** pad (through
-   the ring switch, if fitted). **−** (black) goes to the s3mini **GND** and the ring **G** pad.
-4. Ring **DI** → GPIO 4 (green), ring **CI** → GPIO 5 (yellow), as in phase 1.
-5. Divider: cell + → 100k → ADC pin → 100k → GND.
-6. If WiFi resets show up on a low cell, add a capacitor across the s3mini's 5V/GND pins
-   (100–470 µF; the 1000 µF on hand may trip the module's protection when plugged in).
+Recommended wiring, layout B (2026-11-24; the TP4056 went 2026-11-23, cells charge out of the
+orb). Everything but the ring sits in the printed box. Low-cell protection: the project README,
+"Not running the cell too low". * = proposed pin, not in board.h yet.
+1. Holder **−** (black) → perfboard ground.
+2. Holder **+** (red) → **Q3** drain. Q3 gate → ground. Q3 source is the **+ bus**.
+3. + bus → s3mini **5V** pin (red). s3mini **GND** → ground (black).
+4. Cell sense: + bus → R4 100k → **GPIO 1** * (white) → R5 100k → ground; 100 nF across R5.
+5. Ring switch: + bus → Q1 source; R1 100k from + bus to Q1 gate; Q2 drain → Q1 gate, Q2 source
+   → ground, Q2 gate → **GPIO 2** * (blue); R3 100k from Q2 gate to ground.
+6. 4-pin Dupont plug on the perfboard (kit on hand): Q1 drain (red, ring +), ground (black),
+   **GPIO 4** (green, data), **GPIO 5** (yellow, clock).
+7. Cable, ~30–40 cm, silicone wire: from the plug out of the box, under the pot on felt feet, up
+   the drain hole. Red → ring **5V**, black → **G**, green → **DI**, yellow → **CI**. CO, DO bare.
+8. No ring switch (1b reads the dark ring under ~2 mA): + bus straight to the plug's red pin.
+9. Only if WiFi resets show up on a low cell: ≤220 µF across the s3mini's 5V and GND (the 1000 µF
+   on hand can trip the cell's protection when the cell goes in).
 
 Energy: about the same as the Feather (s3mini asleep ~1 mA, mostly its RGB LED idling):
 ~8 days on one ~3,500 mAh cell at 5 h/day, ~2 weeks on two.
@@ -276,7 +284,7 @@ Energy: about the same as the Feather (s3mini asleep ~1 mA, mostly its RGB LED i
 | USB while battery in | safe | **never**: flash over WiFi |
 | Usable cell range | down to ~3.3 V | down to ~3.5 V |
 
-Ring switch (fit only if 1b shows a dark draw above ~5 mA):
+Ring switch (fit only if 1b shows a dark draw above ~2 mA):
 | Part | What | Connections |
 | --- | --- | --- |
 | Q1 | P-FET, logic level (AO3401A or similar, SOT-23) | S → BAT, D → ring 5V, G → node X |
@@ -286,8 +294,9 @@ Ring switch (fit only if 1b shows a dark draw above ~5 mA):
 SWITCH high → Q2 pulls node X to ground → Q1 on → ring powered. SWITCH low or floating → ring
 off, ~0 mA. None of these parts are on hand: buy.
 
-**Phase 2: battery build, bought parts.** s3mini (on hand) + TP4056 module + Miles's 18650s (outside, in a
-holder) + presence sensor + ring power switch, sized from what phase 1 measures.
+**Phase 2: battery build, bought parts.** s3mini (on hand) + one of Miles's 18650s in a printed box
+behind the pot (layout B, 2026-11-24) + Q3 reverse guard + ring power switch + presence sensor,
+sized from what phase 1 measures.
 
 ### 18650 plan (decided 2026-11-09)
 1. **Check the spare cells first** (multimeter-01, no load): resting voltage 3.0–4.2 V is fine.
@@ -303,6 +312,66 @@ holder) + presence sensor + ring power switch, sized from what phase 1 measures.
 5. **Runtime at 5 h/day, ring switched off asleep:** ~8 days on one ~3,500 mAh cell, ~2.5 weeks
    on two. Old spares may have lost a good share of their capacity: the MAX17048 log will show
    the real figure after the first week.
+
+## Design review (asked 2026-11-23: simpler? cutting corners?)
+### Corners the plan was cutting
+| # | Risk | What happens | Fix |
+| --- | --- | --- | --- |
+| 1 | Cell put in backwards | about −3.7 V into the s3mini and the ring: both likely dead. Holders do not stop it | **Q3**, an AO3401A (same pack as Q1) as a reverse guard in the + line: drain to cell +, source to the load, gate to GND. Correct way round it conducts (~0.05 Ω); backwards it is off. Mark + in the print too |
+| 2 | USB into the s3mini with the cell in | USB's 5 V goes straight into the cell (5V pin = USB power, no diode) | by design: the s3mini's USB-C reachable only through the cell's hatch, so the cell is out first. A diode would cost ~0.3 V of the cell's range |
+| 3 | Data level on a full cell | APA102 wants **0.7 × VDD** (datasheet): 2.94 V at 4.2 V; the S3 gives ~3.3 V. Thin margin, fine at 3.3 V supply today | phase 1b on a fresh cell watches for flicker. Fallback: a 74AHCT125 (buy) between S3 and ring; the 74HC125 on hand has the same 0.7 × VCC threshold, so it does not help |
+| 4 | Color drift as the cell falls 4.2 → 3.5 V | blue and green need headroom; warm colors drift least | 1b shows it; the firmware can scale brightness by the cell reading |
+| 5 | Cell reading off | 100k/100k is a weak source for the S3's ADC; ±0.1 V moves the 3.5 V cut | 100 nF across R5, average 16+ reads, calibrate once against the multimeter |
+| 6 | Big capacitor across the cell | the 1000 µF on hand can trip the cell's short protection on insertion | only if WiFi resets show up, and ≤220 µF |
+
+Not cut: overcharge (Miles's 18650 chargers), shorts and overcurrent (the cells' own protection),
+over-discharge (three layers: firmware cut, ring switch, cell protection).
+
+### What can go
+| Part | Verdict |
+| --- | --- |
+| Switched battery box | **go**: an open 1-cell holder. The cell comes out to charge anyway, so "cell out" is the off switch, and putting it back in opens the OTA window |
+| JST plug in the lead | **go**: the cable needs 4 wires, and a 4-pin Dupont plug (kit on hand) where it meets the perfboard lets it be threaded up the drain hole first |
+| Felt feet | **stay** with B (the cable runs under the pot); they would go with C |
+| Ring switch (Q1, Q2) | keep on the buy list (the AO3401A pack also gives Q3), fit only if 1b reads the dark ring above ~2 mA. The datasheet's 0.7 mA per LED is at 5 V; at 3.7 V it may be less |
+| Cell sense divider | **stays**: it is the main protection, two resistors |
+| Diode against USB backfeed, boost to 5 V | not worth it: range lost, or more parts and idle draw |
+
+### Everything in one printed box (asked 2026-11-23)
+Moving the cell, the s3mini and the perfboard out of the pot into one print takes everything but the
+ring out of the pot, gets WiFi out of the concrete (the "WiFi inside the pot" measurement goes away),
+and gives a PIR a plastic window instead of a hole drilled in concrete.
+
+| | B: box behind the pot | C: base under the pot |
+| --- | --- | --- |
+| Into the pot | 4-wire cable under the pot, up the drain hole, to a ring stand inside | a post rises from the base through the drain hole, the ring on top; nothing else in the pot |
+| In view | a small box behind; the pot on ~3 mm feet over the cable | a ~30 mm base under the pot; no wires |
+| Ring wire length | ~30–40 cm (30 cm works today at 1 MHz) | ~10 cm |
+| Cell swap | the box's lid | a hatch in the base's side; the pot stays put |
+| Pot | needs feet | sits on the base, lifts off with nothing attached |
+| Needs | nothing new | the ring's two outer tabs snapped or filed off (43 → 28.7 mm, to pass the 38 mm drain hole); the pot's bottom diameter and whether it sits flat |
+
+Sizes: 18650 holder ~78 × 21 × 20 mm, s3mini 24 × 18 mm, perfboard ~20 × 40 mm: a box ~90 × 50 × 30 mm
+(B) or a base ~110 mm across × ~30 mm (C), both well inside the A1 mini's 180 mm. The ring's height
+under the hook becomes the post's length (C), so 1a/1b can try two or three posts.
+
+**Chosen 2026-11-24: B, the box behind the pot (Miles).** The ring keeps its outer tabs (it goes
+in from the top), and the pot's bottom needs no measuring. In the box: the open holder under the
+lid, the s3mini and the perfboard; the s3mini's USB-C port opens into the cell's slot, so a cable
+fits only with the cell out (corner 2). In the pot: a printed drain-hole plug with a post that
+holds the ring just under the hook's tip, and a notch for the cable. WiFi now works from the box,
+outside the concrete. Wiring: "Recommended wiring, layout B" above.
+
+Buy list for B (replaces the switched box and the JST plug):
+1. 18650 holder, 1 cell, open, fits ~70 mm protected cells (wire leads or PCB pins).
+2. AO3401A P-FET (SOT-23) ×5 + SOT-23 to DIP adapters: Q1 ring switch, Q3 reverse guard.
+3. 2N7000 N-FET (TO-92) ×5: Q2.
+4. Resistor kit with 100k.
+5. Ceramic capacitor kit with 100 nF (cell sense).
+6. Perfboard, ~2 × 8 cm.
+7. Adhesive felt, pads and a thin sheet: feet over the cable, a ring on the rim under the glass.
+8. Filament, if none is on hand.
+Maybe: 74AHCT125 (if the data level flickers on a full cell), PIR.
 
 ## On hand that helps (inventory/stock.yaml on main, 2026-11-06)
 - `ring-apa102-20-01`: the ring. Bare pads, so 4 wires to solder (G, 5V, DI, CI).
