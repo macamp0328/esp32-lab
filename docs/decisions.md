@@ -3,6 +3,12 @@
 Newest first. Five lines each: date and title, what, instead of, why, revisit when.
 Read before changing anything an entry covers. A version bump is a new entry plus a green CI.
 
+## 2026-11-24 · Printed parts are OpenSCAD source in the project's `cad/`; Fusion only by script
+- What: p006's box, lid, plug and post are one parametric `.scad` with asserts, exported headless by `cad/export.sh` to STL and PNG; `cad-fusion/` keeps a Fusion Python port of the same parts as a template (Miles ok)
+- Instead of: a Fusion design as the source, saved in Autodesk's cloud
+- Why: built both on 2026-11-24, parts match within 10 mm³; OpenSCAD rebuilds everything in 2.3 s without a GUI, stops a bad measurement at once, diffs in git and needs no account or one of the Personal plan's 10 document slots
+- Revisit when: a part needs fillets, shells or freeform shapes that are painful in CSG, or Miles wants to model by hand
+
 ## 2026-11-22 · Clocked LEDs go through `lab_core::add_clocked_leds`, not `FastLED.addLeds<APA102, ...>`
 - What: `shared/lab_core/src/lab_clocked.h` builds FastLED's own SPI controller for the chip and registers it; the template's `LED_CLOCK_PIN` branch and p006 call it
 - Instead of: `addLeds<CHIP, DATA, CLOCK, ...>` (FastLED 3.10.7's default on the S3: the LCD peripheral), or building all of FastLED with `FASTLED_SPI_USES_CHANNEL_API=0`

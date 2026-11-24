@@ -1,0 +1,10 @@
+{
+	"autodeskProduct":	"Fusion360",
+	"type":	"script",
+	"author":	"",
+	"description":	{
+		"":	"p006 crystal ball parts: builds the parametric design (box, lid, drain-hole plug, ring post, feet), or exports STLs and previews from it."
+	},
+	"supportedOS":	"windows|mac",
+	"editEnabled":	true
+}

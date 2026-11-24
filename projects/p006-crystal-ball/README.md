@@ -75,7 +75,7 @@ resistors, capacitors or small FETs, so those are buys.
 | 5 | Ceramic capacitor assortment with 100 nF | across R5: a steady cell reading | |
 | 6 | Small perfboard (~2 × 8 cm) | carries Q3, the divider, the ring switch and the cable's plug, in the box | any single-sided pack |
 | 7 | Adhesive felt, pads and a sheet | ~3 mm feet lift the pot over the cable; a thin ring on the rim keeps the glass off the concrete | or print the feet |
-| 8 | Filament, PLA or PETG | the box and the drain-hole plug | only if none is on hand |
+| 8 | ~~Filament, PLA or PETG~~ | the box and the drain-hole plug | on hand: two new PLAs (2026-11-24) |
 
 **Maybe:** 74AHCT125 (if the ring's data flickers on a full cell, phase 1b); PIR, AM312 (if
 presence goes the PIR way: it can look out of the box); a capacitor ≤220 µF (if WiFi resets on a
@@ -83,7 +83,8 @@ low cell).
 
 **On hand, no buy:** the cells and 18650 chargers; red, black, green and yellow from
 `wire-silicone-kit-01` for the cable, white and blue inside the box; a 4-pin housing from
-`dupont-kit-01` as the cable's plug on the perfboard; heat-shrink, multimeter, crimper; the A1 mini.
+`dupont-kit-01` as the cable's plug on the perfboard; heat-shrink, multimeter, crimper; the A1 mini
+and PLA for it.
 
 ### Not running the cell too low (asked 2026-11-23)
 Three layers, the first doing the work:
@@ -98,20 +99,30 @@ charge. Below 3.5 V a cell has ~5% left: at ~1 mA after the cut, roughly a week 
 trips (estimate). A cell left in after that is still recoverable; most chargers wake a tripped
 protected cell. Take the cell out when the orb is put away.
 
-**Build** (printed on the A1 mini)
-1. The box, ~90 × 50 × 30 mm: the holder under a lid, the s3mini and the perfboard beside it, a
-   hole for the cable. The s3mini's USB-C port opens into the cell's slot, so a cable fits only
-   with the cell out. + and − marked by the holder. Sized once the holder arrives.
-2. Drain-hole plug with a post: holds the ring just under the hook's tip, pointing up; a notch
-   lets the cable through and the plug keeps light off the shelf. Post length from the ring
-   height measurement.
-3. Off the breadboard: Dupont sockets (`dupont-kit-01`) onto the s3mini's header pins, or solder;
-   heat-shrink on every joint.
+**Build** (printed on the A1 mini in PLA, no supports; OpenSCAD source, STLs, previews, the
+measure list and print settings in [cad/](cad/README.md))
+0. Fit test first: [fit_box](cad/stl/p006-fit_box.stl) (s3mini cradle, USB hole, cell slot) and
+   [fit_plug](cad/stl/p006-fit_plug.stl) (drain-hole fit, post socket, ring seat), ~22 g.
+1. The box, 88 × 53 × 30 mm with its lid: [box](cad/stl/p006-box.stl) + [lid](cad/stl/p006-lid.stl),
+   eSUN PLA+ (its snaps flex at every cell swap). The holder against the back wall under the lid,
+   the s3mini and the perfboard in front, a notch for the cable. The s3mini's USB-C port faces
+   the cell across its slot, in line with a hole in the back wall: with the cell in, a plug stops
+   against the cell ([section](cad/png/box-section.png)). + and − inside the back wall. Re-export
+   with the holder's real size (`holder_*` in the `.scad`) before printing.
+2. Drain-hole plug with a post: [plug](cad/stl/p006-plug_base.stl) + [post](cad/stl/p006-plug_post.stl),
+   Panchroma Matte. The ring sits in the post's seat with its tabs on, pointing up, just under
+   the hook's tip; grooves carry the cable up the drain hole and the post, and the plug is solid
+   under its socket, so no light reaches the shelf. Posts for ring faces 26, 30 and 34 mm above
+   the floor; `ring_z` sets any other.
+3. Feet, optional: [feet](cad/stl/p006-feet.stl), 3 mm, or the felt pads.
+4. Off the breadboard: solder the six wires straight onto the s3mini's header pins (the box has
+   no room for Dupont sockets under it); heat-shrink on every joint.
 
 **Measure** (the prototype answers these)
 | What | How | Decides |
 | --- | --- | --- |
-| Ring height under the orb | ring in the pot on laptop USB, orb on; try 2–3 heights | the post's length |
+| Ring height under the orb | ring in the pot on laptop USB, orb on; try the 26, 30 and 34 mm posts | the post's length (`ring_z`) |
+| Holder, cell, USB-C plug, cut perfboard, drain hole | calipers, once the parts arrive | the box's size: [cad/README.md](cad/README.md) "Measure" |
 | Ring dark draw | phase 1b, multimeter in series on red | whether the ring switch is fitted (above ~2 mA) |
 | Brightness, color and data on a full cell | phase 1b, a fresh 4.2 V cell | `GLOW_BRIGHTNESS` and `POWER_MAX_MA`; whether the 74AHCT125 is needed |
 | s3mini deep-sleep draw | phase 2, multimeter in series | runtime; whether ~1 mA holds |
@@ -120,7 +131,8 @@ protected cell. Take the cell out when the orb is put away.
 **Facts from Miles**
 1. Cells: how many, brand/mAh on the wrap, resting voltage of each (3.0–4.2 V keep; under 2.5 V,
    dented or swollen: recycle). ~~Length~~: ~70 mm, protected (2026-11-23).
-2. Filament for the A1 mini (PLA or PETG)? None is in stock.yaml.
+2. ~~Filament for the A1 mini~~: two new PLAs on hand, Polymaker Panchroma Matte and eSUN PLA+
+   (2026-11-24); the 2023 PETG is probably damp, with no dryer. Not in stock.yaml.
 3. For presence: an ecobee sensor in the living room? Home Assistant running? Hours a day people
    are there?
 4. Schedule: still 18:00–22:00, every day?
